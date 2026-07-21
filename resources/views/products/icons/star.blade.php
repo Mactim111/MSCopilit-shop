@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-yellow-400" viewBox="0 0 24 24">
+    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.848L19.335 24 12 19.897 4.665 24 6 15.596 0 9.748l8.332-1.593z"/>
+</svg>
+

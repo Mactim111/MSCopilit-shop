@@ -1,0 +1,9 @@
+{{--<svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" viewBox="0 0 6 10" fill="currentColor">--}}
+{{--    <path d="M1 1 L5 5 L1 9" stroke="#007EFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>--}}
+{{--</svg>--}}
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="8" height="12" viewBox="0 0 256 512" fill="currentColor">
+    <path d="M311.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L243.2 256 73.9 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
+</svg>
+

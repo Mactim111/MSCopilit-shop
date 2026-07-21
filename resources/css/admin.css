@@ -1,0 +1,37 @@
+.icon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+    stroke: currentColor;
+    fill: none;
+}
+
+/* Обычный режим */
+.menu-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg transition text-gray-300 hover:bg-gray-800 hover:text-white;
+}
+
+.menu-item.active {
+    @apply bg-gray-800 text-white;
+}
+
+/* Свёрнутый режим */
+#sidebar.collapsed {
+    width: 5rem !important;
+}
+
+#sidebar.collapsed .menu-item {
+    @apply justify-center;
+    gap: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#sidebar.collapsed .menu-text {
+    display: none;
+}
+
+#sidebar.collapsed svg {
+    margin-left: 0;
+    margin-right: 0;
+}

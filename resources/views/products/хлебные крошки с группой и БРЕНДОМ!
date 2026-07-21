@@ -1,0 +1,46 @@
+{{-- Хлебные крошки с ГРУППОЙ, которую убрали на странице товара --}}
+        <x-breadcrumbs :items="[
+            ['title' => 'Главная', 'url' => route('home')],
+            ['title' => 'Каталог', 'url' => route('catalog.index')],
+
+            // Группа
+            [
+                'title' => $product->category->parent->parent->title,
+                'url' => route('catalog.group', $product->category->parent->parent->slug)
+            ],
+
+            // Подкатегория
+            [
+                'title' => $product->category->title,
+                'url' => route('catalog.subcategory', $product->category->slug)
+            ],
+
+            // Товар
+            ['title' => $product->title]
+        ]" />
+
+
+        {{-- Название + код товара в одной строке --}}
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-3xl font-bold">{{ $product->title }}</h1>
+
+            <div class="text-gray-500 text-sm">
+                Код товара: {{ $product->id }}
+            </div>
+        </div>
+
+
+    6. ГОТОВОЕ МЕСТО ДЛЯ БРЕНДА (будущее расширение)
+Если завтра появится бренд:
+
+Код
+Главная → Каталог → Группа → Подкатегория → Бренд → Товар
+Ты просто добавишь одну строку:
+
+blade
+['title' => $brand->title, 'url' => route('brand.show', $brand->slug)],
+И ВСЁ.
+
+Компонент менять не нужно.
+Маршруты менять не нужно.
+Контроллеры менять не нужно.
