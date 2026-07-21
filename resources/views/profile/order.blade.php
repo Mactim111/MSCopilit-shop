@@ -77,7 +77,11 @@
 
             <div class="flex justify-between text-lg font-medium text-gray-900">
                 <span>Сумма заказа:</span>
-                <span>{{ number_format($order->total, 2, ',', ' ') }} ₽</span>
+                @php
+                    $totalFormatted = number_format($order->total, 2, '.', ' ');
+                    [$whole, $fraction] = explode('.', $totalFormatted);
+                @endphp
+                <span>{!! $whole . '<span class="text-sm">.</span><span class="text-sm">' . $fraction . '</span> <i class="nbrb-icon">BYN</i>' !!}</span>
             </div>
         </div>
 
