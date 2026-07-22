@@ -70,10 +70,20 @@ class CatalogController extends Controller
         // вернёт товары всех брендов через pivot-таблицу category_product.
         // ----------------------------------------------------------------
 
-        $brands = Brand::whereIn(
-            'id',
-            $category->allProducts()->pluck('brand_id')->filter()->unique()
-        )->orderBy('title')->get();
+        $brandIds = collect();
+
+foreach ($category->children as $child) {
+    $brandIds = $brandIds->merge(
+        $child->allProducts()->pluck('brand_id')
+    );
+}
+
+$brands = Brand::whereIn(
+    'id',
+    $brandIds->filter()->unique()
+)->orderBy('title')->get();
+
+
 
         // Диапазон цен для слайдера — из вариантов текущей подкатегории с учётом фильтров! Ниже старый коммент на всякий случай!
         // Считаем один раз по всем вариантам, без учёта фильтров,

@@ -211,6 +211,7 @@
     <hr class="border-t border-dashed border-gray-300 w-[316px]">
 
     {{-- ── Бренды ─────────────────────────────────────────────────── --}}
+
     @if(isset($brands) && $brands->isNotEmpty())
         {{--
             data-title="бренд" — для поиска по заголовку группы.
@@ -230,7 +231,7 @@
             {{--
                 Первые $filtersVisibleByDefault групп видны сразу.
                 Остальные скрыты классом filter-extra — раскрываются кнопкой «Все фильтры».
-                Чтобы изменить порог — поменяйте $filtersVisibleByDefault в @php вверху файла.
+                Чтобы изменить порог — поменяйте $filtersVisibleByDefault в ДИРЕКТИВЕ php вверху файла.
             --}}
 
             @php
@@ -468,15 +469,45 @@ document.addEventListener('DOMContentLoaded', function () {
                 extraSections.forEach(section => {
                     section.style.display = '';
                     section.style.opacity = '1';
-                    s.style.maxHeight = '';
-                    s.style.overflow  = '';
-                    s.style.pointerEvents = '';
-                    s.classList.remove('filter-extra');
+                    section.style.maxHeight = '';
+                    section.style.overflow  = '';
+                    section.style.pointerEvents = '';
+                    section.classList.remove('filter-extra');
                 });
                 // Скрываем кнопку после раскрытия — сворачивания нет.
                 btnAllFilters.style.display = 'none';
             });
         }
+    }
+
+    // ================================================================
+    // САБМИТ ФОРМЫ — переводим в URL чтобы не потерять brand
+    // ================================================================
+    const form = document.getElementById('filters-form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const url      = new URL(window.location.href);
+            const formData = new FormData(this);
+
+            url.searchParams.delete('page');
+
+            // Удаляем старые параметры формы (цена, свойства, sort).
+            // brand в URL не трогаем — он управляется через toggleBrand().
+            ['price_min', 'price_max', 'sort'].forEach(k => url.searchParams.delete(k));
+            [...url.searchParams.keys()]
+                .filter(k => k.startsWith('f[') || k.startsWith('f_'))
+                .forEach(k => url.searchParams.delete(k));
+
+            for (const [key, value] of formData.entries()) {
+                key === 'sort'
+                    ? url.searchParams.set(key, value)
+                    : url.searchParams.append(key, value);
+            }
+
+            window.location.href = url.toString();
+        });
     }
 
     // ================================================================
@@ -526,49 +557,90 @@ document.addEventListener('DOMContentLoaded', function () {
         return hasMatch;
     }
 
+
+    // Показывает/скрывает секцию.
+    // Используем opacity+maxHeight вместо display:none, чтобы не конфликтовать с Alpine.js x-show внутри компонентов.
+
+    function setVisible(section, visible) {
+        section.style.opacity       = visible ? '1' : '0';
+        section.style.overflow      = visible ? '' : 'hidden';
+        section.style.maxHeight     = visible ? '' : '0';
+        section.style.pointerEvents = visible ? '' : 'none';
+    }
+
     // Функция поиска — вызывается на каждый input.
     function runSearch(query) {
+        const q = query.toLowerCase().trim();
+
         filterSections.forEach(section => {
-            const title   = section.dataset.title || '';
-            const titleEl = section.querySelector('[data-filter-title]');
-            const matches = !query || title.includes(query.toLowerCase());
+            // --- 1. Проверяем заголовок группы ---
+            const titleEl    = section.querySelector('[data-filter-title]');
+            const titleMatch = titleEl ? highlightEl(titleEl, q) : false;
+            // Для пустого запроса восстанавливаем заголовок
+            if (!q && titleEl) titleEl.innerHTML = titleEl.dataset.original || titleEl.innerHTML;
 
-            // Используем Плавное скрытие через opacity + maxHeight (высота) вместо display:none,
-            // чтобы не конфликтовать с Alpine.js x-show внутри компонентов.
+            // --- 2. Проверяем значения (опции свойств и бренды) ---
+            // [data-option-item] — значения checkbox/radio (filter-checkbox, filter-radio)
+            // [data-brand-item]  — элементы бренда (filter-brand)
+            const valueItems = section.querySelectorAll('[data-option-item], [data-brand-item]');
+            let valueMatch   = false;
 
-            // if (matches) {
-            //     section.style.opacity  = '1';
-            //     section.style.overflow = '';
-            //     section.style.maxHeight = '';
-            //     section.style.pointerEvents = '';
-            // } else {
-            //     section.style.opacity  = '0';
-            //     section.style.overflow = 'hidden';
-            //     section.style.maxHeight = '0';
-            //     section.style.pointerEvents = 'none';
-            // }
+            valueItems.forEach(item => {
+                // Подсвечиваем только текстовый span внутри label,
+                // чтобы не задеть чекбокс и счётчик.
+                const textEl = item.querySelector('label span:first-child') || item.querySelector('label');
+                if (!textEl) return;
 
-            // ниже тот же код реализации плавного скрытия, НО! более коротко, через тернарный оператор
-            section.style.opacity       = matches ? '1' : '0';
-            section.style.overflow      = matches ? '' : 'hidden';
-            section.style.maxHeight     = matches ? '' : '0';
-            section.style.pointerEvents = matches ? '' : 'none';
-            
-            // Подсвечиваем заголовок если элемент найден.
-            if (titleEl) highlightText(titleEl, query);
+                const matched = q ? highlightEl(textEl, q) : false;
+                if (!q && textEl.dataset.original) {
+                    textEl.innerHTML = textEl.dataset.original;
+                }
+
+                // Показываем/скрываем отдельный элемент списка.
+                // При пустом запросе возвращаем к исходной видимости
+                // (учитываем data-option-item с изначальным display:none).
+                if (q) {
+                    item.style.display = matched ? '' : 'none';
+                    if (matched) valueMatch = true;
+                } else {
+                    // Восстанавливаем исходный display из data-original-display
+                    item.style.display = item.dataset.originalDisplay ?? '';
+                }
+            });
+
+            // Запоминаем исходный display при первом проходе.
+            if (!q) {
+                // Ничего не делаем — уже восстановлено выше.
+            }
+
+            // --- 3. Показываем/скрываем всю секцию ---
+            if (!q) {
+                // Пустой запрос — восстанавливаем исходную видимость секции.
+                // filter-extra секции остаются скрытыми (их восстанавливает кнопка «Все фильтры»).
+                if (!section.classList.contains('filter-extra')) {
+                    setVisible(section, true);
+                }
+            } else {
+                setVisible(section, titleMatch || valueMatch);
+            }
         });
 
-        // Крестик: показываем если есть текст.
         if (filterSearchClear) {
-            filterSearchClear.classList.toggle('hidden', !query);
+            filterSearchClear.classList.toggle('hidden', !q);
         }
     }
 
-    if (filterSearch) {
-        filterSearch.addEventListener('input', function () {
-            runSearch(this.value.trim());
+    // Запоминаем исходный display каждого [data-option-item] и [data-brand-item]
+    // до первого поиска, чтобы корректно восстанавливать после сброса.
+    filterSections.forEach(section => {
+        section.querySelectorAll('[data-option-item], [data-brand-item]').forEach(item => {
+            item.dataset.originalDisplay = item.style.display;
         });
-    }
+    });
+
+    filterSearch.addEventListener('input', function () {
+        runSearch(this.value);
+    });
 
     // Крестик — сбрасывает поиск и возвращает все секции.
     if (filterSearchClear) {
@@ -576,36 +648,6 @@ document.addEventListener('DOMContentLoaded', function () {
             filterSearch.value = '';
             filterSearch.focus();
             runSearch('');
-        });
-    }
-
-    // ================================================================
-    // САБМИТ ФОРМЫ — переводим в URL чтобы не потерять brand
-    // ================================================================
-    const form = document.getElementById('filters-form');
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const url      = new URL(window.location.href);
-            const formData = new FormData(this);
-
-            url.searchParams.delete('page');
-
-            // Удаляем старые параметры формы (цена, свойства, sort).
-            // brand в URL не трогаем — он управляется через toggleBrand().
-            ['price_min', 'price_max', 'sort'].forEach(k => url.searchParams.delete(k));
-            [...url.searchParams.keys()]
-                .filter(k => k.startsWith('f[') || k.startsWith('f_'))
-                .forEach(k => url.searchParams.delete(k));
-
-            for (const [key, value] of formData.entries()) {
-                key === 'sort'
-                    ? url.searchParams.set(key, value)
-                    : url.searchParams.append(key, value);
-            }
-
-            window.location.href = url.toString();
         });
     }
 

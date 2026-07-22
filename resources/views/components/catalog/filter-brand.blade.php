@@ -11,7 +11,8 @@
     {{-- Заголовок группы --}}
     <button type="button" @click="open = !open"
         class="flex w-full items-center justify-between
-               text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
+               text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors"
+    data-filter-title>
         Бренд
         <svg class="w-[10px] h-[6px] flex-none transition-transform duration-200"
              :class="open ? 'rotate-180' : ''"
