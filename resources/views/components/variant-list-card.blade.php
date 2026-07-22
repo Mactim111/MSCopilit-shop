@@ -82,14 +82,14 @@
 
         {{-- Цена --}}
         <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">
+            <div class="text-3xl font-bold text-gray-900">
                 {!! $variant->formattedPrice(28, 17) !!}
             </div>
 
             @if($variant->old_price > 0)
                 <div class="flex items-center gap-2 mt-1">
                     <span class="text-gray-400 text-sm line-through decoration-gray-400">
-                        {!! $variant->formattedOldPrice(24, 15) !!}
+                        {!! $variant->formattedOldPrice(15, 15) !!}
                     </span>
 
                     @if($variant->discount_percent)

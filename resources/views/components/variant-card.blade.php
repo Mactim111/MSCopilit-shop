@@ -42,18 +42,18 @@
     </a>
 
     {{-- Цена + кнопка --}}
-    <div class="grid grid-cols-2 gap-4 items-start mt-auto">
+    <div class="grid grid-cols-2 gap-3 items-start mt-auto">
 
         {{-- Цена --}}
-        <div class="min-h-[60px] flex flex-col justify-start">
-            <div class="font-bold text-gray-900">
-                {!! $variant->formattedPrice(30, 19) !!}
+        <div class="min-h-[60px] flex flex-col justify-start w-[122px]">
+            <div class="font-bold text-gray-900 text-[26px]">
+                {!! $variant->formattedPrice(28, 19) !!}
             </div>
 
             @if($variant->old_price > $variant->price)
                 <div class="flex items-center gap-2 mt-1">
                     <span class="text-gray-400 line-through decoration-gray-400 text-[15px]">
-                        {!! $variant->formattedOldPrice(28, 17) !!}
+                        {!! $variant->formattedOldPrice(15, 15) !!}
                     </span>
 
                     @if($variant->discountPercent())

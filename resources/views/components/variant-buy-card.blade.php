@@ -43,20 +43,20 @@
 
         {{-- Текущая цена --}}
         <div>
-            <div class="text-3xl font-bold text-gray-900">
-                {!! $variant->formattedPrice(30, 19) !!}
+            <div class="text-4xl font-bold text-gray-900">
+                {!! $variant->formattedPrice(40, 31) !!}
             </div>
         </div>
 
         {{-- Старая цена + процент --}}
         <div class="text-right">
             @if($variant->old_price > 0)
-                <div class="text-gray-400 text-sm line-through decoration-gray-400">
-                    {!! $variant->formattedOldPrice(28, 17) !!}
+                <div class="text-gray-400 text-lg line-through decoration-gray-400">
+                    {!! $variant->formattedOldPrice(18, 18) !!}
                 </div>
 
                 @if($variant->discount_percent)
-                    <div class="text-red-600 text-sm font-semibold">
+                    <div class="text-red-600 text-[18px] font-semibold">
                         -{{ $variant->discount_percent }}%
                     </div>
                 @endif
