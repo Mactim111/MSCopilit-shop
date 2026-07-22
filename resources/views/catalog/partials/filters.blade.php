@@ -3,18 +3,23 @@
 
     Переменные из контроллера (CatalogController::subcategory()):
         $group, $category, $subcategory  — для action формы
-        $minPrice, $maxPrice             — диапазон цен подкатегории
+        $minPrice, $maxPrice             — диапазон цен подкатегории (с учётом активных фильтров)
         $availableFilters                — Collection<Property> с фасетными опциями
-        $filters                         — текущие активные фильтры (из validFilters())
+        $filters                         — текущие активные фильтры (из validFilters() из CatalogFilterRequest)
         $brands                          — Collection<Brand>
 
     Принципы работы:
-    1. Все фильтры — auto-submit: отметил чекбокс / сдвинул слайдер → страница обновляется.
+    1. Все фильтры — auto-submit через window.location.href: отметил чекбокс / сдвинул слайдер → страница обновляется.
     2. Все изменения идут через window.location.href (не через form.submit),
        чтобы при изменении любого фильтра остальные параметры сохранялись в URL.
     3. Кнопки «Очистить фильтры» появляются только когда есть хоть один активный фильтр
        (цена, бренд или любое свойство).
     4. Кнопка «Все фильтры» показывает скрытые группы свойств (по умолчанию видно 6).
+    5. brand управляется через toggleBrand() — CSV в URL (?brand=apple,samsung).
+    6. $hasActiveFilters через request()->keys() — без загрузки значений в память.
+    7. Группа с активным фильтром всегда видна независимо от порога $filtersVisibleByDefault.
+    8. Поиск ищет по заголовку группы И по значениям внутри группы.
+       Подсвечивает жёлтым все совпадения. Группы без совпадений скрываются.
 
     Твой рабочий функционал сохранён полностью:
         — ценовой фильтр с noUiSlider
@@ -63,7 +68,7 @@
     );
 
     /**
-     * Количество групп фильтров, видимых по умолчанию.
+     * Порог количества видимых групп фильтров по умолчанию.
      * Остальные скрыты и раскрываются кнопкой «Все фильтры».
      * Чтобы изменить порог — поменяйте только эту константу.
      */
@@ -207,6 +212,10 @@
 
     {{-- ── Бренды ─────────────────────────────────────────────────── --}}
     @if(isset($brands) && $brands->isNotEmpty())
+        {{--
+            data-title="бренд" — для поиска по заголовку группы.
+            Значения брендов доступны через [data-brand-item] — для поиска по значениям.
+        --}}
         <div class="filter-section w-[316px]" data-title="бренд">
             <x-catalog.filter-brand
                 :brands="$brands"
@@ -223,14 +232,28 @@
                 Остальные скрыты классом filter-extra — раскрываются кнопкой «Все фильтры».
                 Чтобы изменить порог — поменяйте $filtersVisibleByDefault в @php вверху файла.
             --}}
-            <div class="filter-section w-[316px] {{ $index >= $filtersVisibleByDefault ? 'filter-extra' : '' }}"
+
+            @php
+                $activeValues = $filters['f'][$property->slug] ?? [];
+                $activeMin    = $filters['f_' . $property->slug . '_min'] ?? null;
+                $activeMax    = $filters['f_' . $property->slug . '_max'] ?? null;
+ 
+                // Группа считается активной если есть выбранные значения или range.
+                $hasActive = !empty($activeValues) || $activeMin !== null || $activeMax !== null;
+ 
+                // Скрываем группу если: индекс за порогом И нет активных значений.
+                // Активные группы ВСЕГДА видны — пользователь должен видеть свои фильтры.
+                $isHidden  = $index >= $filtersVisibleByDefault && !$hasActive;
+            @endphp
+
+            <div class="filter-section w-[316px] {{ $isHidden ? 'filter-extra' : '' }}"
                  data-title="{{ mb_strtolower($property->title) }}"
-                 @if($index >= $filtersVisibleByDefault) style="display:none" @endif>
+                 @if($isHidden) style="display:none" @endif>
                 <x-catalog.filter-group
                     :property="$property"
-                    :active="$filters['f'][$property->slug] ?? []"
-                    :active-min="$filters['f_' . $property->slug . '_min'] ?? null"
-                    :active-max="$filters['f_' . $property->slug . '_max'] ?? null"
+                    :active="$activeValues"
+                    :active-min="$activeMin"
+                    :active-max="$activeMax"
                 />
             </div>
         @endforeach
@@ -270,12 +293,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // ================================================================
     // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ — единый способ обновления URL
     // ================================================================
-
+    //    ВНИМАНИЕ! ДАННЫЙ МЕТОД ОТСУТСТВУЕТ В ТЕКУЩЕЙ ВЕРСИИ КОМПОНЕНТА, которой в поиске добавлен поиск по ЗНАЧЕНИЮ ФИЛЬТРА (ТИПА красный), 
+    // а также подсвечивание совпадения внутри значений фильтров и показ секции фильтров если совпадение найдено хотя бы в одном значении, также
+    // теперь группа с активным фильтром всегда видна — если у свойства есть активные значения, оно всегда видно независимо от порога, устанавливающего 
+    // число секций (групп) фильтров, показываемых в сайдбаре фильтров по умолч. (6 шт. - остальные открываются кликом по "Все фильтры") !
     /**
      * Обновляет один параметр в текущем URL и переходит по новому адресу.
      * Все остальные параметры (brand, f[], sort и т.д.) сохраняются.
      * value === null → параметр удаляется из URL.
-     */
+     
     function setUrlParam(key, value) {
         const url = new URL(window.location.href);
         url.searchParams.delete('page'); // при изменении фильтра возвращаемся на стр. 1
@@ -284,6 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : url.searchParams.set(key, value);
         window.location.href = url.toString();
     }
+    */
 
     // ================================================================
     // ЦЕНОВОЙ СЛАЙДЕР
@@ -305,8 +332,8 @@ document.addEventListener('DOMContentLoaded', function () {
             step: 1,
             behaviour: 'tap-drag',
             format: {
-                to:   value => Math.round(value),
-                from: value => Number(value),
+                to:   v => Math.round(v),
+                from: v => Number(v),
             },
         });
 
@@ -441,6 +468,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 extraSections.forEach(section => {
                     section.style.display = '';
                     section.style.opacity = '1';
+                    s.style.maxHeight = '';
+                    s.style.overflow  = '';
+                    s.style.pointerEvents = '';
+                    s.classList.remove('filter-extra');
                 });
                 // Скрываем кнопку после раскрытия — сворачивания нет.
                 btnAllFilters.style.display = 'none';
@@ -454,6 +485,12 @@ document.addEventListener('DOMContentLoaded', function () {
     //
     // Логика (как на 5 ЭЛЕМЕНТ):
     //   — Фильтрует .filter-section по data-title без перезагрузки страницы
+    // Ищет по:
+    //   1. data-title секции (заголовок группы) — «Цвет корпуса», «Бренд»
+    //   2. [data-option-item] внутри секции — значения свойств («Красный», «Samsung»)
+    //   3. [data-brand-item] внутри секции бренда
+    // Если совпадение найдено хотя бы в одном месте — секция видна.
+    // Жёлтая подсветка ставится на все совпадающие элементы.
     //   — Совпадающая часть заголовка подсвечивается жёлтым фоном
     //   — При пустом поле — все секции видны, подсветка снята
     //   — Крестик справа в поле: появляется при вводе, сбрасывает поиск
@@ -464,29 +501,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!filterSearch) return; // поле не найдено — выходим
 
-    // Функция подсветки: оборачивает найденный текст в <mark>.
+    // Функция подсветки: оборачивает найденный текст (в заголовках фильтров и их значениях) в <mark>.
     // Работает с оригинальным textContent заголовка, хранящимся в data-original.
-    function highlightText(titleEl, query) {
-        // При первом вызове сохраняем оригинальный текст.
-        if (!titleEl.dataset.original) {
-            titleEl.dataset.original = titleEl.textContent;
+    // Сохраняет оригинальный innerHTML в data-original при первом вызове.
+    // При пустом query восстанавливает оригинал.
+    function highlightEl(el, query) {
+        if (!el.dataset.original) {
+            el.dataset.original = el.innerHTML;
         }
-
-        const original = titleEl.dataset.original;
-
         if (!query) {
-            titleEl.innerHTML = original;
-            return;
+            el.innerHTML = el.dataset.original;
+            return false; // совпадений нет (пустой запрос)
         }
-
+        const original = el.dataset.original;
         // Экранируем спецсимволы regex.
         const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex   = new RegExp(`(${escaped})`, 'gi');
+        const hasMatch = regex.test(original);
 
-        titleEl.innerHTML = original.replace(
-            regex,
+        el.innerHTML = original.replace(
+            new RegExp(`(${escaped})`, 'gi'),
             '<mark style="background:#FFE600;color:#231F20;border-radius:2px;padding:0 1px;">$1</mark>'
         );
+        return hasMatch;
     }
 
     // Функция поиска — вызывается на каждый input.

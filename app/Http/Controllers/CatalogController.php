@@ -53,13 +53,29 @@ class CatalogController extends Controller
     ): View {
         abort_if($category->parent_id !== $group->id, 404);
         abort_if($subcategory->parent_id !== $category->id, 404);
-
-        $brands = Brand::whereIn('id', $subcategory->allProducts()->pluck('brand_id'))->get();
         
         // Нормализованные фильтры из запроса.
         $filters = $request->validFilters();
 
-        // Диапазон цен для слайдера — из вариантов подкатегории.
+        // ----------------------------------------------------------------
+        // Бренды — берём из РОДИТЕЛЬСКОЙ категории ($category), а не из
+        // текущей подкатегории ($subcategory).
+        //
+        // Причина: на странице «Смартфоны Apple iPhone» все товары принадлежат
+        // только Apple → $subcategory->allProducts() даёт один бренд.
+        // Но пользователь должен видеть ВСЕ бренды смартфонов, чтобы мог
+        // переключиться на Samsung/Xiaomi/etc. прямо из фильтра.
+        //
+        // $category->allProducts() для сводной подкатегории «Смартфоны, телефоны»
+        // вернёт товары всех брендов через pivot-таблицу category_product.
+        // ----------------------------------------------------------------
+
+        $brands = Brand::whereIn(
+            'id',
+            $category->allProducts()->pluck('brand_id')->filter()->unique()
+        )->orderBy('title')->get();
+
+        // Диапазон цен для слайдера — из вариантов текущей подкатегории с учётом фильтров! Ниже старый коммент на всякий случай!
         // Считаем один раз по всем вариантам, без учёта фильтров,
         // чтобы слайдер всегда показывал полный диапазон подкатегории.
         $priceRange = $filterService->getPriceRange($subcategory, $filters);
