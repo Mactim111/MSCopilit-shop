@@ -9,11 +9,11 @@
     x-data="{ open: {{ $activeValue ? 'true' : 'false' }} }"
     class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
 >
-    {{-- Заголовок группы --}}
+    {{-- Заголовок группы data-filter-title на <span>, не на <button> — чтобы не захватить SVG --}}
     <button type="button" @click="open = !open"
         class="flex w-full items-center justify-between
                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
-        {{ $property->title }}
+        <span data-filter-title>{{ $property->title }}</span>
         <svg class="w-[10px] h-[6px] flex-none transition-transform duration-200"
              :class="open ? 'rotate-180' : ''"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -9,10 +9,15 @@
     class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
 >
     {{-- Заголовок группы — кликабелен --}}
+    {{--
+        data-filter-title на <span> с текстом, а не на <button>.
+        Иначе highlightEl() заменит innerHTML кнопки целиком — включая SVG —
+        и при первом символе поиска появится жёлтый квадрат вместо подсветки текста.
+    --}}
     <button type="button" @click="open = !open"
         class="flex w-full items-center justify-between
                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
-        {{ $property->title }}
+        <span data-filter-title>{{ $property->title }}</span>
         <svg class="w-[10px] h-[6px] flex-none transition-transform duration-200"
              :class="open ? 'rotate-180' : ''"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +37,8 @@
         @foreach ($property->options as $option)
             @if (($option->products_count ?? 0) > 0)
                 <li 
-                    data-option-item @if($loop->index >= 6) style="display:none" @endif
+                    data-option-item 
+                    @if($loop->index >= 6) style="display:none" @endif
                     class="flex items-center gap-[8px]"
                 >
                     <input
@@ -56,24 +62,9 @@
             @endif
         @endforeach
 
-        {{-- Ссылка "Посмотреть все" если опций больше 6 --}}
-        @if ($property->options->where('products_count', '>', 0)->count() > 2)
-            <li>
-                <button type="button"
-                        class="show-more-options flex items-center gap-[4px]
-                               text-[14px] text-[#007EFF] mt-[4px]"
-                        data-limit="2">
-                    Посмотреть все
-                    <svg class="w-[10px] h-[10px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-            </li>
-        @endif
-
     </ul>
 
-    {{-- Кнопка "Посмотреть все / Скрыть" --}}
+    {{-- Кнопка "Посмотреть все / Скрыть" если опций у фильтра больше 6 --}}
     @if ($property->options->where('products_count', '>', 0)->count() > 2)
         <button
             type="button"

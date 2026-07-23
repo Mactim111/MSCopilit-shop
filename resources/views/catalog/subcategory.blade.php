@@ -48,10 +48,9 @@
             @include('catalog.partials.sorting')
 
             {{-- Список карточек товаров --}}
+            {{-- Вынесен в partial для корректной работы AJAX-обновления --}}
             <div id="products-list" class="space-y-4">
-                @foreach($variants as $variant)
-                    <x-variant-list-card :variant="$variant" />
-                @endforeach
+                @include('catalog.partials.variants')
             </div>
 
             {{-- Блок "Показать еще" --}}

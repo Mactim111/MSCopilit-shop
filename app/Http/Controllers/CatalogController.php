@@ -72,17 +72,25 @@ class CatalogController extends Controller
 
         $brandIds = collect();
 
-foreach ($category->children as $child) {
-    $brandIds = $brandIds->merge(
-        $child->allProducts()->pluck('brand_id')
-    );
-}
+        foreach ($category->children as $child) {
+            $brandIds = $brandIds->merge(
+                $child->allProducts()->pluck('brand_id')
+            );
+        }
 
-$brands = Brand::whereIn(
-    'id',
-    $brandIds->filter()->unique()
-)->orderBy('title')->get();
+        $brands = Brand::whereIn(
+            'id',
+            $brandIds->filter()->unique()
+        )->orderBy('title')->get();
 
+        // небольшая оптимизация — можно сделать то же самое без foreach через flatMap:
+        // $brands = Brand::whereIn(
+        //     'id',
+        //     $category->children
+        //         ->flatMap(fn($child) => $child->allProducts()->pluck('brand_id'))
+        //         ->filter()
+        //         ->unique()
+        // )->orderBy('title')->get();
 
 
         // Диапазон цен для слайдера — из вариантов текущей подкатегории с учётом фильтров! Ниже старый коммент на всякий случай!
