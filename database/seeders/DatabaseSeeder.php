@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
-            CategoryProductSeeder::class,
+            // CategoryProductSeeder::class,
             ProductVariantSeeder::class,
             LabelSeeder::class,
             ProductVariantLabelSeeder::class,

@@ -20,7 +20,7 @@ class CategoryController extends Controller
     public function catalog()
     {
 
-        $categories = Category::paginate(4)->withQueryString();
+        $categories = Category::query()->paginate(4)->withQueryString();
 
         return view('categories.index', compact('categories'));
     }

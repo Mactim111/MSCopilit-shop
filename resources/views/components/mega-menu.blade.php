@@ -32,7 +32,7 @@
                            class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:bg-white cursor-pointer"
                            data-group="group-{{ $group->id }}">
                             <span class="flex items-center gap-3">
-                                <img src="{{ $group->image }}"
+                                <img src="{{ asset($group->image) }}"
                                      class="w-[54px] h-[36px] object-cover rounded"
                                      alt="{{ $group->title }}">
                                 <span>{{ $group->title }}</span>

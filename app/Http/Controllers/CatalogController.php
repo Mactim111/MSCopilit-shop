@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CatalogFilterRequest;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\ProductVariant;
+use App\Models\Product;
+// use App\Models\ProductVariant;
 use App\Services\CatalogFilterService;
 use Illuminate\View\View;
 
@@ -43,6 +44,20 @@ class CatalogController extends Controller
         return view('catalog.category', compact('group', 'category', 'subcategories'));
     }
 
+    private function makeDynamicTitle(Category $subcategory, array $filters): string
+{
+    if (empty($filters['brand'])) {
+        return $subcategory->title; // "Смартфоны"
+    }
+
+    $brandTitles = Brand::whereIn('id', $filters['brand'])
+        ->pluck('title')
+        ->toArray();
+
+    return $subcategory->title . ' ' . implode(', ', $brandTitles);
+}
+
+
     /* 4. ПОДКАТЕГОРИЯ — список вариантов товаров с фильтрами */
     public function subcategory(
         Category $group,
@@ -51,47 +66,25 @@ class CatalogController extends Controller
         CatalogFilterRequest $request,     // валидирует и нормализует параметры
         CatalogFilterService $filterService // внедряем через DI
     ): View {
+        // Проверка вложенности категорий
         abort_if($category->parent_id !== $group->id, 404);
         abort_if($subcategory->parent_id !== $category->id, 404);
         
+        // Фильтры из запроса (?brand=apple&price_min=1000...)
         // Нормализованные фильтры из запроса.
         $filters = $request->validFilters();
 
-        // ----------------------------------------------------------------
-        // Бренды — берём из РОДИТЕЛЬСКОЙ категории ($category), а не из
-        // текущей подкатегории ($subcategory).
-        //
-        // Причина: на странице «Смартфоны Apple iPhone» все товары принадлежат
-        // только Apple → $subcategory->allProducts() даёт один бренд.
-        // Но пользователь должен видеть ВСЕ бренды смартфонов, чтобы мог
-        // переключиться на Samsung/Xiaomi/etc. прямо из фильтра.
-        //
-        // $category->allProducts() для сводной подкатегории «Смартфоны, телефоны»
-        // вернёт товары всех брендов через pivot-таблицу category_product.
-        // ----------------------------------------------------------------
+        // ---------------------------------------------------------
+        // 1. БРЕНДЫ — ВСЕ бренды категории "Смартфоны"
+        // ---------------------------------------------------------
+        $brandIds = Product::where('category_id', $subcategory->id)
+            ->pluck('brand_id')
+            ->filter()
+            ->unique();
 
-        $brandIds = collect();
-
-        foreach ($category->children as $child) {
-            $brandIds = $brandIds->merge(
-                $child->allProducts()->pluck('brand_id')
-            );
-        }
-
-        $brands = Brand::whereIn(
-            'id',
-            $brandIds->filter()->unique()
-        )->orderBy('title')->get();
-
-        // небольшая оптимизация — можно сделать то же самое без foreach через flatMap:
-        // $brands = Brand::whereIn(
-        //     'id',
-        //     $category->children
-        //         ->flatMap(fn($child) => $child->allProducts()->pluck('brand_id'))
-        //         ->filter()
-        //         ->unique()
-        // )->orderBy('title')->get();
-
+        $brands = Brand::whereIn('id', $brandIds)
+            ->orderBy('title')
+            ->get();
 
         // Диапазон цен для слайдера — из вариантов текущей подкатегории с учётом фильтров! Ниже старый коммент на всякий случай!
         // Считаем один раз по всем вариантам, без учёта фильтров,
@@ -108,6 +101,11 @@ class CatalogController extends Controller
         // у которых есть опции среди товаров данной подкатегории).
         $availableFilters = $filterService->getAvailableFilters($subcategory, $filters);
 
+        // ---------------------------------------------------------
+        // 7. Динамический заголовок страницы
+        // ---------------------------------------------------------
+        $title = $this->makeDynamicTitle($subcategory, $filters);
+
         return view('catalog.subcategory', compact(
             'group',
             'category',
@@ -118,6 +116,7 @@ class CatalogController extends Controller
             'maxPrice',          // float — для слайдера цены
             'filters',           // array — текущие активные фильтры (для пре-чека)
             'brands',            // Collection<Brand> — для фильтра бренда
+            'title',             // string — динамический заголовок страницы
         ));
     }
 }
