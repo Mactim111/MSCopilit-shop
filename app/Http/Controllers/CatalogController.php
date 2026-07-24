@@ -45,17 +45,17 @@ class CatalogController extends Controller
     }
 
     private function makeDynamicTitle(Category $subcategory, array $filters): string
-{
-    if (empty($filters['brand'])) {
-        return $subcategory->title; // "Смартфоны"
+    {
+        if (empty($filters['brand'])) {
+            return $subcategory->title; // "Смартфоны"
+        }
+
+        $brandTitles = Brand::whereIn('id', $filters['brand'])
+            ->pluck('title')
+            ->toArray();
+
+        return $subcategory->title . ' ' . implode(', ', $brandTitles);
     }
-
-    $brandTitles = Brand::whereIn('id', $filters['brand'])
-        ->pluck('title')
-        ->toArray();
-
-    return $subcategory->title . ' ' . implode(', ', $brandTitles);
-}
 
 
     /* 4. ПОДКАТЕГОРИЯ — список вариантов товаров с фильтрами */
@@ -74,8 +74,15 @@ class CatalogController extends Controller
         // Нормализованные фильтры из запроса.
         $filters = $request->validFilters();
 
+        // для добавления в URL БРЕНДА (brand=apple,samsung) из ФИЛЬТРА БРЕНДОВ, если в фильтре бренда выбрано значение
+        // если когда‑то останется поддержка ?brand=... — она не сломается
+        $brandsParam = request()->route('brands'); // apple,samsung
+        if ($brandsParam) {
+            $filters['brand'] = explode(',', $brandsParam);
+        }
+
         // ---------------------------------------------------------
-        // 1. БРЕНДЫ — ВСЕ бренды категории "Смартфоны"
+        // 1. БРЕНДЫ — ВСЕ бренды ПОДкатегории, типа из "Смартфоны"
         // ---------------------------------------------------------
         $brandIds = Product::where('category_id', $subcategory->id)
             ->pluck('brand_id')

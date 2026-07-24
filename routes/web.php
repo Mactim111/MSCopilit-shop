@@ -35,6 +35,10 @@ Route::get('/catalog/{group}/{category}', [CatalogController::class, 'category']
 // Подкатегория
 Route::get('/catalog/{group}/{category}/{subcategory}', [CatalogController::class, 'subcategory'])->name('catalog.subcategory');
 
+// Та же подкатегория, но с фильтром бренда в URI
+Route::get('/catalog/{group}/{category}/{subcategory}/brand={brands}', 
+    [CatalogController::class, 'subcategory'])->name('catalog.subcategory.brand');
+
 // Вариант товара
 Route::get('/products/{variant}', [ProductVariantController::class, 'show'])->name('catalog.variant');
 

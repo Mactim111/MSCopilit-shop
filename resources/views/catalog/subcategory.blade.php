@@ -7,19 +7,14 @@
         <x-breadcrumbs :items="[
             ['title' => 'Главная', 'url' => route('home')],
             ['title' => 'Каталог', 'url' => route('catalog.index')],
-            ['title' => $group->title, 'url' => route('catalog.group', $group->slug)],
-            [
-                'title' => $category->title,
-                'url' => route('catalog.category', [$group->slug, $category->slug])
-            ],
-            ['title' => $subcategory->title]
+            ['title' => $title],
         ]" />
     </div>
 
     {{-- Заголовок подкатегории + количество товаров --}}
     <div class="max-w-[1500px] mx-auto flex items-center h-[42px] mb-[20px]">
         <h1 class="text-[34px] font-bold text-[#231F20] leading-none">
-            {{ $subcategory->title }}
+            {{ $title }}
 
         </h1>
         <div class="ml-[10px] bg-gray-100 text-gray-400 text-xl self-end w-[32px] h-[26px] leading-none">

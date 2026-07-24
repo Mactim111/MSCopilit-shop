@@ -669,7 +669,9 @@ function toggleBrand(slug) {
         ? url.searchParams.set('brand', brands.join(','))
         : url.searchParams.delete('brand');
 
+    // Убираем пагинацию
     url.searchParams.delete('page');
+    // Переходим
     window.location.href = url.toString();
 }
 </script>
