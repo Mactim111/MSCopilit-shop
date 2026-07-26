@@ -8,6 +8,14 @@
         $filters                         — текущие активные фильтры (из validFilters() из CatalogFilterRequest)
         $brands                          — Collection<Brand>
 
+    КЛЮЧЕВОЙ ПРИНЦИП URL:
+        Бренд — в сегменте маршрута: /brand=apple,samsung  (без %2C)
+        Цена, свойства, sort — в query-параметрах: ?price_min=...&f[color][]=black
+
+    Маршруты:
+        catalog.subcategory       → /catalog/{group}/{category}/{subcategory}
+        catalog.subcategory.brand → /catalog/{group}/{category}/{subcategory}/brand={brands}
+
     Принципы работы:
     1. Все фильтры — auto-submit через window.location.href: отметил чекбокс / сдвинул слайдер → страница обновляется.
     2. Все изменения идут через window.location.href (не через form.submit),
@@ -21,7 +29,7 @@
     8. Поиск ищет по заголовку группы И по значениям внутри группы.
        Подсвечивает жёлтым все совпадения. Группы без совпадений скрываются.
 
-    Твой рабочий функционал сохранён полностью:
+    Наш рабочий функционал сохранён полностью:
         — ценовой фильтр с noUiSlider
         — тег применённого ценового фильтра с крестиком
         — кнопки «Очистить фильтры» и «Все фильтры»
@@ -36,43 +44,51 @@
 @php
     /**
      * $hasActiveFilters — есть ли хоть один активный фильтр.
-     * 
      * Расширено относительно оригинала: теперь учитываем и f[...] параметры.
-     */
-    // НИЖЕ ПРЕДЫДУЩАЯ ВЕРСИЯ ПОЛУЧЕНИЯ $hasActiveFilters
-    // $hasActiveFilters =
-    // request()->hasAny(['price_min', 'price_max']) ||
-    // request()->has('brand') ||
-    // collect(request()->all())->keys()->contains(
-    //     fn($k) => str_starts_with($k, 'f[') || str_starts_with($k, 'f_')
-    // );
-    
-    /**
      * Новая версия ПОЛУЧЕНИЯ $hasActiveFilters
-     * Используем request()->keys() вместо request()->all(),
-     * чтобы не загружать в память значения всех параметров —
-     * нам нужны только ключи для проверки.
-     *
-     * Покрывает три источника активных фильтров:
+     * Используем request()->keys() вместо request()->all(), чтобы не загружать в память значения всех параметров — нам нужны только ключи для проверки.
+     * Покрывает ВСЕ! источники активных фильтров, КРОМЕ ФИЛЬТРА ПО БРЕНДУ (brand), который обрабатывается отдельно через toggleBrand().
+     * Источники активных фильтров:
      *   1. Ценовой фильтр        — price_min / price_max
-     *   2. Фильтр бренда         — brand
-     *   3. Фильтры по свойствам  — f[slug][] и f_slug_min / f_slug_max
+     *   2. Фильтры по свойствам  — f[slug][] и f_slug_min / f_slug_max
+     * Текущие slug-и брендов БЕРЕМ! из! сегмента! маршрута /brand=apple,samsung.
+     * Используем route('brands'), а НЕ request('brand').
      */
-    $hasActiveFilters = collect(request()->keys())->contains(
-        fn($k) =>
-            $k === 'price_min'       ||
-            $k === 'price_max'       ||
-            $k === 'brand'           ||
-            str_starts_with($k, 'f[') ||
-            str_starts_with($k, 'f_')
+
+    $activeBrandSlugs = array_filter(
+        explode(',', request()->route('brands') ?? '')
     );
+
+    /**
+     * $hasActiveFilters — есть ли хоть один активный фильтр.
+     * Бренд теперь в сегменте маршрута — проверяем через route('brands').
+     */
+    $hasActiveFilters =
+        !empty($activeBrandSlugs) ||
+        collect(request()->keys())->contains(
+            fn($k) =>
+                $k === 'price_min'        ||
+                $k === 'price_max'        ||
+                str_starts_with($k, 'f[') ||
+                str_starts_with($k, 'f_')
+        );
 
     /**
      * Порог количества видимых групп фильтров по умолчанию.
      * Остальные скрыты и раскрываются кнопкой «Все фильтры».
-     * Чтобы изменить порог — поменяйте только эту константу.
+     * Чтобы изменить порог — поменяйте только эту переменную.
      */
     $filtersVisibleByDefault = 6;
+
+    /**
+     * Базовый URL подкатегории без бренд-сегмента и без query.
+     * Используется в JS для построения новых URL.
+     */
+    $baseSubcategoryUrl = route('catalog.subcategory', [
+        $group->slug,
+        $category->slug,
+        $subcategory->slug,
+    ]);
 
 @endphp
 
@@ -93,7 +109,7 @@
 
 {{-- ── Теги применённых фильтров ─────────────────────────────────── --}}
 
-{{-- Тег ценового фильтра (твой оригинальный) --}}
+{{-- Тег ценового фильтра (НАШ! оригинальный!) --}}
 @if(request()->hasAny(['price_min', 'price_max']))
     <div class="filter-prop-tag bg-gray-100 border border-[#231F20] rounded-sm
                 pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center text-[15px] text-[#231F20]"
@@ -108,26 +124,23 @@
     </div>
 @endif
 
-{{-- Теги брендов --}}
-@if(request()->has('brand'))
-    @php $brandSlugs = array_filter(explode(',', request('brand'))); @endphp
-    @foreach($brandSlugs as $slug)
-        @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
-        @if($brandTitle)
-            <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                        pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                        text-[15px] text-[#231F20]"
-                 data-param="brand-csv"
-                 data-value="{{ $slug }}">
-                <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
-                <button type="button"
-                        class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                    @include('products.icons.close-red')
-                </button>
-            </div>
-        @endif
-    @endforeach
-@endif
+{{-- Теги брендов ТЕПЕРЬ — читаем из route-сегмента, не из query--}}
+@foreach($activeBrandSlugs as $slug)
+    @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
+    @if($brandTitle)
+        <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                    pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
+                    text-[15px] text-[#231F20]"
+                data-param="brand-segment"
+                data-value="{{ $slug }}">
+            <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
+            <button type="button"
+                    class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                @include('products.icons.close-red')
+            </button>
+        </div>
+    @endif
+@endforeach
 
 {{-- Теги активных фильтров по свойствам --}}
 @if(isset($availableFilters))
@@ -180,9 +193,26 @@
 <hr class="border-t border-dashed border-gray-300 w-[316px]">
 
 {{-- ── ФОРМА: цена + бренды + свойства ───────────────────────────── --}}
-<form id="filters-form"
-      method="GET"
-      action="{{ route('catalog.subcategory', [$group->slug, $category->slug, $subcategory->slug]) }}">
+{{--
+    action формы строится с учётом текущего бренд-сегмента,
+    чтобы при сабмите бренд не терялся.
+    Если брендов нет — обычный URL подкатегории.
+    Если есть — URL с сегментом /brand=apple,samsung
+--}}
+@php
+    $formAction = empty($activeBrandSlugs)
+        ? route('catalog.subcategory', [$group->slug, $category->slug, $subcategory->slug])
+        : route('catalog.subcategory.brand', [
+            $group->slug,
+            $category->slug,
+            $subcategory->slug,
+            implode(',', $activeBrandSlugs),
+          ]);
+@endphp
+
+<form id="filters-form" method="GET" action="{{ $formAction }}">
+
+    {{-- Сохраняем sort в скрытом поле, чтобы не потерять при сабмите формы --}}
 
     @if(request('sort'))
         <input type="hidden" name="sort" value="{{ request('sort') }}">
@@ -193,14 +223,10 @@
         <div class="text-[15px] font-bold mb-3 text-[#231F20]">Цена</div>
 
         <div class="flex items-center gap-2 mb-[16px]">
-            <input type="number"
-                   id="price-min"
-                   name="price_min"
+            <input type="number" id="price-min" name="price_min"
                    value="{{ request('price_min', $minPrice) }}"
                    class="w-[154px] h-[40px] px-3 border border-gray-400 rounded-lg text-sm">
-            <input type="number"
-                   id="price-max"
-                   name="price_max"
+            <input type="number" id="price-max" name="price_max"
                    value="{{ request('price_max', $maxPrice) }}"
                    class="w-[154px] h-[40px] px-3 border border-gray-400 rounded-lg text-sm">
         </div>
@@ -220,7 +246,7 @@
         <div class="filter-section w-[316px]" data-title="бренд">
             <x-catalog.filter-brand
                 :brands="$brands"
-                :activeBrands="array_filter(explode(',', request('brand', '')))"
+                :activeBrands="$activeBrandSlugs"
             />
         </div>
     @endif
@@ -289,30 +315,73 @@
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
 
+/**
+ * Базовый URL подкатегории (без бренд-сегмента и без query).
+ * Передаётся из PHP чтобы JS мог строить правильные URL.
+ */
+const BASE_SUBCATEGORY_URL = '{{ $baseSubcategoryUrl }}';
+
+/**
+ * Текущие slug-и брендов из сегмента маршрута.
+ * JS читает их отсюда, а не парсит из URL.
+ */
+let activeBrands = @json($activeBrandSlugs);
+
+/**
+ * Строит URL с учётом бренд-сегмента и текущих query-параметров.
+ *
+ * Структура URL:
+ *   без бренда: /catalog/group/category/subcategory?price_min=...
+ *   с брендом:  /catalog/group/category/subcategory/brand=apple,samsung?price_min=...
+ *
+ * Запятая в сегменте пути НЕ кодируется браузером (в отличие от query),
+ * поэтому получаем /brand=apple,samsung а не /brand=apple%2Csamsung.
+ */
+function buildUrl(brands, queryParams) {
+    // Базовый путь с или без бренд-сегмента.
+    let path = BASE_SUBCATEGORY_URL;
+    if (brands && brands.length > 0) {
+        path = path + '/brand=' + brands.join(',');
+    }
+
+    // Сохраняем текущие query-параметры (цена, свойства, sort),
+    // затем перезаписываем теми, что переданы в queryParams.
+    const url    = new URL(window.location.href);
+    const newUrl = new URL(path, window.location.origin);
+
+    // Копируем все текущие query-параметры кроме page.
+    url.searchParams.forEach((value, key) => {
+        if (key !== 'page') {
+            newUrl.searchParams.append(key, value);
+        }
+    });
+
+    // Применяем переданные изменения (перезаписываем или удаляем).
+    if (queryParams) {
+        Object.entries(queryParams).forEach(([key, value]) => {
+            newUrl.searchParams.delete(key);
+            if (value !== null && value !== undefined) {
+                if (Array.isArray(value)) {
+                    value.forEach(v => newUrl.searchParams.append(key, v));
+                } else {
+                    newUrl.searchParams.set(key, value);
+                }
+            }
+        });
+    }
+
+    return newUrl.toString();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     // ================================================================
     // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ — единый способ обновления URL
     // ================================================================
-    //    ВНИМАНИЕ! ДАННЫЙ МЕТОД ОТСУТСТВУЕТ В ТЕКУЩЕЙ ВЕРСИИ КОМПОНЕНТА, которой в поиске добавлен поиск по ЗНАЧЕНИЮ ФИЛЬТРА (ТИПА красный), 
+    // В поиске добавлен поиск по ЗНАЧЕНИЮ ФИЛЬТРА (ТИПА красный), 
     // а также подсвечивание совпадения внутри значений фильтров и показ секции фильтров если совпадение найдено хотя бы в одном значении, также
     // теперь группа с активным фильтром всегда видна — если у свойства есть активные значения, оно всегда видно независимо от порога, устанавливающего 
     // число секций (групп) фильтров, показываемых в сайдбаре фильтров по умолч. (6 шт. - остальные открываются кликом по "Все фильтры") !
-    /**
-     * Обновляет один параметр в текущем URL и переходит по новому адресу.
-     * Все остальные параметры (brand, f[], sort и т.д.) сохраняются.
-     * value === null → параметр удаляется из URL.
-     
-    function setUrlParam(key, value) {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('page'); // при изменении фильтра возвращаемся на стр. 1
-        value === null
-            ? url.searchParams.delete(key)
-            : url.searchParams.set(key, value);
-        window.location.href = url.toString();
-    }
-    */
-
     // ================================================================
     // ЦЕНОВОЙ СЛАЙДЕР
     // ================================================================
@@ -324,10 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (slider && min < max) {
         noUiSlider.create(slider, {
-            start: [
-                {{ request('price_min', $minPrice) }},
-                {{ request('price_max', $maxPrice) }}
-            ],
+            start: [{{ request('price_min', $minPrice) }}, {{ request('price_max', $maxPrice) }}],
             connect: true,
             range: { min, max },
             step: 1,
@@ -355,17 +421,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // Enter в поле → применяем через URL (не через form.submit).
         inputMin.addEventListener('keypress', function (e) {
             if (e.key !== 'Enter') return;
-            const url = new URL(window.location.href);
-            url.searchParams.delete('page');
-            url.searchParams.set('price_min', this.value || min);
-            window.location.href = url.toString();
+            window.location.href = buildUrl(activeBrands, {
+                price_min: this.value || min,
+                page: null,
+            });
         });
         inputMax.addEventListener('keypress', function (e) {
             if (e.key !== 'Enter') return;
-            const url = new URL(window.location.href);
-            url.searchParams.delete('page');
-            url.searchParams.set('price_max', this.value || max);
-            window.location.href = url.toString();
+            window.location.href = buildUrl(activeBrands, {
+                price_max: this.value || max,
+                page: null,
+            });
         });
 
         // Отпустили ручку слайдера → применяем через URL.
@@ -373,19 +439,20 @@ document.addEventListener('DOMContentLoaded', function () {
         slider.noUiSlider.on('change', (values) => {
             const minVal = Number(values[0]);
             const maxVal = Number(values[1]);
-            const url    = new URL(window.location.href);
-
-            url.searchParams.delete('page');
 
             if (minVal === min && maxVal === max) {
-                url.searchParams.delete('price_min');
-                url.searchParams.delete('price_max');
+                window.location.href = buildUrl(activeBrands, {
+                    price_min: null,
+                    price_max: null,
+                    page: null,
+                });
             } else {
-                url.searchParams.set('price_min', minVal);
-                url.searchParams.set('price_max', maxVal);
+                window.location.href = buildUrl(activeBrands, {
+                    price_min: minVal,
+                    price_max: maxVal,
+                    page: null,
+                });
             }
-
-            window.location.href = url.toString();
         });
     }
 
@@ -396,30 +463,39 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', () => {
             const tag   = btn.closest('.filter-prop-tag');
             const param = tag.dataset.param;
-            const url   = new URL(window.location.href);
-            url.searchParams.delete('page');
 
             if (param === 'price') {
-                url.searchParams.delete('price_min');
-                url.searchParams.delete('price_max');
+                window.location.href = buildUrl(activeBrands, {
+                    price_min: null,
+                    price_max: null,
+                    page: null,
+                });
 
-            } else if (param === 'brand-csv') {
-                const current = (url.searchParams.get('brand') || '').split(',').filter(Boolean);
-                const updated = current.filter(b => b !== tag.dataset.value);
-                updated.length
-                    ? url.searchParams.set('brand', updated.join(','))
-                    : url.searchParams.delete('brand');
+            } else if (param === 'brand-segment') {
+                // Удаляем один бренд из сегмента маршрута.
+                const slug    = tag.dataset.value;
+                const updated = activeBrands.filter(b => b !== slug);
+                window.location.href = buildUrl(updated, { page: null });
 
             } else if (param === 'f-array') {
                 const key      = tag.dataset.key;
+                const value    = tag.dataset.value;
+                const url      = new URL(window.location.href);
                 const existing = url.searchParams.getAll(key);
                 url.searchParams.delete(key);
-                existing
-                    .filter(v => v !== tag.dataset.value)
-                    .forEach(v => url.searchParams.append(key, v));
+                existing.filter(v => v !== value)
+                        .forEach(v => url.searchParams.append(key, v));
+                url.searchParams.delete('page');
+
+                // Перестраиваем через buildUrl чтобы не потерять бренд-сегмент.
+                const newUrl = buildUrl(activeBrands, { page: null });
+                const parsed = new URL(newUrl);
+                // Добавляем обновлённые f[] параметры.
+                existing.filter(v => v !== value)
+                        .forEach(v => parsed.searchParams.append(key, v));
+                window.location.href = parsed.toString();
             }
 
-            window.location.href = url.toString();
         });
     });
 
@@ -427,15 +503,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // ОЧИСТКА ВСЕХ ФИЛЬТРОВ
     // ================================================================
     function clearAllFilters() {
-        const url = new URL(window.location.href);
-        
-        // Удаляем все параметры фильтров одним проходом.
-        [...url.searchParams.keys()]
-            .filter(k =>
-                k === 'price_min' || k === 'price_max' || k === 'brand' ||
-                k === 'page'      || k.startsWith('f[') || k.startsWith('f_')
-            )
-            .forEach(k => url.searchParams.delete(k));
+        // Переходим на базовый URL без брендов и без query-фильтров.
+        // sort сохраняем если был выбран.
+        const sort = new URL(window.location.href).searchParams.get('sort');
+        const url  = new URL(BASE_SUBCATEGORY_URL, window.location.origin);
+        if (sort) url.searchParams.set('sort', sort);
         window.location.href = url.toString();
     }
 
@@ -467,6 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             btnAllFilters.addEventListener('click', () => {
                 extraSections.forEach(section => {
+                    // у автора вместо "section." в коде "s." — так не работает, пришлось исправить на "section."
                     section.style.display = '';
                     section.style.opacity = '1';
                     section.style.maxHeight = '';
@@ -481,32 +554,40 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ================================================================
-    // САБМИТ ФОРМЫ — переводим в URL чтобы не потерять brand
+    // САБМИТ ФОРМЫ — переводим в URL чтобы не потерять brand (то есть с учётом бренд-сегмента)
     // ================================================================
     const form = document.getElementById('filters-form');
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const url      = new URL(window.location.href);
             const formData = new FormData(this);
+            const params   = {};
 
-            url.searchParams.delete('page');
-
-            // Удаляем старые параметры формы (цена, свойства, sort).
+            // Удаляем старые параметры формы price/sort/f[] (цена, свойства, sort) — перезапишем ИХ из формы.
             // brand в URL не трогаем — он управляется через toggleBrand().
-            ['price_min', 'price_max', 'sort'].forEach(k => url.searchParams.delete(k));
-            [...url.searchParams.keys()]
-                .filter(k => k.startsWith('f[') || k.startsWith('f_'))
-                .forEach(k => url.searchParams.delete(k));
+            params['price_min'] = null;
+            params['price_max'] = null;
+            params['sort']      = null;
+            params['page']      = null;
 
             for (const [key, value] of formData.entries()) {
-                key === 'sort'
-                    ? url.searchParams.set(key, value)
-                    : url.searchParams.append(key, value);
+                if (key !== 'sort') {
+                    // f[] параметры — накапливаем как массив.
+                    if (!params[key]) params[key] = [];
+                    if (Array.isArray(params[key])) {
+                        params[key].push(value);
+                    } else {
+                        params[key] = value;
+                    }
+                }
             }
 
-            window.location.href = url.toString();
+            // sort отдельно — одиночное значение.
+            const sort = formData.get('sort');
+            if (sort) params['sort'] = sort;
+
+            window.location.href = buildUrl(activeBrands, params);
         });
     }
 
@@ -546,10 +627,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const original = el.dataset.original;
         // Экранируем спецсимволы regex.
-        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex   = new RegExp(`(${escaped})`, 'gi');
-        const hasMatch = regex.test(original);
-
+        const escaped  = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const hasMatch = new RegExp(escaped, 'gi').test(original);
         el.innerHTML = original.replace(
             new RegExp(`(${escaped})`, 'gi'),
             '<mark style="background:#FFE600;color:#231F20;border-radius:2px;padding:0 1px;">$1</mark>'
@@ -656,22 +735,38 @@ document.addEventListener('DOMContentLoaded', function () {
 // ================================================================
 // toggleBrand() — глобальная, вызывается из filter-brand.blade.php
 // ================================================================
+//  ниже ПРЕДЫДУШАЯ ВЕРСИЯ, которая строила URL через query ?brand=apple,samsung
+// function toggleBrand(slug) {
+//     const url      = new URL(window.location.href);
+//     const brandStr = url.searchParams.get('brand') || '';
+//     let   brands   = brandStr.split(',').filter(Boolean);
+
+//     brands.includes(slug)
+//         ? brands = brands.filter(b => b !== slug)
+//         : brands.push(slug);
+
+//     brands.length
+//         ? url.searchParams.set('brand', brands.join(','))
+//         : url.searchParams.delete('brand');
+
+//     // Убираем пагинацию
+//     url.searchParams.delete('page');
+//     // Переходим
+//     window.location.href = url.toString();
+// }
+// ================================================================
+// toggleBrand() — глобальная, вызывается из filter-brand.blade.php
+// ниже ПЕРЕРАБОТАННАЯ ВЕРСИЯ, которая строит URL через сегмент /brand=apple,samsung
+// а не через query ?brand=apple,samsung.
+// Запятая в сегменте пути не кодируется браузером → нет %2C.
+// ================================================================
 function toggleBrand(slug) {
-    const url      = new URL(window.location.href);
-    const brandStr = url.searchParams.get('brand') || '';
-    let   brands   = brandStr.split(',').filter(Boolean);
+    let brands = [...activeBrands]; // копия текущего массива брендов
 
     brands.includes(slug)
         ? brands = brands.filter(b => b !== slug)
         : brands.push(slug);
 
-    brands.length
-        ? url.searchParams.set('brand', brands.join(','))
-        : url.searchParams.delete('brand');
-
-    // Убираем пагинацию
-    url.searchParams.delete('page');
-    // Переходим
-    window.location.href = url.toString();
+    window.location.href = buildUrl(brands, { page: null });
 }
 </script>

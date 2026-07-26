@@ -40,8 +40,11 @@ class CatalogController extends Controller
         $subcategories = $category->children()
             ->orderBy('title')
             ->get();
+        
+        // Проверяем, включены ли плитки брендов в подкатегории
+        $showBrandTiles = $category->brand_tiles_enabled;
 
-        return view('catalog.category', compact('group', 'category', 'subcategories'));
+        return view('catalog.category', compact('group', 'category', 'subcategories','showBrandTiles'));
     }
 
     private function makeDynamicTitle(Category $subcategory, array $filters): string
@@ -50,11 +53,25 @@ class CatalogController extends Controller
             return $subcategory->title; // "Смартфоны"
         }
 
-        $brandTitles = Brand::whereIn('id', $filters['brand'])
+        // В filters['brand'] лежат SLUG-и, а не ID
+        $brandTitles = Brand::whereIn('slug', $filters['brand'])
             ->pluck('title')
+            ->map(fn($t) => mb_convert_case($t, MB_CASE_TITLE)) // ДОБАВИЛИ, чтобы Заголовок подкатегории начинался с заглавной буквы - Apple, Samsung
             ->toArray();
 
         return $subcategory->title . ' ' . implode(', ', $brandTitles);
+    }
+
+    private function makeBreadcrumbBrandTitle(array $filters): ?string
+    {
+        if (empty($filters['brand'])) {
+            return null;
+        }
+
+        return Brand::whereIn('slug', $filters['brand'])
+            ->pluck('title')
+            ->map(fn($t) => mb_strtoupper($t))
+            ->implode(', ');
     }
 
 
@@ -78,7 +95,10 @@ class CatalogController extends Controller
         // если когда‑то останется поддержка ?brand=... — она не сломается
         $brandsParam = request()->route('brands'); // apple,samsung
         if ($brandsParam) {
-            $filters['brand'] = explode(',', $brandsParam);
+            // НАША ВЕРСИЯ: читаем бренды из сегмента маршрута /brand=apple,samsung, а не из query (?brand=...)
+            // $filters['brand'] = explode(',', $brandsParam);
+            // НИЖЕ ЧУТЬ БЕЗОПАСНАЯ ВЕРСИЯ: фильтруем пустые значения, если вдруг кто-то передаст /brand=apple,,samsung
+            $filters['brand'] = array_filter(explode(',', $brandsParam));
         }
 
         // ---------------------------------------------------------
@@ -112,6 +132,7 @@ class CatalogController extends Controller
         // 7. Динамический заголовок страницы
         // ---------------------------------------------------------
         $title = $this->makeDynamicTitle($subcategory, $filters);
+        $breadcrumbBrandTitle = $this->makeBreadcrumbBrandTitle($filters);
 
         return view('catalog.subcategory', compact(
             'group',
@@ -124,6 +145,7 @@ class CatalogController extends Controller
             'filters',           // array — текущие активные фильтры (для пре-чека)
             'brands',            // Collection<Brand> — для фильтра бренда
             'title',             // string — динамический заголовок страницы
+            'breadcrumbBrandTitle',   // string — заголовок для хлебных крошек
         ));
     }
 }

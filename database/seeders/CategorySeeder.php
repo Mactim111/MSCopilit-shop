@@ -34,6 +34,7 @@ class CategorySeeder extends Seeder
                 'slug' => 'smartfony-telefony',
                 'image' => 'storage/images/category-images/smartfony-i-gadzety/smartfony-telefony/smartfony-telefony.jpg',
                 'parent_id' => 1,
+                'brand_tiles_enabled' => true,
             ],
 
             //ПОДКАТЕГОРИИ:

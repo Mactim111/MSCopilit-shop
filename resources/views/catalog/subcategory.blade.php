@@ -2,13 +2,30 @@
 
 @section('content')
 
+@php
+    $crumbs = [
+        ['title' => 'Главная', 'url' => route('home')],
+        ['title' => 'Каталог', 'url' => route('catalog.index')],
+        [
+            // Кликабельная подкатегория
+            'title' => $subcategory->title,
+            'url'   => route('catalog.subcategory', [
+                'group'       => $group->slug,
+                'category'    => $category->slug,
+                'subcategory' => $subcategory->slug,
+            ]),
+        ],
+    ];
+
+    // Некликабельный бренд в верхнем регистре — только если есть (выбран в фильтре)
+    if (!empty($breadcrumbBrandTitle)) {
+        $crumbs[] = ['title' => $breadcrumbBrandTitle];
+    }
+@endphp
+
     {{-- Хлебные крошки --}}
     <div class="max-w-[1500px] h-[65px] mx-auto flex items-center py-[24px] text-[13px] text-[#7b7979]">
-        <x-breadcrumbs :items="[
-            ['title' => 'Главная', 'url' => route('home')],
-            ['title' => 'Каталог', 'url' => route('catalog.index')],
-            ['title' => $title],
-        ]" />
+        <x-breadcrumbs :items="$crumbs" />
     </div>
 
     {{-- Заголовок подкатегории + количество товаров --}}

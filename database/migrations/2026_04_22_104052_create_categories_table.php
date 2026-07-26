@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->string('image')->nullable();
+            $table->boolean('brand_tiles_enabled')->default(false); // включить плитки брендов в подкатегории
             $table->softDeletes();
             $table->timestamps();
         });

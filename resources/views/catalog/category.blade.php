@@ -13,6 +13,7 @@
 
 <div class="mx-auto max-w-[1500px] grid grid-cols-5 gap-4">
 
+    {{-- Реальные подкатегории --}}
     @foreach($subcategories as $sub)
         <x-catalog-card
             :title="$sub->title"
@@ -20,6 +21,11 @@
             :url="route('catalog.subcategory', [$group->slug, $category->slug, $sub->slug])"
         />
     @endforeach
+
+    {{-- Брендовые плитки --}}
+    @if($showBrandTiles)
+        @include('catalog.partials.brand-tiles')
+    @endif
 
 </div>
 
