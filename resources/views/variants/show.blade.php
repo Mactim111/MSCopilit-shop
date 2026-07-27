@@ -42,7 +42,7 @@
             <h1 class="text-3xl font-bold">{{ $variant->title }}</h1>
 
             <div class="text-gray-500 text-sm">
-                Код товара: {{ $variant->id }}
+                Код товара: {{ $variant->article }}
             </div>
         </div>
 
@@ -234,9 +234,8 @@
                     <h2 class="text-[15px] font-bold mb-4">Основные характеристики</h2>
 
                     <div class="text-gray-700 leading-relaxed mb-4">
-                        <!-- <x-specs-table :text="$variant->excerpt" /> -->
-                        {!! nl2br(str_replace(['\n', '\"'], ["\n", '"'], $variant->excerpt)) !!}
-                        <!-- {!! nl2br(e($variant->excerpt)) !!} -->
+                        <!-- {!! nl2br(str_replace(['\n', '\"'], ["\n", '"'], $variant->excerpt)) !!} -->
+                         {!! $variant->formatted_excerpt !!}
                     </div>
 
                     <a href="#full-specs" class="text-blue-600 hover:underline">

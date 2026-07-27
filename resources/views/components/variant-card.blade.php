@@ -16,7 +16,7 @@
             @endforeach
         </div>
 
-        <button class="favorite-toggle" data-id="{{ $variant->id }}">
+        <button class="favorite-toggle" data-id="{{ $variant->article }}">
             @if($isFavorite)
                 @include('products.icons.heart-filled')
             @else

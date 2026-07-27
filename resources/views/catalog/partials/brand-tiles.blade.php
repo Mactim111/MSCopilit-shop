@@ -26,7 +26,7 @@
         $brandTitle = $subcategoryTitle . ' ' . mb_convert_case($brand->title, MB_CASE_TITLE);
 
         // Путь к картинке
-        $imagePath = "/storage/images/category-images/{$group->slug}/{$category->slug}/smartfony-{$brand->slug}.jpg";
+        $imagePath = "/storage/images/category-images/{$group->slug}/{$category->slug}/{$subcategory->slug}-{$brand->slug}.jpg";
 
         // Ссылка на подкатегорию с фильтром бренда
         $url = route('catalog.subcategory.brand', [

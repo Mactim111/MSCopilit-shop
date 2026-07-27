@@ -23,7 +23,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 128GB White (MYE93HN/A)',
                 'article'     => '277807',
                 'slug'        => 'apple-iphone-16-128gb-white',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -112,7 +112,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 128GB Teal (MYED3HN/A)',
                 'article'     => '277805',
                 'slug'        => 'apple-iphone-16-128gb-teal',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -201,7 +201,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 128GB Ultramarine (MYEC3HN/A)',
                 'article'     => '277806',
                 'slug'        => 'apple-iphone-16-128gb-ultramarine',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -290,7 +290,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 128GB Black (MYE73HN/A)',
                 'article'     => '277803',
                 'slug'        => 'apple-iphone-16-128gb-black',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -379,7 +379,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 256GB White (MYEF3HN/A)',
                 'article'     => '277810',
                 'slug'        => 'apple-iphone-16-256gb-white',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -468,7 +468,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 256GB Black (MYEE3HN/A)',
                 'article'     => '277808',
                 'slug'        => 'apple-iphone-16-256gb-black',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -557,7 +557,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 16 256GB Pink (MYEG3HN/A)',
                 'article'     => '277809',
                 'slug'        => 'apple-iphone-16-256gb-pink',
-                'excerpt'     => 'Характеристики процессора: Apple A18 , 6 ядерный, 4.04 ГГц\nЭкран: 6.1 \" 1179х2556 пикселей, OLED , 60 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A18, 6 ядерный, 4.04 ГГц\nЭкран:  6.1 \" 1179х2556 пикселей, OLED, 60 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -649,7 +649,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 256GB White (MG6K4KH/A)',
                 'article'     => '364485',
                 'slug'        => 'apple-iphone-17-256gb-white',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -738,7 +738,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 256GB Mist Blue (MG6L4HN/A)',
                 'article'     => '344562',
                 'slug'        => 'apple-iphone-17-256gb-mist-blue',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -827,7 +827,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 256GB Lavender (MG6M4KH/A)',
                 'article'     => '364486',
                 'slug'        => 'apple-iphone-17-256gb-lavender',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -916,7 +916,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 512GB MG6Q4HN/A (белый)',
                 'article'     => '374386',
                 'slug'        => 'apple-iphone-17-512gb-white',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1005,7 +1005,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 512GB Lavender (MG6U4KH/A)',
                 'article'     => '358691',
                 'slug'        => 'apple-iphone-17-512gb-lavender',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1094,7 +1094,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 512GB Sage (MG6V4KH/A)',
                 'article'     => '358692',
                 'slug'        => 'apple-iphone-17-512gb-sage',
-                'excerpt'     => 'Характеристики процессора: Apple A19 , 6 ядерный, 4.46 ГГц\nЭкран: 6.3 \" 1206х2622 пикселей, OLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19, 6 ядерный, 4.46 ГГц\nЭкран:  6.3 \" 1206х2622 пикселей, OLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1186,7 +1186,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 256GB Deep Blue (MFYP4ZA/A)',
                 'article'     => '343281',
                 'slug'        => 'apple-iphone-17-pro-max-256gb-deep-blue',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1276,7 +1276,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 256GB Silver (MFYM4KH/A)',
                 'article'     => '355065',
                 'slug'        => 'apple-iphone-17-pro-max-256gb-silver',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1366,7 +1366,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 256GB Cosmic Orange (MFYN4ZA/A)',
                 'article'     => '343282',
                 'slug'        => 'apple-iphone-17-pro-max-256gb-cosmic-orange',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1456,7 +1456,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 512GB Silver (MFYQ4ZA/A)',
                 'article'     => '343276',
                 'slug'        => 'apple-iphone-17-pro-max-512gb-silver',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1546,7 +1546,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 512GB Cosmic Orange (MFYT4ZA/A)',
                 'article'     => '347314',
                 'slug'        => 'apple-iphone-17-pro-max-512gb-cosmic-orange',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1636,7 +1636,7 @@ class ProductVariantSeeder extends Seeder
                 'title'       => 'Смартфон Apple iPhone 17 Pro Max 512GB Deep Blue (MFYU4ZA/A)',
                 'article'     => '347765',
                 'slug'        => 'apple-iphone-17-pro-max-512gb-deep-blue',
-                'excerpt'     => 'Характеристики процессора: Apple A19 Pro , 6 ядерный, 4.46 ГГц\nЭкран: 6.9 \" 1320x2868 пикселей, OLED , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Да\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Apple A19 Pro, 6 ядерный, 4.46 ГГц\nЭкран:  6.9 \" 1320x2868 пикселей, OLED, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Да\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд:	APPLE\n
@@ -1732,7 +1732,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/256GB (SM-S938BZKBCAU) черный титан',
                 'article' => 298264,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb256gb-cernyi-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -1747,7 +1747,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -1818,7 +1818,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/256GB (SM-S938BZSBCAU) серебряный титан',
                 'article' => 298252,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb256gb-serebryanyi-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -1833,7 +1833,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -1904,7 +1904,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/256GB (SM-S938BZBBCAU) синий титан',
                 'article' => 298258,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb256gb-sinii-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -1919,7 +1919,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -1990,7 +1990,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/512GB (SM-S938BZKCCAU) черный титан',
                 'article' => 298263,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb512gb-chernii-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2005,7 +2005,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2076,7 +2076,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/512GB (SM-S938BZSCCAU) серебряный титан',
                 'article' => 298253,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb512gb-serebrnyi-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2091,7 +2091,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2162,7 +2162,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/512GB (SM-S938BZBCCAU) синий титан',
                 'article' => 298260,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb512gb-sinii-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 512 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2177,7 +2177,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2248,7 +2248,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/ 1TB (SM-S938BZTQCAU) серый титан',
                 'article' => 298255,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb1tb-seryi-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 1024 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 1024 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2263,7 +2263,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2334,7 +2334,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/ 1TB (SM- SMS938BZSQCAU) серебряный титан',
                 'article' => 298254,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb1tb-serebryanyi-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 1024 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 1024 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2349,7 +2349,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2420,7 +2420,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy S25 Ultra 12GB/ 1TB (SM-S938BZBQCAU) синий титан',
                 'article' => 2982599,
                 'slug' => 'samsung-galaxy-s25-ultra-12gb1tb-sinii-titan',
-                'excerpt'     => 'Qualcomm Snapdragon 8 Elite , 8 ядерный, 4.47 ГГц\nЭкран: 6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X , 120 Гц\nПамять: ОЗУ 12 ГБ , 1024 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Qualcomm Snapdragon 8 Elite, 8 ядерный, 4.47 ГГц\nЭкран:  6.9 \" 1440х3120 пикселей, Dynamic AMOLED 2X, 120 Гц\nПамять:  12 ГБ, 1024 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2435,7 +2435,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: Dynamic AMOLED 2X\n
                     Разрешение экрана: 1440х3120 пикселей\n
@@ -2509,7 +2509,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/128GB (серый)',
                 'article' => 368526,
                 'slug' => 'samsung-galaxy-a57-5g-8gb128gb-seryi',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2524,7 +2524,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -2592,7 +2592,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/128GB (синий)',
                 'article' => 368528,
                 'slug' => 'samsung-galaxy-a57-5g-8gb128gb-siniy',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2607,7 +2607,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -2675,7 +2675,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/256GB (серый)',
                 'article' => 368525,
                 'slug' => 'samsung-galaxy-a57-5g-8gb256gb-seryi',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2690,7 +2690,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -2758,7 +2758,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/256GB (синий)',
                 'article' => 368524,
                 'slug' => 'samsung-galaxy-a57-5g-8gb256gb-siniy',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2773,7 +2773,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -2841,7 +2841,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/512GB (серый)',
                 'article' => 368505,
                 'slug' => 'samsung-galaxy-a57-5g-8gb512gb-seryi',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 512 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2856,7 +2856,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -2924,7 +2924,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/512GB (синий)',
                 'article' => 368503,
                 'slug' => 'samsung-galaxy-a57-5g-8gb512gb-sinyi',
-                'excerpt'     => 'Samsung Exynos 1680 , 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 512 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2939,7 +2939,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE), 5G\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.7 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080х2340 пикселей\n
@@ -3012,7 +3012,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Midnight Black RU',
                 'article' => 336434,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-midnight-black',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3027,7 +3027,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3102,7 +3102,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Mint Green RU RU',
                 'article' => 338500,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-mint-green',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3117,7 +3117,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3192,7 +3192,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Moonlight Blue RU',
                 'article' => 347356,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-moonlight-blue',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3207,7 +3207,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3282,7 +3282,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Twilight Orange RU',
                 'article' => 342134,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-twilight-orange',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3297,7 +3297,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3372,7 +3372,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Midnight Black RU',
                 'article' => 346282,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-midnight-black',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3387,7 +3387,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3462,7 +3462,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Moonlight Blue RU',
                 'article' => 347359,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-moonlight-blue',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3477,7 +3477,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3552,7 +3552,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Mint Green RU',
                 'article' => 350449,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-mint-green',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 4 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3567,7 +3567,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3642,7 +3642,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Midnight Black EU',
                 'article' => 354065,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-midnight-black-eu',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3657,7 +3657,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3732,7 +3732,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Mint Green RU',
                 'article' => 354066,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-mint-green-ru',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3747,7 +3747,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3822,7 +3822,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Moonlight Blue EU',
                 'article' => 354067,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-moonlight-blue-eu',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3837,7 +3837,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -3912,7 +3912,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Midnight Black RU',
                 'article' => 336435,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-midnight-black-ru',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ ,256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3927,7 +3927,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -4002,7 +4002,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Moonlight Blue RU',
                 'article' => 356159,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-moonlight-blue-ru',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4017,7 +4017,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -4092,7 +4092,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Mint Green RU',
                 'article' => 339261,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-mint-green-ru',
-                'excerpt'     => 'MediaTek Helio G81 Ultra , 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4107,7 +4107,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.9 \"\n
                     Технология экрана: IPS\n
                     Разрешение экрана: 720х1640 пикселей\n
@@ -4185,7 +4185,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Midnight Black RU',
                 'article' => 298213,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-midnight-black',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4201,7 +4201,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4274,7 +4274,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Ocean Blue RU',
                 'article' => 301029,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-ocean-blue',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4290,7 +4290,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4363,7 +4363,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Lime Green RU',
                 'article' => 298216,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-lime-green',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4379,7 +4379,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4452,7 +4452,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Midnight Black RU',
                 'article' => 298217,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-midnight-black',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4468,7 +4468,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4541,7 +4541,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Ocean Blue RU',
                 'article' => 298215,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-ocean-blue',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4557,7 +4557,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4630,7 +4630,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Lime Green RU',
                 'article' => 298218,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-lime-green',
-                'excerpt'     => 'MediaTek Helio G99 Ultra , 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4646,7 +4646,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.67 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2400 пикселей\n
@@ -4722,7 +4722,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Black EU',
                 'article' => 361871,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-black',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4737,7 +4737,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n
@@ -4809,7 +4809,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Purple RU',
                 'article' => 380899,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-purple',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4824,7 +4824,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n
@@ -4896,7 +4896,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Glacier Blue EU',
                 'article' => 361872,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-glacier-blue',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 6 ГБ , 128 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4911,7 +4911,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n
@@ -4983,7 +4983,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Black RU',
                 'article' => 363713,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-black',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4998,7 +4998,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n
@@ -5070,7 +5070,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Forest Green RU',
                 'article' => 375123,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-forest-green',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -5085,7 +5085,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n
@@ -5157,7 +5157,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Purple RU',
                 'article' => 357189,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-purple',
-                'excerpt'     => 'MediaTek Helio G100 Ultra , 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED , 120 Гц\nПамять: ОЗУ 8 ГБ , 256 ГБ\nПоддержка eSIM: Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -5172,7 +5172,7 @@ class ProductVariantSeeder extends Seeder
                     Состояние:	Новый\n
                     Стандарты связи:	2G, 3G, 4G (LTE)\n
                     Поддержка eSIM:	Нет\n
-                    <strong>Экран:</strong>\n
+                    <strong>Экран: </strong>\n
                     Диагональ экрана: 6.77 \"\n
                     Технология экрана: AMOLED\n
                     Разрешение экрана: 1080x2392 пикселей\n

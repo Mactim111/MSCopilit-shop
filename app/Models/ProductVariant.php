@@ -111,6 +111,32 @@ class ProductVariant extends Model
         )->withTimestamps();
     }
 
+    // форматирование краткого описания (excerpt) для отображения на странице варианта и странице подкатегории
+    public function getFormattedExcerptAttribute()
+    {
+        // 1. Чистим экранирование
+        $text = str_replace(['\"'], ['"'], $this->excerpt);
+
+        // 2. Разбиваем по \n (именно так, как в сидере)
+        $lines = explode('\n', $text);
+
+        // 3. Форматируем каждую строку отдельно
+        $formatted = collect($lines)->map(function ($line) {
+            $line = trim($line);
+            if ($line === '') return '';
+
+            if (strpos($line, ':') !== false) {
+                [$label, $value] = explode(':', $line, 2);
+                // вместо <strong> используем span с Tailwind классом
+                return $label . ': <span class="font-semibold">' . trim($value) . '</span>';
+            }
+
+            return $line;
+        })->implode('<br>'); // сохраняем переносы строк
+
+        return $formatted;
+    }
+
     /* -----------------------------------------
      |  ИЗОБРАЖЕНИЯ
      |------------------------------------------*/

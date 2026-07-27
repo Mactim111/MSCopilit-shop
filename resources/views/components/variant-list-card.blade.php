@@ -30,24 +30,25 @@
 
         {{-- Название --}}
         <a href="{{ route('catalog.variant', $variant->slug) }}" class="block mb-[2px]">
-            <div class="w-[364px] h-[20px] text-[15px] font-semibold text-[#231F20] truncate">
+            <div class="w-[364px] min-h-[40px] text-[15px] font-bold text-[#231F20]">
                 {{ $variant->title }}
             </div>
         </a>
 
         {{-- Код товара --}}
-        <div class="w-[123px] h-[21px] text-[14px] text-gray-600 mb-1">
-            Код товара: {{ $variant->id }}
+        <div class="h-[21px] text-[14px] text-gray-600 mb-1">
+            Код товара: {{ $variant->article }}
         </div>
 
         <hr class="border-t border-dashed border-gray-300 mb-2">
 
         {{-- Описание --}}
-        <div class="w-[364px] text-[14px] text-gray-700 pb-[5px] leading-snug line-clamp-2">
-            {{ $variant->excerpt }}
+        <div class="w-[364px] min-h-full text-[14px] text-gray-700 pb-[5px]">
+            {!! $variant->formatted_excerpt !!}
+            <hr class="border-t border-dashed border-gray-300 mt-[10px]">
         </div>
 
-        <hr class="border-t border-dashed border-gray-300 mt-auto">
+        
     </div>
 
     {{-- Колонка 3 --}}
