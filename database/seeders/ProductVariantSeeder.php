@@ -2509,7 +2509,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/128GB (серый)',
                 'article' => 368526,
                 'slug' => 'samsung-galaxy-a57-5g-8gb128gb-seryi',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2592,7 +2592,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/128GB (синий)',
                 'article' => 368528,
                 'slug' => 'samsung-galaxy-a57-5g-8gb128gb-siniy',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2675,7 +2675,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/256GB (серый)',
                 'article' => 368525,
                 'slug' => 'samsung-galaxy-a57-5g-8gb256gb-seryi',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2758,7 +2758,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/256GB (синий)',
                 'article' => 368524,
                 'slug' => 'samsung-galaxy-a57-5g-8gb256gb-siniy',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2841,7 +2841,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/512GB (серый)',
                 'article' => 368505,
                 'slug' => 'samsung-galaxy-a57-5g-8gb512gb-seryi',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -2924,7 +2924,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Samsung Galaxy A57 5G SM-A576 8GB/512GB (синий)',
                 'article' => 368503,
                 'slug' => 'samsung-galaxy-a57-5g-8gb512gb-sinyi',
-                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\n6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  Samsung Exynos 1680, 8 ядерный, 2.9 ГГц\nЭкран:  6.7 \" 1080x2340 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 512 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: SAMSUNG\n
@@ -3012,7 +3012,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Midnight Black RU',
                 'article' => 336434,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-midnight-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3102,7 +3102,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Mint Green RU RU',
                 'article' => 338500,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-mint-green',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3192,7 +3192,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Moonlight Blue RU',
                 'article' => 347356,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-moonlight-blue',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3282,7 +3282,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/128GB Twilight Orange RU',
                 'article' => 342134,
                 'slug' => 'xiaomi-redmi-15c-4gb-128gb-twilight-orange',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3372,7 +3372,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Midnight Black RU',
                 'article' => 346282,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-midnight-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3462,7 +3462,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Moonlight Blue RU',
                 'article' => 347359,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-moonlight-blue',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3552,7 +3552,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 4GB/256GB Mint Green RU',
                 'article' => 350449,
                 'slug' => 'xiaomi-redmi-15c-4gb-256gb-mint-green',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  4 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3642,7 +3642,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Midnight Black EU',
                 'article' => 354065,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-midnight-black-eu',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3732,7 +3732,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Mint Green RU',
                 'article' => 354066,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-mint-green-ru',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3822,7 +3822,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Moonlight Blue EU',
                 'article' => 354067,
                 'slug' => 'xiaomi-redmi-15c-6gb-128gb-moonlight-blue-eu',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -3912,7 +3912,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Midnight Black RU',
                 'article' => 336435,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-midnight-black-ru',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ ,256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ ,256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4002,7 +4002,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Moonlight Blue RU',
                 'article' => 356159,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-moonlight-blue-ru',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4092,7 +4092,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Mint Green RU',
                 'article' => 339261,
                 'slug' => 'xiaomi-redmi-15c-8gb-256gb-mint-green-ru',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\n6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4185,7 +4185,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Midnight Black RU',
                 'article' => 298213,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-midnight-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4274,7 +4274,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Ocean Blue RU',
                 'article' => 301029,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-ocean-blue',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4363,7 +4363,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 6GB/128GB Lime Green RU',
                 'article' => 298216,
                 'slug' => 'xiaomi-redmi-note-14-6gb-128gb-lime-green',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4452,7 +4452,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Midnight Black RU',
                 'article' => 298217,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-midnight-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4541,7 +4541,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Ocean Blue RU',
                 'article' => 298215,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-ocean-blue',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4630,7 +4630,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 14 8GB/256GB Lime Green RU',
                 'article' => 298218,
                 'slug' => 'xiaomi-redmi-note-14-8gb-256gb-lime-green',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\n6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G99 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.67 \" 1080x2400 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4722,7 +4722,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Black EU',
                 'article' => 361871,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4809,7 +4809,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Purple RU',
                 'article' => 380899,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-purple',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4896,7 +4896,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 6GB/128GB Glacier Blue EU',
                 'article' => 361872,
                 'slug' => 'xiaomi-redmi-note-15-6gb-128gb-glacier-blue',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -4983,7 +4983,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Black RU',
                 'article' => 363713,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-black',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -5070,7 +5070,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Forest Green RU',
                 'article' => 375123,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-forest-green',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n
@@ -5157,7 +5157,7 @@ class ProductVariantSeeder extends Seeder
                 'title' => 'Смартфон Xiaomi Redmi Note 15 8GB/256GB Purple RU',
                 'article' => 357189,
                 'slug' => 'xiaomi-redmi-note-15-8gb-256gb-purple',
-                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\n6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
+                'excerpt'     => 'Характеристики процессора:  MediaTek Helio G100 Ultra, 8 ядерный, 2.2 ГГц\nЭкран:  6.77 \" 1080x2392 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
                     Бренд: XIAOMI\n

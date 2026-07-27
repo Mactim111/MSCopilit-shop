@@ -50,9 +50,9 @@ class PropertyOptionsSeeder extends Seeder
             ['property_id' => 5, 'value' => 'Нет NFC',  'slug' => 'no'],
 
             // 6. Цвет корпуса
-            ['property_id' => 6, 'value' => 'Черный', 'slug' => 'black', 'color_hex' => '#1a1a1a'],
-            ['property_id' => 6, 'value' => 'Белый',  'slug' => 'white', 'color_hex' => '#ffffff'],
-            ['property_id' => 6, 'value' => 'Синий',  'slug' => 'blue',  'color_hex' => '#4169e1'],
+            ['property_id' => 6, 'value' => 'Черный', 'slug' => 'chernyy', 'color_hex' => '#1a1a1a'],
+            ['property_id' => 6, 'value' => 'Белый',  'slug' => 'belyy', 'color_hex' => '#ffffff'],
+            ['property_id' => 6, 'value' => 'Синий',  'slug' => 'siniy',  'color_hex' => '#4169e1'],
             ['property_id' => 6, 'value' => 'Бирюзовый', 'slug' => 'biryuzovyy', 'color_hex' => '#40E0D0'],
             ['property_id' => 6, 'value' => 'Розовый',  'slug' => 'rozovyy', 'color_hex' => '#FFC0CB'],
             ['property_id' => 6, 'value' => 'Сиреневый', 'slug' => 'sirenevyy', 'color_hex' => '#C8A2C8'],
@@ -66,8 +66,8 @@ class PropertyOptionsSeeder extends Seeder
             // 7. Емкость аккумулятора (range)
             ['property_id' => 7, 'value' => '3561 мА·ч', 'slug' => '3561', 'numeric_value' => 3561],
             ['property_id' => 7, 'value' => '3692 мА·ч', 'slug' => '3692', 'numeric_value' => 3692],
-            ['property_id' => 7, 'value' => '5088 мА·ч', 'slug' => '5088', 'numeric_value' => 5088],
-            ['property_id' => 7, 'value' => '5000 мА·ч', 'slug' => '5000', 'numeric_value' => 5000],
+            ['property_id' => 7, 'value' => '5088 мА·ч', 'slug' => '5088', 'numeric_value' => 5000],
+            ['property_id' => 7, 'value' => '5000 мА·ч', 'slug' => '5000', 'numeric_value' => 5088],
             ['property_id' => 7, 'value' => '5500 мА·ч', 'slug' => '5500', 'numeric_value' => 5500],
             ['property_id' => 7, 'value' => '6000 мА·ч', 'slug' => '6000', 'numeric_value' => 6000],
             ['property_id' => 7, 'value' => '7000 мА·ч', 'slug' => '7000', 'numeric_value' => 7000],
