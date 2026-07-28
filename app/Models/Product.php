@@ -135,7 +135,8 @@ class Product extends Model
                 $usedOptionIds = $variants
                     ->flatMap(fn ($v) => $v->propertyOptions->pluck('id'))
                     ->unique();
-                $query->whereIn('id', $usedOptionIds)->orderBy('position');
+                $query->whereIn('id', $usedOptionIds)
+                    ->orderByRaw('COALESCE(numeric_value, 0), value');
             }])
             ->get()
             ->map(fn ($property) => [

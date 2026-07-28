@@ -2,48 +2,75 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProductVariant;
+use Illuminate\Http\Request;
 
-/**
- * @property int $id
- * @property int $product_id
- * @property int $category_id
- * @property int $brand_id
- * @property string $title
- * @property string $slug
- */
+use App\Models\ProductVariant;
+use Illuminate\View\View;
+
 class ProductVariantController extends Controller
 {
-    public function show(ProductVariant $variant)
+    public function show(ProductVariant $variant): View
     {
+        // ----------------------------------------------------------------
+        // Загружаем всё что нужно одним запросом.
+        //
+        // Для свитчера добавлены:
+        //   product.cardProperties.options  — свойства товара с used_for_variant_card=true
+        //                                     и их опции (для построения матрицы)
+        //   product.variants.propertyOptions.property — все варианты товара с опциями
+        //                                     (нужно getVariantMatrixAttribute())
+        //
+        // Остальные relations — твои оригинальные.
+        // ----------------------------------------------------------------
         $variant->load([
             'images',
             'labels',
             'propertyOptions.property',
             'product.brand',
-            'product.category.parent.parent' // загрузим всю цепочку
+            'product.category.parent.parent',
+
+            // Для свитчера:
+            'product.cardProperties.options',
+            'product.variants.propertyOptions.property',
         ]);
 
         $product = $variant->product;
-        $brand = $product->brand;
+        $brand   = $product->brand;
 
+        // ----------------------------------------------------------------
+        // Матрица вариативности для свитчера.
+        //
+        // $variantMatrix — Collection, каждый элемент:
+        // [
+        //   'property' => Property (title, id),
+        //   'options'  => [
+        //     ['option' => PropertyOption, 'available' => bool],
+        //     ...
+        //   ],
+        // ]
+        //
+        // Геттер getVariantMatrixAttribute() определён в модели Product.
+        // Он использует уже загруженные relations — дополнительных запросов нет.
+        // ----------------------------------------------------------------
+        $variantMatrix = $product->variant_matrix;
+
+        // ----------------------------------------------------------------
+        // Твой оригинальный код (без изменений)
+        // ----------------------------------------------------------------
         $images = $variant->images->map(fn($img) => [
-            'id' => (int)$img->id,
-            'url' => $img->url,
-            'position' => (int)$img->position,
+            'id'       => (int) $img->id,
+            'url'      => $img->url,
+            'position' => (int) $img->position,
         ]);
 
-        $first = $images->firstWhere('position', 1);
-        $activeImage = $first['url'] ?? $images->first()['url'];
-        $activeId    = $first['id']  ?? $images->first()['id'];
+        $first       = $images->firstWhere('position', 1);
+        $activeImage = $first['url'] ?? $images->first()['url'] ?? null;
+        $activeId    = $first['id']  ?? $images->first()['id']  ?? null;
 
+        $subcategory = $product->category;
+        $category    = $subcategory?->parent;
+        $group       = $category?->parent;
 
-        $subcategory = $product->category; // подкатегория
-        $category = $subcategory->parent; // категория
-        $group = $category->parent; // группа
-        
-
-        // Похожие варианты — из той же категории товара
         $relatedVariants = ProductVariant::where('id', '!=', $variant->id)
             ->whereHas('product', fn($q) =>
                 $q->where('category_id', $product->category_id)
@@ -56,14 +83,14 @@ class ProductVariantController extends Controller
             'variant',
             'product',
             'brand',
-            'variant',
             'images',
             'activeImage',
             'activeId',
             'subcategory',
             'category',
             'group',
-            'relatedVariants'
+            'relatedVariants',
+            'variantMatrix',   // ← добавлено для свитчера
         ));
     }
 }

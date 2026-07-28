@@ -228,6 +228,7 @@
             </div>
 
             {{-- Колонка 2: Основные характеристики (excerpt) — 4/12 --}}
+            @include('variants.partials.switcher')
             <div class="lg:col-span-4 order-last lg:order-none">
 
                 <div class="flex flex-col pl-[70px]">

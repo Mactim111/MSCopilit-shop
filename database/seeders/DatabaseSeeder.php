@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             ProductVariantLabelSeeder::class,
             ProductVariantImagesSeeder::class,
             PropertiesSeeder::class,
+            ProductPropertiesSeeder::class,
             PropertyOptionsSeeder::class,
             ProductVariantPropertyOptionsSeeder::class,
         ]);

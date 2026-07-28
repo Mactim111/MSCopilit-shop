@@ -24,7 +24,7 @@ class Property extends Model
 
     public function options()
     {
-        return $this->hasMany(PropertyOption::class)->orderBy('position');
+        return $this->hasMany(PropertyOption::class);
     }
 
     // ------------------------------------------------------------------
