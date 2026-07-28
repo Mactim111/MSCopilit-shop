@@ -248,7 +248,7 @@
             {{-- Колонка 3: Карточка корзины — 4/12 --}}
             <div class="lg:col-span-4">
                 <div class="flex flex-col" style="padding-left:30px;">
-                <   x-variant-buy-card :variant="$variant" :isFavorite="$isFavorite ?? false" />
+                <x-variant-buy-card :variant="$variant" :isFavorite="$isFavorite ?? false" />
                 </div>
             </div>
 

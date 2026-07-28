@@ -4,7 +4,7 @@
     $product = $variant->product;
 @endphp
 
-<div class="w-[287px] h-[459px] border border-gray-200 rounded-xl p-[12px]
+<div class="w-[287px] h-[470px] border border-gray-200 rounded-xl p-[12px]
             shadow-md shadow-gray-200/50 hover:shadow-lg hover:shadow-gray-300/60
             backdrop-blur-sm transition bg-white flex flex-col">
 
@@ -42,7 +42,7 @@
     </a>
 
     {{-- Цена + кнопка --}}
-    <div class="grid grid-cols-2 gap-3 items-start mt-auto">
+    <div class="grid grid-cols-2 gap-3 items-start">
 
         {{-- Цена --}}
         <div class="min-h-[60px] flex flex-col justify-start w-[122px]">

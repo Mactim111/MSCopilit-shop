@@ -17,7 +17,7 @@ $recommendVariants = \App\Models\ProductVariant::limit(10)->get();
     <div class="relative px-[16px]">
 
         {{-- Кнопка назад --}}
-        <button 
+        <button
             class="js-swiper-prev absolute left-[1px] top-1/2 -translate-y-1/2
                    w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
                    flex items-center justify-center cursor-pointer z-10">
@@ -28,13 +28,13 @@ $recommendVariants = \App\Models\ProductVariant::limit(10)->get();
 
         {{-- SWIPER --}}
         <div class="swiper js-swiper"
-             data-grab="true"
-             data-loop="true"
-             data-pagination="false"
-             data-navigation="true"
-             data-space="8"
-             data-slides="5"
-             data-breakpoints='{
+            data-grab="true"
+            data-loop="true"
+            data-pagination="false"
+            data-navigation="true"
+            data-space="8"
+            data-slides="5"
+            data-breakpoints='{
                  "320": {"slidesPerView": 1.2},
                  "480": {"slidesPerView": 2},
                  "768": {"slidesPerView": 3},
@@ -60,12 +60,10 @@ $recommendVariants = \App\Models\ProductVariant::limit(10)->get();
 
                         {{-- Верхний блок --}}
                         <div class="flex justify-between items-center mb-3">
-                            <div>
-                                @if($variant->label)
-                                <span class="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                                    {{ $variant->label }}
-                                </span>
-                                @endif
+                            <div class="flex gap-2">
+                                @foreach($variant->labels as $label)
+                                <x-dynamic-component :component="'labels.' . $label->component" />
+                                @endforeach
                             </div>
                             <button class="favorite-toggle" data-id="{{ $variant->id }}">
                                 @include('products.icons.heart-outline')
@@ -111,25 +109,25 @@ $recommendVariants = \App\Models\ProductVariant::limit(10)->get();
                             </div>
 
                             @php
-                                $inCart = CartItem::where('user_id', Auth::id())
-                                    ->where('product_variant_id', $variant->id)
-                                    ->exists();
+                            $inCart = CartItem::where('user_id', Auth::id())
+                            ->where('product_variant_id', $variant->id)
+                            ->exists();
                             @endphp
 
                             @if($inCart)
-                                <a href="{{ route('cart.index') }}"
-                                    class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-sm">
-                                    В корзине
-                                </a>
-                            @else                               
-                                <div class="text-right">
-                                    <form action="{{ route('cart.add', $variant) }}" method="POST" class="mx-auto">
-                                        @csrf
-                                        <button class="bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition">
-                                            В корзину
-                                        </button>
-                                    </form>
-                                </div>
+                            <a href="{{ route('cart.index') }}"
+                                class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-sm">
+                                В корзине
+                            </a>
+                            @else
+                            <div class="text-right">
+                                <form action="{{ route('cart.add', $variant) }}" method="POST" class="mx-auto">
+                                    @csrf
+                                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition">
+                                        В корзину
+                                    </button>
+                                </form>
+                            </div>
                             @endif
 
                         </div>
@@ -160,7 +158,7 @@ $recommendVariants = \App\Models\ProductVariant::limit(10)->get();
         </div>
 
         {{-- Кнопка вперед --}}
-        <button 
+        <button
             class="js-swiper-next absolute right-[1px] top-1/2 -translate-y-1/2
                    w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
                    flex items-center justify-center cursor-pointer z-10">

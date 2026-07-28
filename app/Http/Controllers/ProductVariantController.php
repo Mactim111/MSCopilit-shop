@@ -27,10 +27,6 @@ class ProductVariantController extends Controller
         $product = $variant->product;
         $brand = $product->brand;
 
-        // $images = $variant->images;
-        // $activeImage = $images->firstWhere('position', 1)?->url ?? $images->first()->url;
-        // $activeId = $images->firstWhere('position', 1)?->id ?? $images->first()->id;
-
         $images = $variant->images->map(fn($img) => [
             'id' => (int)$img->id,
             'url' => $img->url,

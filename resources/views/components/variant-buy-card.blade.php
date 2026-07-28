@@ -7,14 +7,14 @@
 <div class="border border-gray-200 rounded-xl p-5 shadow-md shadow-gray-200/50 bg-white">
 
     {{-- Верхняя строка: лейбл + рейтинг --}}
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center max-h-[40px] mb-2">
 
         {{-- Лейбл (если есть) --}}
-        <div>
-            @if($variant->label)
-                <span class="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                    {{ $variant->label }}
-                </span>
+        <div class="flex gap-2">
+            @if($variant->labels)
+                @foreach($variant->labels as $label)
+                    <x-dynamic-component :component="'labels.' . $label->component" />
+                @endforeach
             @endif
         </div>
 
@@ -39,7 +39,7 @@
     </div>
 
     {{-- Блок цен --}}
-    <div class="grid grid-cols-2 gap-4 items-start mb-6">
+    <div class="grid grid-cols-2 gap-4 items-start mb-2">
 
         {{-- Текущая цена --}}
         <div>
