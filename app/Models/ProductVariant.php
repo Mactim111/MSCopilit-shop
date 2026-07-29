@@ -274,4 +274,15 @@ class ProductVariant extends Model
         if (!$this->hasDiscount()) return 0;
         return (int) round((1 - $this->price / $this->old_price) * 100);
     }
+
+    // для получения линейки товара через опции варианта (если есть опция с property.slug = 'lineup') - например для хлебных крошек на странице варианта
+    public function getLineupAttribute()
+    {
+        // Ищем опцию, у которой свойство имеет slug = lineup
+        $option = $this->propertyOptions
+            ->first(fn($opt) => $opt->property->slug === 'lineup');
+
+        return $option?->value;
+    }
+
 }

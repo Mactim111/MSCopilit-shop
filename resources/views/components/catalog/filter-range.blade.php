@@ -13,7 +13,7 @@
         class="flex w-full items-center justify-between
                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
         {{ $property->title }}
-        <svg class="w-[10px] h-[6px] flex-none transition-transform duration-200"
+        <svg class="w-[20px] h-[12px] flex-none transition-transform duration-200"
              :class="open ? 'rotate-180' : ''"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>

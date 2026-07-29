@@ -24,7 +24,12 @@
             // Бренд
             [
                 'title' => $brand->title,
-                'url' => '#'
+                'url' => route('catalog.subcategory.brand', [
+                    $group->slug,
+                    $category->slug,
+                    $subcategory->slug,
+                    $brand->slug
+                ]) 
             ],
 
             // Линейка (если есть)
@@ -39,9 +44,9 @@
 
         {{-- Название + код товара в одной строке --}}
         <div class="flex justify-between items-center mb-2">
-            <h1 class="text-3xl font-bold">{{ $variant->title }}</h1>
+            <h1 class="text-[#231f20] text-[28px] font-bold">{{ $variant->title }}</h1>
 
-            <div class="text-gray-500 text-sm">
+            <div class="text-[#231f20] text-[14px]">
                 Код товара: {{ $variant->article }}
             </div>
         </div>
@@ -138,8 +143,8 @@
                 {{-- Большая картинка --}}
                 
                     <div class="flex items-center justify-center overflow-hidden 
-                        border border-gray-100 rounded-lg bg-gray-100 
-                        shadow-[0_2px_8px_rgba(0,0,0,0.20)]
+                        {{-- border border-gray-100 rounded-lg bg-gray-100 
+                        shadow-[0_2px_8px_rgba(0,0,0,0.20)] --}}
                         zoom-cursor transition-all duration-200 w-[510px] h-[510px]
                         relative  js-open-modal"
                     >

@@ -224,4 +224,19 @@ class Product extends Model
         return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
     }
 
+    // ДЛЯ ЛИНЕЙКИ — возвращает значение опции свойства "линейка" текущего варианта товара, если оно есть - НА ВСЯКИЙ СЛУЧАЙ! 
+    // можно в ХЛЕБНЫХ КРОШКАХ использовать, чтобы выводить ".../iPhone 14/Смартфоны" вместо просто "Смартфоны", 
+    // хотя у варианта есть в модели свой аксессор getLineupAttribute(), который возвращает значение линейки
+    public function getLineupAttribute()
+    {
+        // Берём первый вариант товара (обычно основной)
+        $variant = $this->variants->first();
+
+        if (!$variant) {
+            return null;
+        }
+
+        return $variant->lineup; // используем аксессор варианта
+    }
+
 }

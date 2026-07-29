@@ -51,10 +51,11 @@
 
         {{-- СТРОКА-ЗАГОЛОВОК --}}
         @if ($item['type'] === 'header')
-            <div class="bg-white border border-gray-200 rounded-md
+            <div class="bg-[#f2f2f2] rounded-md
                         h-[38px] flex items-center pl-[17px] mb-2
                         font-bold text-[14px] text-[#231F20]
-                        shadow-[0_2px_8px_rgba(0,0,0,0.20)]">
+                        {{-- shadow-[0_2px_8px_rgba(0,0,0,0.20)] --}}
+            ">
                 {{ $item['text'] }}
             </div>
         @endif

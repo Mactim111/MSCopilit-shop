@@ -4,7 +4,7 @@
     $product = $variant->product;
 @endphp
 
-<div class="border border-gray-200 rounded-xl p-5 shadow-md shadow-gray-200/50 bg-white">
+<div class="rounded-xl p-5 border border-gray-100 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.20)] bg-white">
 
     {{-- Верхняя строка: лейбл + рейтинг --}}
     <div class="flex justify-between items-center max-h-[40px] mb-2">

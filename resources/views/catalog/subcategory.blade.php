@@ -6,20 +6,30 @@
     $crumbs = [
         ['title' => 'Главная', 'url' => route('home')],
         ['title' => 'Каталог', 'url' => route('catalog.index')],
-        [
-            // Кликабельная подкатегория
+    ];
+
+    // Если бренд НЕ выбран — подкатегория конечная, жирная, НЕ кликабельная
+    if (empty($breadcrumbBrandTitle)) {
+        $crumbs[] = [
+            'title' => $subcategory->title,
+            // без url → некликабельная, компонент сделает её последней и жирной
+        ];
+    } else {
+        // Если бренд выбран — подкатегория промежуточная, кликабельная, обычный шрифт
+        $crumbs[] = [
             'title' => $subcategory->title,
             'url'   => route('catalog.subcategory', [
                 'group'       => $group->slug,
                 'category'    => $category->slug,
                 'subcategory' => $subcategory->slug,
             ]),
-        ],
-    ];
+        ];
 
-    // Некликабельный бренд в верхнем регистре — только если есть (выбран в фильтре)
-    if (!empty($breadcrumbBrandTitle)) {
-        $crumbs[] = ['title' => $breadcrumbBrandTitle];
+        // Бренд — конечное звено: жирный, НЕ кликабельный
+        $crumbs[] = [
+            'title' => $breadcrumbBrandTitle,
+            // без url → некликабельный, последний, жирный
+        ];
     }
 @endphp
 

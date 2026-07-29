@@ -18,7 +18,7 @@
         class="flex w-full items-center justify-between
                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
         <span data-filter-title>{{ $property->title }}</span>
-        <svg class="w-[10px] h-[6px] flex-none transition-transform duration-200"
+        <svg class="w-[20px] h-[12px] flex-none transition-transform duration-200"
              :class="open ? 'rotate-180' : ''"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
@@ -38,6 +38,7 @@
             @if (($option->products_count ?? 0) > 0)
                 <li 
                     data-option-item 
+                    {{-- ниже в условии меняем число 6 на другое, если нужно изменить количество отображаемых брендов - остальные исчезают! --}}
                     @if($loop->index >= 6) style="display:none" @endif
                     class="flex items-center gap-[8px]"
                 >
@@ -47,13 +48,11 @@
                         name="f[{{ $property->slug }}][]"
                         value="{{ $option->slug }}"
                         @checked(in_array($option->slug, $active))
-                        class="h-[16px] w-[16px] rounded-[3px] border-gray-400
-                               text-[#DC092E] accent-[#DC092E] cursor-pointer
-                               focus:ring-[#DC092E] focus:ring-offset-0"
+                        class="cursor-pointer"
                     >
                     <label for="f_{{ $property->slug }}_{{ $option->slug }}"
                         class="flex flex-1 items-center justify-between
-                               text-[14px] text-[#231F20] cursor-pointer
+                               text-[15px] text-[#231F20] cursor-pointer
                                hover:text-[#DC092E] transition-colors">
                         <span>{{ $option->value }}</span>
                         <span class="text-[13px] text-gray-400 ml-1">({{ $option->products_count }})</span>
@@ -64,10 +63,11 @@
 
     </ul>
 
-    {{-- Кнопка "Посмотреть все / Скрыть" если опций у фильтра больше 6 --}}
-    @if ($property->options->where('products_count', '>', 0)->count() > 2)
+    {{-- Кнопка "Посмотреть все / Скрыть" (для изменения количества отображаемых элементов, при которых данная кнопка появляется, меняем числа ниже) --}}
+    @if ($property->options->where('products_count', '>', 0)->count() > 6)
         <button
             type="button"
+            x-show="open"
             class="flex items-center gap-[4px] text-[14px] text-[#007EFF] mt-[4px]"
             x-data="{ expanded: false }"
             @click="
@@ -75,7 +75,7 @@
                 const list = $el.closest('div').querySelector('[data-options-list]');
                 const items = list.querySelectorAll('[data-option-item]');
                 items.forEach((item, index) => {
-                    item.style.display = expanded || index < 2 ? '' : 'none';
+                    item.style.display = expanded || index < 6 ? '' : 'none';
                 });
             "
         >

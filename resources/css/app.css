@@ -182,6 +182,39 @@
 </svg>") 9 9, pointer;
 }
 
+input[type="checkbox"] {
+    appearance: none; /* отключаем системный чекбокс */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    width: 20px;
+    height: 20px;
+
+    border: 1px solid #C8C8C8; /* тонкая светлая рамка */
+    border-radius: 4px; /* теперь работает! */
+    background: #fff;
+
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #DC092E;
+    border-color: #DC092E;
+}
+
+input[type="checkbox"]:checked::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg);
+    margin: 3px 0 0 4px;
+}
+
+
 
 
 

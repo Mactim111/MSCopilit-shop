@@ -50,7 +50,7 @@
 
 
     {{-- Контентная часть — серый фон --}}
-    <main class="min-h-screen bg-gray-100">
+    <main class="min-h-screen ">
         <div class="max-w-[1500px] mx-auto py-10">
 
             @if(session('success'))
