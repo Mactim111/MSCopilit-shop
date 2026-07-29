@@ -3641,7 +3641,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Midnight Black EU',
                 'article' => 354065,
-                'slug' => 'xiaomi-redmi-15c-6gb-128gb-midnight-black-eu',
+                'slug' => 'xiaomi-redmi-15c-6gb-128gb-midnight-black',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
@@ -3731,7 +3731,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Mint Green RU',
                 'article' => 354066,
-                'slug' => 'xiaomi-redmi-15c-6gb-128gb-mint-green-ru',
+                'slug' => 'xiaomi-redmi-15c-6gb-128gb-mint-green',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
@@ -3821,7 +3821,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 6GB/128GB Moonlight Blue EU',
                 'article' => 354067,
-                'slug' => 'xiaomi-redmi-15c-6gb-128gb-moonlight-blue-eu',
+                'slug' => 'xiaomi-redmi-15c-6gb-128gb-moonlight-blue',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  6 ГБ, 128 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
@@ -3911,7 +3911,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Midnight Black RU',
                 'article' => 336435,
-                'slug' => 'xiaomi-redmi-15c-8gb-256gb-midnight-black-ru',
+                'slug' => 'xiaomi-redmi-15c-8gb-256gb-midnight-black',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ ,256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
@@ -4001,7 +4001,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Moonlight Blue RU',
                 'article' => 356159,
-                'slug' => 'xiaomi-redmi-15c-8gb-256gb-moonlight-blue-ru',
+                'slug' => 'xiaomi-redmi-15c-8gb-256gb-moonlight-blue',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n
@@ -4091,7 +4091,7 @@ class ProductVariantSeeder extends Seeder
                 'product_id' => 6,
                 'title' => 'Смартфон Xiaomi Redmi 15C 8GB/256GB Mint Green RU',
                 'article' => 339261,
-                'slug' => 'xiaomi-redmi-15c-8gb-256gb-mint-green-ru',
+                'slug' => 'xiaomi-redmi-15c-8gb-256gb-mint-green',
                 'excerpt'     => 'Характеристики процессора:  MediaTek Helio G81 Ultra, 8 ядерный, 2.0 ГГц\nЭкран:  6.9 \" 720x1640 пикселей, AMOLED, 120 Гц\nПамять:  8 ГБ, 256 ГБ\nПоддержка eSIM:  Нет\nNFC: Да',
                 'description' => '
                     <strong>Основные</strong> \n

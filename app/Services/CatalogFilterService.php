@@ -89,7 +89,7 @@ class CatalogFilterService
                 $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
                     $q->where('category_id', $subcategory->id)
                       ->whereIn('product_id', $filteredProductIds);
-                })->orderBy('position');
+                })->orderBy('value');
             }])
             ->get()
             ->each(function (Property $property) use ($subcategory, $filteredProductIds) {
