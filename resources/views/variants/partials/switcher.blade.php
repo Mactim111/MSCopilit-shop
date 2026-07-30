@@ -14,17 +14,21 @@
 
     Логика свитчера:
         — Для каждого свойства (ось вариативности) выводим плитки с опциями.
-        — При клике на плитку ищем вариант, у которого:
-            а) есть выбранная опция по текущей оси
-            б) сохранены все уже выбранные опции по остальным осям
-          Это «умный» переход: меняем только одну ось, остальные сохраняем.
-        — Недоступные опции (нет варианта в наличии) — зачёркнуты, некликабельны.
-        — Если заполнен color_hex — показываем цветной кружок рядом с текстом.
+        — НЕСТРОГИЙ режим (как у 5 Элемент):
+            * ВСЕ плитки кликабельны
+            * переход ВСЕГДА происходит на существующий вариант
+            * НИКОГДА нельзя попасть на несуществующую комбинацию
+        — Визуал:
+            * активная опция → белый фон + чёрная рамка
+            * «родная» опция → серый фон + чёрный текст
+            * «чужая» опция → серый фон + светло‑серый текст
+        — Родные/чужие опции определяются НЕ по всему товару,
+          а только среди вариантов, совпадающих по ВСЕМ остальным осям.
 --}}
 
 @if(isset($variantMatrix) && $variantMatrix->isNotEmpty())
 
-    <div class="flex flex-col gap-[16px]">
+    <div class="flex flex-col">
 
         @foreach ($variantMatrix as $axis)
             @php
@@ -34,106 +38,125 @@
                 // Текущее значение этого свойства у активного варианта.
                 $currentOption = $variant->propertyOptions
                     ->firstWhere('property_id', $property->id);
+
+                /**
+                 * Собираем ID всех опций текущего варианта,
+                 * кроме текущей оси (свойства).
+                 *
+                 * Эти опции определяют "контекст" варианта.
+                 * Например, для оси "Цвет корпуса" контекстом будут:
+                 *   — RAM
+                 *   — Storage
+                 *   — Region
+                 *   — Model
+                 *
+                 * Именно по этому контексту 5 Элемент определяет,
+                 * какие опции являются "родными", а какие "чужими".
+                 */
+                $otherIds = $variant->propertyOptions
+                    ->where('property_id', '!=', $property->id)
+                    ->pluck('id');
+
+                /**
+                 * Варианты, совпадающие по ВСЕМ остальным осям.
+                 *
+                 * Это ключевая логика 5 Элемент:
+                 *   — родные опции = те, что встречаются среди этих вариантов
+                 *   — чужие опции = те, что встречаются только в других комбинациях
+                 */
+                $sameAxisVariants = $product->variants->filter(function ($v) use ($otherIds) {
+                    return $otherIds->every(
+                        fn($id) => $v->propertyOptions->contains('id', $id)
+                    );
+                });
             @endphp
 
-            <div>
-                {{-- Заголовок оси: «Цвет корпуса: Чёрный» --}}
-                <p class="text-[14px] font-bold text-[#231F20] mb-[8px]">
-                    {{ $property->title }}:
-                    <span class="font-normal text-gray-500">
-                        {{ $currentOption?->value }}
-                    </span>
-                </p>
+            {{-- Блок свойства --}}
+            <div class="w-full mb-[32px]">
+
+                {{-- Заголовок оси (свойства) --}}
+                <div class="pb-[12px] text-[15px] text-[#232F20] text-left">
+                    {{ $property->title }}
+                </div>
 
                 {{-- Плитки опций --}}
                 <div class="flex flex-wrap gap-[8px]">
+
                     @foreach ($axis['options'] as $item)
                         @php
                             /** @var \App\Models\PropertyOption $option */
                             $option    = $item['option'];
-                            $available = $item['available'];
-                            $isActive  = $variant->propertyOptions->contains('id', $option->id);
 
                             /**
-                             * «Умный» поиск целевого варианта:
-                             * ищем вариант у которого:
-                             *   — есть опция $option (по текущей оси)
-                             *   — есть все опции текущего варианта по ОСТАЛЬНЫМ осям
-                             *
-                             * Пример: у варианта «Чёрный / 8ГБ / 128ГБ» меняем цвет на Синий →
-                             * ищем вариант «Синий / 8ГБ / 128ГБ», а не просто любой синий.
+                             * Опция активного варианта
                              */
-                            $targetVariant = $product->variants->first(
-                                function ($v) use ($option, $variant, $property) {
-                                    // Должна быть выбранная опция по текущей оси.
-                                    if (!$v->propertyOptions->contains('id', $option->id)) {
-                                        return false;
-                                    }
-                                    // Все опции по остальным осям должны совпадать.
-                                    $otherIds = $variant->propertyOptions
+                            $isCurrentVariantOption =
+                                $variant->propertyOptions->contains('id', $option->id);
+
+                            /**
+                             * Опция "родная":
+                             * встречается среди вариантов, совпадающих по остальным осям.
+                             *
+                             * Пример:
+                             *   — Цвет "Зелёный" есть только в вариантах 8/256
+                             *   — Значит для варианта 6/128 он "чужой"
+                             */
+                            $isOwnOption = $sameAxisVariants->contains(function ($v) use ($option) {
+                                return $v->propertyOptions->contains('id', $option->id);
+                            });
+
+                            /**
+                             * НЕСТРОГИЙ выбор варианта:
+                             * ищем ЛЮБОЙ вариант, содержащий выбранную опцию.
+                             * сортируем по количеству совпадений по другим осям,
+                             * чтобы переход был максимально предсказуемым.
+                             */
+                            $targetVariant = $product->variants
+                                ->filter(fn($v) => $v->propertyOptions->contains('id', $option->id))
+                                ->sortByDesc(function ($v) use ($variant, $property) {
+                                    return $variant->propertyOptions
                                         ->where('property_id', '!=', $property->id)
-                                        ->pluck('id');
+                                        ->pluck('id')
+                                        ->filter(fn($id) => $v->propertyOptions->contains('id', $id))
+                                        ->count();
+                                })
+                                ->first();
 
-                                    // из-за того, что после первой смены ЦВЕТА пропадает возможность ЕГО ПОВТОРНОЙ! смены, пробовали убрать проверку ВЫШЕ на совпадение 
-                                    // остальных опций, ТО ЕСТЬ отменить ФИКСАЦИЮ по остальным! ОСЯМ! ТИПА при смене цвета → ищем любой! вариант с этим цветом!
-                                    // А! при смене памяти → ищем любой вариант с этой памятью - НО! потом после запуска npm run dev, npm run build ВСЁ! ЗАРАБОТАЛО!
-
-                                    return $otherIds->every(
-                                        fn($id) => $v->propertyOptions->contains('id', $id)
-                                    );
-                                }
-                            );
-
-                            // URL перехода на найденный вариант.
-                            // Маршрут catalog.variant принимает один параметр {variant}.
-                            $url = ($targetVariant && $available)
+                            $url = $targetVariant
                                 ? route('catalog.variant', $targetVariant)
                                 : null;
                         @endphp
 
-                        @if ($url)
-                            {{-- Доступная опция — кликабельная ссылка --}}
+                        {{-- АКТИВНАЯ плитка --}}
+                        @if($isCurrentVariantOption)
                             <a href="{{ $url }}"
-                               title="{{ $option->value }}"
-                               class="inline-flex items-center gap-[6px]
-                                      px-[12px] py-[6px] rounded-lg border text-[14px] font-medium
-                                      transition-all duration-150
-                                      {{ $isActive
-                                          ? 'border-[#DC092E] bg-[#FFF4F4] text-[#DC092E]
-                                             ring-2 ring-[#DC092E] ring-offset-1'
-                                          : 'border-gray-300 text-[#231F20]
-                                             hover:border-[#DC092E] hover:text-[#DC092E]'
-                                      }}"
-                            >
-                                @if ($option->color_hex)
-                                    <span class="w-[14px] h-[14px] rounded-full border border-gray-200 flex-none"
-                                          style="background-color: {{ $option->color_hex }}"></span>
-                                @endif
+                               class="w-[90px] h-[34px] flex items-center justify-center
+                                      text-[15px] text-[#232F20]
+                                      bg-white border border-black rounded-[6px]">
                                 {{ $option->value }}
                             </a>
 
-                        @else
-                            {{-- Недоступная опция — зачёркнута, некликабельна --}}
-                            <span title="{{ $option->value }} — нет в наличии"
-                                  class="relative inline-flex items-center gap-[6px]
-                                         px-[12px] py-[6px] rounded-lg border border-gray-200
-                                         text-[14px] font-medium text-gray-300
-                                         cursor-not-allowed overflow-hidden">
-                                @if ($option->color_hex)
-                                    <span class="w-[14px] h-[14px] rounded-full border border-gray-200
-                                                 opacity-40 flex-none"
-                                          style="background-color: {{ $option->color_hex }}"></span>
-                                @endif
+                        {{-- РОДНАЯ плитка (как у 5 Элемент) --}}
+                        @elseif($isOwnOption)
+                            <a href="{{ $url }}"
+                               class="w-[90px] h-[34px] flex items-center justify-center
+                                      text-[15px] text-[#232F20]
+                                      bg-[#F4F4F4] rounded-[6px]">
                                 {{ $option->value }}
-                                {{-- Диагональная зачёркивающая линия --}}
-                                <span class="absolute inset-0 flex items-center justify-center
-                                             pointer-events-none">
-                                    <span class="w-full h-px bg-gray-300 rotate-[-20deg] block"></span>
-                                </span>
-                            </span>
+                            </a>
+
+                        {{-- ЧУЖАЯ плитка (блеклая, как у 5 Элемент) --}}
+                        @else
+                            <a href="{{ $url }}"
+                               class="w-[90px] h-[34px] flex items-center justify-center
+                                      text-[15px] text-[#8C8C8C]
+                                      bg-[#F4F4F4] rounded-[6px]">
+                                {{ $option->value }}
+                            </a>
                         @endif
 
                     @endforeach
+
                 </div>
             </div>
 

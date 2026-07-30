@@ -233,10 +233,12 @@
             </div>
 
             {{-- Колонка 2: Основные характеристики (excerpt) — 4/12 --}}
-            @include('variants.partials.switcher')
+            
             <div class="lg:col-span-4 order-last lg:order-none">
+                
 
                 <div class="flex flex-col pl-[70px]">
+                    @include('variants.partials.switcher')
                     <h2 class="text-[15px] font-bold mb-4">Основные характеристики</h2>
 
                     <div class="text-gray-700 leading-relaxed mb-4">
