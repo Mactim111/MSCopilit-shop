@@ -1,4 +1,6 @@
 {{-- Фильтр-чекбокс: мультивыбор.
+     Auto-submit: при клике чекбокса страница обновляется через buildUrl().
+     Мультивыбор: все активные значения накапливаются в URL.
      URL: ?f[color][]=black&f[color][]=white
      Стиль: красный акцент #DC092E, ширина 312px --}}
 
@@ -48,6 +50,30 @@
                         name="f[{{ $property->slug }}][]"
                         value="{{ $option->slug }}"
                         @checked(in_array($option->slug, $active))
+                        {{--
+                            onchange: при клике собираем ВСЕ отмеченные чекбоксы
+                            данного свойства и обновляем URL через buildUrl().
+                            buildUrl() определена в filters.blade.php глобально.
+                        --}}
+                        {{-- onchange="(function(checkbox) {
+                            var slug = '{{ $property->slug }}';
+                            var key  = 'f[' + slug + '][]';
+
+                            // Собираем все отмеченные значения этого свойства.
+                            var checked = [];
+                            document.querySelectorAll(
+                                'input[name=\"f[' + slug + '][]\"]'
+                            ).forEach(function(cb) {
+                                if (cb.checked) checked.push(cb.value);
+                            });
+
+                            // Строим новый URL: удаляем старые значения этого свойства,
+                            // добавляем новые. Бренд-сегмент и остальные параметры сохраняются.
+                            var params = {};
+                            params[key] = checked.length ? checked : null;
+                            params['page'] = null;
+                            window.location.href = buildUrl(activeBrands, params);
+                        })(this)" --}}
                         class="cursor-pointer"
                     >
                     <label for="f_{{ $property->slug }}_{{ $option->slug }}"

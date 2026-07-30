@@ -35,7 +35,7 @@ class PropertiesSeeder extends Seeder
                 'position_in_filters' => 3,
             ],
             [
-                'title' => 'Диагональ экрана',
+                'title' => 'Диагональ экрана, "',
                 'slug'  => 'screen_size',
                 'type'  => 'range',
                 'used_for_filters' => 1,
