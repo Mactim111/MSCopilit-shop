@@ -75,12 +75,12 @@
             <div class="w-full mb-[32px]">
 
                 {{-- Заголовок оси (свойства) --}}
-                <div class="pb-[12px] text-[15px] text-[#232F20] text-left">
+                <div class="pb-[12px] text-[15px] text-[#232F20] text-left font-bold">
                     {{ $property->title }}
                 </div>
 
                 {{-- Плитки опций --}}
-                <div class="flex flex-wrap gap-[8px]">
+                <div class="flex flex-wrap gap-[12px]">
 
                     @foreach ($axis['options'] as $item)
                         @php
@@ -130,27 +130,27 @@
                         {{-- АКТИВНАЯ плитка --}}
                         @if($isCurrentVariantOption)
                             <a href="{{ $url }}"
-                               class="w-[90px] h-[34px] flex items-center justify-center
+                               class="h-[34px] flex items-center justify-center
                                       text-[15px] text-[#232F20]
-                                      bg-white border border-black rounded-[6px]">
+                                      bg-white border border-black rounded-[5px] px-[12px]">
                                 {{ $option->value }}
                             </a>
 
                         {{-- РОДНАЯ плитка (как у 5 Элемент) --}}
                         @elseif($isOwnOption)
                             <a href="{{ $url }}"
-                               class="w-[90px] h-[34px] flex items-center justify-center
-                                      text-[15px] text-[#232F20]
-                                      bg-[#F4F4F4] rounded-[6px]">
+                               class="h-[34px] flex items-center justify-center
+                                      text-[15px] text-[#232F20] px-[12px]
+                                      bg-[#F4F4F4] rounded-[5px]">
                                 {{ $option->value }}
                             </a>
 
                         {{-- ЧУЖАЯ плитка (блеклая, как у 5 Элемент) --}}
                         @else
                             <a href="{{ $url }}"
-                               class="w-[90px] h-[34px] flex items-center justify-center
-                                      text-[15px] text-[#8C8C8C]
-                                      bg-[#F4F4F4] rounded-[6px]">
+                               class="h-[34px] flex items-center justify-center
+                                      text-[15px] text-[#8C8C8C] px-[12px]
+                                      bg-[#F4F4F4] rounded-[5px]">
                                 {{ $option->value }}
                             </a>
                         @endif
