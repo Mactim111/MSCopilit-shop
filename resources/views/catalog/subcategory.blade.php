@@ -44,7 +44,7 @@
             {{ $title }}
 
         </h1>
-        <div class="ml-[10px] bg-gray-100 text-gray-400 text-xl self-end w-[32px] h-[26px] leading-none">
+        <div class="ml-[10px] text-gray-400 text-xl self-end w-[32px] h-[26px] leading-none">
             {{ $variants->total() ?? $variants->count() }}
         </div>
 

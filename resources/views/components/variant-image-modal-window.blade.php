@@ -2,7 +2,7 @@
      class="fixed inset-0 z-[999] hidden flex min-h-screen overflow-hidden">
 
     <!-- Левая колонка -->
-    <div class="flex-1 bg-[#231f20bf]"></div>
+    <div class="flex-1 bg-[#231f20bf] js-modal-overlay"></div>
 
     <!-- Центральная колонка -->
     <div class="w-[1500px] bg-white relative mx-auto flex flex-col">
@@ -65,6 +65,6 @@
     </div>
 
     <!-- Правая колонка -->
-    <div class="flex-1 bg-[#231f20bf]"></div>
+    <div class="flex-1 bg-[#231f20bf] js-modal-overlay"></div>
 
 </div>

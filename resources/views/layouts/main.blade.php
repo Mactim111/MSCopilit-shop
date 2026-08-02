@@ -29,25 +29,7 @@
         </div>
     </div>
 
-    {{-- Вторая строка навигации --}}
-    <div class="w-full bg-white border-b border-gray-200">
-        <div class="max-w-[1500px] mx-auto h-[42px] flex items-center gap-6 overflow-x-auto whitespace-nowrap">
-
-            <a href="/sales" class="text-red-600 font-semibold hover:text-red-700 text-[14px]">
-                Все акции
-            </a>
-
-            @foreach($categoriesHit as $cat)
-            <a href="{{ route('catalog.category', [$cat->parent->slug, $cat->slug]) }}"
-                class="text-[#231F20] hover:text-red-600 transition text-[14px] font-semibold">
-                {{ $cat->title }}
-            </a>
-            @endforeach
-
-
-        </div>
-    </div>
-
+    <x-category-slider />
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
     <main class="min-h-screen ">
