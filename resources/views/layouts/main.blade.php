@@ -23,7 +23,7 @@
     @include('components.banner-top')
 
     {{-- Header (sticky, но ниже баннера) --}}
-    <div class="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="w-full bg-white sticky top-0 z-50">
         <div class="max-w-[1500px] mx-auto">
             @include('components.header')
         </div>
@@ -33,7 +33,7 @@
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
     <main class="min-h-screen ">
-        <div class="max-w-[1500px] mx-auto py-10">
+        <div class="max-w-[1500px] mx-auto">
 
             @if(session('success'))
             <div class="mb-4 p-3 bg-green-100 text-green-700 rounded text-center">

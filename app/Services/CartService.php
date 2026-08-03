@@ -3,22 +3,23 @@
 namespace App\Services;
 
 use App\Models\CartItem;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 
 class CartService
 {
-
     public function items()
     {
-        return CartItem::where('user_id', Auth::id())->with('product')->get();
+        return CartItem::where('user_id', Auth::id())
+            ->with('variant')
+            ->get();
     }
 
-    public function add($productId, $quantity = 1)
+    public function add($variantId, $quantity = 1)
     {
         $item = CartItem::firstOrCreate([
             'user_id' => Auth::id(),
-            'product_id' => $productId,
+            'product_variant_id' => $variantId,
         ]);
 
         $item->quantity += $quantity;
@@ -43,6 +44,6 @@ class CartService
 
     public function total()
     {
-        return $this->items()->sum(fn($i) => $i->product->price * $i->quantity);
+        return $this->items()->sum(fn($i) => $i->variant->price * $i->quantity);
     }
 }

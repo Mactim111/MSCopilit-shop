@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="mx-auto py-10 mb-70">
+    <div class="mx-auto py-5 mb-70">
 
         {{-- Хлебные крошки --}}
         <x-breadcrumbs :items="array_filter([

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\CartService;
 use App\Models\CartItem;
 
@@ -19,9 +19,9 @@ class CartController extends Controller
         ]);
     }
 
-    public function add(Product $product)
+    public function add(ProductVariant $variant)
     {
-        $this->cart->add($product->id);
+        $this->cart->add($variant->id);
         return back()->with(['success'=> 'Товар добавлен в корзину', 'added' => true]);
     }
 
