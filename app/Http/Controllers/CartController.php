@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use App\Services\CartService;
 use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
     public function __construct(private CartService $cart) {}
 
     public function index()
-    {
-        return view('cart.index', [
+    {   
+    return view('cart.index', [
             'items' => $this->cart->items(),
             'total' => $this->cart->total(),
         ]);

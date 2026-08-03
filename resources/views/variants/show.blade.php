@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="mx-auto py-5 mb-70">
+    <div class="mx-auto mb-70">
 
         {{-- Хлебные крошки --}}
         <x-breadcrumbs :items="array_filter([
@@ -43,7 +43,7 @@
 
 
         {{-- Название + код товара в одной строке --}}
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mt-4 mb-2">
             <h1 class="text-[#231f20] text-[28px] font-bold">{{ $variant->title }}</h1>
 
             <div class="text-[#231f20] text-[14px]">

@@ -72,7 +72,7 @@
                 use Illuminate\Support\Facades\Auth;
 
                 $inCart = CartItem::where('user_id', Auth::id())
-                    ->where('product_variant_id', $variant->id)
+                    ->where('product_variant_id', $variant->slug)
                     ->exists();
             @endphp
 
@@ -82,7 +82,7 @@
                     В корзине
                 </a>
             @else
-                <form action="{{ route('cart.add', $variant->id) }}" method="POST">
+                <form action="{{ route('cart.add', $variant->slug) }}" method="POST">
                     @csrf
                     <button class="w-[122px] h-[40px] text-center bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition">
                         В корзину

@@ -34,7 +34,7 @@
 @endphp
 
     {{-- Хлебные крошки --}}
-    <div class="max-w-[1500px] h-[65px] mx-auto flex items-center py-[24px] text-[13px] text-[#7b7979]">
+    <div class="max-w-[1500px] h-[65px] mx-auto flex items-center text-[13px] text-[#7b7979]">
         <x-breadcrumbs :items="$crumbs" />
     </div>
 

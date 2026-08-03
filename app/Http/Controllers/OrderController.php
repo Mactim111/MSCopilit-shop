@@ -117,11 +117,11 @@ class OrderController extends Controller
             foreach ($items as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
-                    'product_id' => $item->product_id,
-                    'title'      => $item->product->title,
-                    'price'      => $item->product->price,
+                    'product_variant_id' => $item->product_variant_id,
+                    'title'      => $item->variant->title,
+                    'price'      => $item->variant->price,
                     'quantity'   => $item->quantity,
-                    'subtotal'   => $item->product->price * $item->quantity,
+                    'subtotal'   => $item->variant->price * $item->quantity,
                 ]);
             }
 

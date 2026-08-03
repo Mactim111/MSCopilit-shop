@@ -32,7 +32,7 @@
     <x-category-slider />
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
-    <main class="min-h-screen ">
+    <main class="min-h-screen mt-5">
         <div class="max-w-[1500px] mx-auto">
 
             @if(session('success'))

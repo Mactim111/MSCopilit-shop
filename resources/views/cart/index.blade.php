@@ -33,13 +33,13 @@
                     @foreach($items as $item)
                         <tr class="border-b">
                             <td class="py-4 flex items-center gap-4">
-                                <img src="{{ $item->product->image_url }}"
+                                <img src="{{ $item->variant->mainImage() }}" alt="{{ $item->variant->title }}"
                                      class="w-20 h-20 object-cover rounded">
-                                <span class="font-medium">{{ $item->product->title }}</span>
+                                <span class="font-medium">{{ $item->variant->title }}</span>
                             </td>
 
-                            <td class="py-4 font-semibold">
-                                {!! $item->product->formattedPrice(24, 15) !!}
+                            <td class="py-4 font-bold text-lg">
+                                {!! $item->variant->formattedPrice(16, 14) !!}
                             </td>
 
                             <td class="py-4">
@@ -56,8 +56,8 @@
                                 </form>
                             </td>
 
-                            <td class="py-4 font-semibold">
-                                {!! $item->productVariant->formattedPrice(24, 15) !!}
+                            <td class="py-4 font-bold text-lg">
+                                {!! $item->formattedSubtotal(16, 14) !!} 
                             </td>
 
 
@@ -77,17 +77,14 @@
             {{-- Итог --}}
             <div class="bg-white rounded-xl shadow p-6 flex justify-between items-center">
                 <div class="text-xl font-semibold">
-                    @php
-                        $totalFormatted = number_format($total, 2, '.', ' ');
-                        [$whole, $fraction] = explode('.', $totalFormatted);
-                    @endphp
-                    Итого: {!! '<span style="font-size: 28px;">' . $whole . '</span><span style="font-size: 17px;">.</span><span style="font-size: 17px;">' . $fraction . '</span> <i class="nbrb-icon">BYN</i>' !!}
+                    Итого: {{ number_format($total, 0, '.', ' ') }} ₽ {!! $item->formattedTotal(16, 14) !!} 
                 </div>
 
-                <a href="{{ route('orders.checkout') }}"
+                 <a href="{{ route('orders.checkout') }}"
                    class="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition">
                     Оформить заказ
                 </a>
+                
             </div>
 
         @endif

@@ -1,4 +1,4 @@
-<nav class="text-sm mb-6">
+<nav class="text-sm mb-11">
     <ol class="flex items-center gap-2 text-gray-600">
 
         @foreach($items as $index => $item)
