@@ -34,14 +34,14 @@
 
                         <!-- Фото товара -->
                         <div class="w-24 h-24 flex-shrink-0">
-                            <img src="{{ $item->product->image_url }}"
+                            <img src="{{ $item->variant->mainImage() }}"
                                  class="w-full h-full object-cover rounded-lg shadow-sm">
                         </div>
 
                         <!-- Информация -->
                         <div class="flex-1">
                             <h3 class="text-lg font-semibold text-gray-900">
-                                {{ $item->product->title }}
+                                {{ $item->variant->title }}
                             </h3>
 
                             <p class="text-gray-600 mt-1">
@@ -50,7 +50,7 @@
 
                             <p class="text-gray-600">
                                 Цена за шт.:
-                                <span class="font-medium">{!! $item->productVariant->formattedPrice() !!}</span>
+                                <span class="font-medium">{!! $item->variant->formattedPrice() !!}</span>
                             </p>
                         </div>
 

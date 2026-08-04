@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\CartItem;
-use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 
 class CartService
@@ -42,13 +41,11 @@ class CartService
         CartItem::where('user_id', Auth::id())->delete();
     }
 
+    // возвращает число - калькуляцию итоговой стоимости заказа - вариантов товаров в корзине в выбранном количестве
     public function total()
     {   
     return $this->items()->sum(fn($i) => $i->variant->price * $i->quantity);
     }
-
-    public function formattedTotal(int $wholeFontSize = 30, int $fractionFontSize = 19): string
-    {
     
     /**
      * Форматированная цена с управляемыми размерами шрифта для целой и дробной части - заодно появляется новое обозначение валюты РБ из шрифта!
@@ -61,11 +58,12 @@ class CartService
      * {!! $variant->formattedPrice(30, 19) !!}  // целая 30px, дробная 19px
      * {!! $variant->formattedPrice(28, 17) !!}  // целая 28px, дробная 17px
      * {!! $variant->formattedPrice() !!}        // использует значения по умолчанию
-     */   
-    $totalSum = $this->items()->sum(fn($i) => $i->variant->price * $i->quantity);
-    // dd($total);   
-        $total = number_format($totalSum, 2, '.', ' ');
-        [$whole, $fraction] = explode('.', $total);
+     */ 
+    public function formattedTotal(int $wholeFontSize = 30, int $fractionFontSize = 19): string
+    {  
+        $total = $this->total(); // ← используем существующий метод   
+        $formatted = number_format($total, 2, '.', ' ');
+        [$whole, $fraction] = explode('.', $formatted);
         return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
     }
 }

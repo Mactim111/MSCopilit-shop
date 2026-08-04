@@ -3,7 +3,7 @@
 @section('title', 'Корзина')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="max-w-7xl mx-auto mt-4 mb-2">
 
         <h1 class="text-3xl font-bold mb-8">Корзина</h1>
 
@@ -38,8 +38,8 @@
                                 <span class="font-medium">{{ $item->variant->title }}</span>
                             </td>
 
-                            <td class="py-4 font-bold text-lg">
-                                {!! $item->variant->formattedPrice(16, 14) !!}
+                            <td class="py-4 font-bold text-2xl">
+                                {!! $item->variant->formattedPrice(24, 24) !!}
                             </td>
 
                             <td class="py-4">
@@ -52,12 +52,12 @@
                                            min="1"
                                            value="{{ $item->quantity }}"
                                            class="w-16 border-gray-300 rounded-lg border p-2" 
-                                           onchange="this.form.submit()">
+                                           onchange="this.form.submit()">   
                                 </form>
                             </td>
 
-                            <td class="py-4 font-bold text-lg">
-                                {!! $item->formattedSubtotal(16, 14) !!} 
+                            <td class="py-4 font-bold text-2xl">
+                                {!! $item->formattedSubtotal(24, 24) !!} 
                             </td>
 
 
@@ -76,8 +76,8 @@
 
             {{-- Итог --}}
             <div class="bg-white rounded-xl shadow p-6 flex justify-between items-center">
-                <div class="text-xl font-semibold">
-                    Итого: {{ number_format($total, 0, '.', ' ') }} ₽ {!! $item->formattedTotal(16, 14) !!} 
+                <div class="font-bold text-3xl">
+                    Итого: {!! $formattedTotal !!} 
                 </div>
 
                  <a href="{{ route('orders.checkout') }}"

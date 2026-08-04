@@ -32,7 +32,7 @@
         {{-- Кнопка назад --}}
         <button type="button"
             class="js-cat-prev absolute left-0 top-1/2 -translate-y-1/2
-                   w-[33px] h-[33px] rounded-full bg-white border border-gray-100 shadow-md
+                   w-[34px] h-[34px] rounded-full bg-white border border-gray-100 shadow-md
                    flex items-center justify-center cursor-pointer z-20 opacity-0 pointer-events-none transition">
             <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
         </button>
@@ -52,7 +52,7 @@
 
                 @if($cat->products_count > 0)
                     {{-- Реальная подкатегория: есть товары --}}
-                    <a href="{{ route('catalog.category', [$cat->parent->parent->slug, $cat->parent->slug, $cat->slug]) }}"
+                    <a href="{{ route('catalog.subcategory', [$cat->parent->parent->slug, $cat->parent->slug, $cat->slug]) }}"
                        class="text-[#231F20] hover:text-red-600 transition text-[14px] font-semibold">
                         {{ $cat->title }}
                     </a>
@@ -70,7 +70,7 @@
         {{-- Кнопка вперед --}}
         <button type="button"
             class="js-cat-next absolute right-0 top-1/2 -translate-y-1/2
-                   w-[33px] h-[33px] rounded-full bg-white border border-gray-100 shadow-md
+                   w-[34px] h-[34px] rounded-full bg-white border border-gray-100 shadow-md
                    flex items-center justify-center cursor-pointer z-20">
             <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
         </button>

@@ -68,7 +68,7 @@ class ProfileController extends Controller
 
     public function order(Order $order)
     {
-        $order->load('items.product');
+        $order->load('items.variant');
         return view('profile.order', compact('order'));
     }
 }

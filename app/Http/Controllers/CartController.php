@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use App\Services\CartService;
 use App\Models\CartItem;
-use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -16,7 +15,7 @@ class CartController extends Controller
     {   
     return view('cart.index', [
             'items' => $this->cart->items(),
-            'total' => $this->cart->total(),
+            'formattedTotal' => $this->cart->formattedTotal(28, 28),
         ]);
     }
 

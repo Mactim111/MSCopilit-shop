@@ -11,6 +11,13 @@
 
 <div class="mx-auto max-w-[1500px] grid grid-cols-5 gap-4">
 
+    {{-- Фейковая плитка "Акции" --}}
+    <x-catalog-card
+        title="Акции"
+        image="/storage/assets/img/actions.png"
+        url=""
+    />
+
     @foreach($groups as $group)
         <x-catalog-card
             :title="$group->title"

@@ -13,6 +13,7 @@
 
 <div class="mx-auto max-w-[1500px] grid grid-cols-5 gap-4">
 
+    {{-- Реальные категории --}}
     @foreach($categories as $category)
         <x-catalog-card
             :title="$category->title"
@@ -20,6 +21,7 @@
             :url="route('catalog.category', [$group->slug, $category->slug])"
         />
     @endforeach
+
 
 </div>
 

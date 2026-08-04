@@ -38,7 +38,7 @@ class CatalogController extends Controller
         abort_if($category->parent_id !== $group->id, 404);
 
         $subcategories = $category->children()
-            ->orderBy('title')
+            ->orderBy('id')
             ->get();
         
         // Проверяем, включены ли плитки брендов в подкатегории
