@@ -20,9 +20,9 @@
 
             <button id="catalog-toggle"
                 class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer">
-                <span>Каталог</span>
                 <span id="catalog-icon-open">☰</span>
                 <span id="catalog-icon-close" class="hidden">✕</span>
+                <span>Каталог</span>
             </button>
 
             @include('components.mega-menu')

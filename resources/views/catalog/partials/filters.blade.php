@@ -732,28 +732,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ================================================================
-// toggleBrand() — глобальная, вызывается из filter-brand.blade.php
-// ================================================================
-//  ниже ПРЕДЫДУШАЯ ВЕРСИЯ, которая строила URL через query ?brand=apple,samsung
-// function toggleBrand(slug) {
-//     const url      = new URL(window.location.href);
-//     const brandStr = url.searchParams.get('brand') || '';
-//     let   brands   = brandStr.split(',').filter(Boolean);
+// Добавили новую глобальную функцию из-за проблем в фильтрах типа Checkbox
+// ========================================================================
+function filterCheckboxChange(propertySlug) {
+    var key = 'f[' + propertySlug + '][]';
+    var checked = [];
+    document.querySelectorAll('input[name="f[' + propertySlug + '][]"]')
+        .forEach(function(input) {
+            if (input.checked) checked.push(input.value);
+        });
+    var params = {};
+    params[key] = checked.length > 0 ? checked : null;
+    params['page'] = null;
+    window.location.href = buildUrl(activeBrands, params);
+}
 
-//     brands.includes(slug)
-//         ? brands = brands.filter(b => b !== slug)
-//         : brands.push(slug);
-
-//     brands.length
-//         ? url.searchParams.set('brand', brands.join(','))
-//         : url.searchParams.delete('brand');
-
-//     // Убираем пагинацию
-//     url.searchParams.delete('page');
-//     // Переходим
-//     window.location.href = url.toString();
-// }
 // ================================================================
 // toggleBrand() — глобальная, вызывается из filter-brand.blade.php
 // ниже ПЕРЕРАБОТАННАЯ ВЕРСИЯ, которая строит URL через сегмент /brand=apple,samsung

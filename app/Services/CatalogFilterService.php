@@ -79,48 +79,67 @@ class CatalogFilterService
         $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
 
         return Property::forFilters()
-            ->whereHas('options', function ($query) use ($subcategory, $filteredProductIds) {
-                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
-                    $q->where('category_id', $subcategory->id)
-                      ->whereIn('product_id', $filteredProductIds);
-                });
-            })
-            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds) {
-                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
-                    $q->where('category_id', $subcategory->id)
-                      ->whereIn('product_id', $filteredProductIds);
-                })->orderBy('value');
-            }])
-            ->get()
-            ->each(function (Property $property) use ($subcategory, $filteredProductIds) {
-
-                // Для range — вычисляем min/max числового диапазона.
-                if ($property->isRange()) {
-                    $range = DB::table('product_filter_index')
-                        ->where('category_id', $subcategory->id)
-                        ->where('property_id', $property->id)
-                        ->whereIn('product_id', $filteredProductIds)
-                        ->whereNotNull('numeric_value')
-                        ->selectRaw('MIN(numeric_value) as range_min, MAX(numeric_value) as range_max')
-                        ->first();
-
-                    $property->range_min = (float) ($range->range_min ?? 0);
-                    $property->range_max = (float) ($range->range_max ?? 0);
-                }
-
-                // Для checkbox/radio/toggle — счётчик товаров у каждой опции.
-                if (!$property->isRange()) {
-                    $property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
-                        $option->products_count = DB::table('product_filter_index')
-                            ->where('category_id', $subcategory->id)
-                            ->where('property_id', $option->property_id)
-                            ->where('value_slug', $option->slug)
-                            ->whereIn('product_id', $filteredProductIds)
-                            ->distinct('product_id')
-                            ->count('product_id');
-                    });
-                }
-            });
+			->where(function ($q) use ($subcategory, $filteredProductIds) {
+				$q->where(function ($inner) use ($subcategory, $filteredProductIds) {
+					$inner->where('type', 'toggle')
+						->whereExists(function ($sub) use ($subcategory, $filteredProductIds) {
+							$sub->select(DB::raw(1))
+								->from('product_filter_index as pfi')
+								->whereColumn('pfi.property_id', 'properties.id')
+								->where('pfi.category_id', $subcategory->id)
+								->whereIn('pfi.product_id', $filteredProductIds)
+								->where('pfi.value_slug', 'yes');
+						});
+				})->orWhere(function ($inner) use ($subcategory, $filteredProductIds) {
+					$inner->where('type', '!=', 'toggle')
+						->whereHas('options', function ($query) use ($subcategory, $filteredProductIds) {
+							$query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
+								$q->where('category_id', $subcategory->id)
+								  ->whereIn('product_id', $filteredProductIds);
+							});
+						});
+				});
+			})
+			->with(['options' => function ($query) use ($subcategory, $filteredProductIds) {
+				$query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
+					$q->where('category_id', $subcategory->id)
+					  ->whereIn('product_id', $filteredProductIds);
+				})->orderByRaw('COALESCE(numeric_value, 0), value');
+			}])
+			->get()
+			->each(function (Property $property) use ($subcategory, $filteredProductIds) {
+				if ($property->isRange()) {
+					$range = DB::table('product_filter_index')
+						->where('category_id', $subcategory->id)
+						->where('property_id', $property->id)
+						->whereIn('product_id', $filteredProductIds)
+						->whereNotNull('numeric_value')
+						->selectRaw('MIN(numeric_value) as range_min, MAX(numeric_value) as range_max')
+						->first();
+					$property->range_min = (float) ($range->range_min ?? 0);
+					$property->range_max = (float) ($range->range_max ?? 0);
+				}
+				if ($property->isToggle()) {
+					$property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
+						$option->products_count = DB::table('product_filter_index')
+							->where('category_id', $subcategory->id)
+							->where('property_id', $option->property_id)
+							->where('value_slug', $option->slug)
+							->whereIn('product_id', $filteredProductIds)
+							->distinct('product_id')->count('product_id');
+					});
+				}
+				if ($property->isCheckbox() || $property->isRadio()) {
+					$property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
+						$option->products_count = DB::table('product_filter_index')
+							->where('category_id', $subcategory->id)
+							->where('property_id', $option->property_id)
+							->where('value_slug', $option->slug)
+							->whereIn('product_id', $filteredProductIds)
+							->distinct('product_id')->count('product_id');
+					});
+				}
+			});
     }
 
     /**

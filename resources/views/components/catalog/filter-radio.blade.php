@@ -1,6 +1,8 @@
 {{-- Фильтр-радио: одиночный выбор.
-     URL: ?f[tip_zagruzki][]=frontalnaya
-     Стиль: красный акцент #DC092E, ширина 316px --}}
+     Auto-submit через filterCheckboxChange() — та же функция что и для checkbox
+	 URL: ?f[tip_zagruzki][]=frontalnaya
+     Стиль: красный акцент #DC092E, ширина 316px 
+--}}
 
 @props(['property', 'active' => []])
 @php $activeValue = is_array($active) ? ($active[0] ?? null) : $active; @endphp
@@ -10,7 +12,7 @@
     class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
 >
     {{-- Заголовок группы data-filter-title на <span>, не на <button> — чтобы не захватить SVG --}}
-    <button type="button" @click="open = !open"
+	<button type="button" @click="open = !open"
         class="flex w-full items-center justify-between
                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
         <span data-filter-title>{{ $property->title }}</span>
@@ -22,7 +24,7 @@
     </button>
 
     {{-- Список значений --}}
-    <ul x-show="open"
+	<ul x-show="open"
         x-transition:enter="transition ease-out duration-150"
         x-transition:enter-start="opacity-0 -translate-y-1"
         x-transition:enter-end="opacity-100 translate-y-0"
@@ -32,7 +34,7 @@
 
         @foreach ($property->options as $option)
             @if (($option->products_count ?? 0) > 0)
-                <li 
+                <li
                     data-option-item @if($loop->index >= 6) style="display:none" @endif
                     class="flex items-center gap-[8px]"
                 >
@@ -42,6 +44,7 @@
                         name="f[{{ $property->slug }}][]"
                         value="{{ $option->slug }}"
                         @checked($activeValue === $option->slug)
+                        onchange="filterCheckboxChange('{{ $property->slug }}')"
                         class="h-[16px] w-[16px] border-gray-400
                                text-[#DC092E] accent-[#DC092E] cursor-pointer
                                focus:ring-[#DC092E] focus:ring-offset-0"
@@ -60,7 +63,7 @@
     </ul>
 
     {{-- Кнопка "Посмотреть все / Скрыть" --}}
-    @if ($property->options->where('products_count', '>', 0)->count() > 6)
+	@if ($property->options->where('products_count', '>', 0)->count() > 6)
         <button
             type="button"
             class="flex items-center gap-[4px] text-[14px] text-[#007EFF] mt-[4px]"
@@ -76,7 +79,6 @@
         >
             <span x-show="!expanded">Посмотреть все</span>
             <span x-show="expanded">Скрыть</span>
-
             <span class="w-[13px] h-[13px] pt-[2px]">
                 <span x-show="!expanded">@include('products.icons.chevron-down')</span>
                 <span x-show="expanded">@include('products.icons.chevron-up')</span>
@@ -85,3 +87,4 @@
     @endif
 
 </div>
+
