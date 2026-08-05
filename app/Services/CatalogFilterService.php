@@ -205,16 +205,41 @@ class CatalogFilterService
                 'checkbox', 'radio' => $this->applyCheckboxFilter(
                     $query, $subcategory, $property->id, (array) $value
                 ),
-                'range' => $this->applyRangeFilter(
-                    $query, $subcategory, $property->id,
-                    $filters["f_{$propertySlug}_min"] ?? null,
-                    $filters["f_{$propertySlug}_max"] ?? null,
-                ),
+                // range-фильтры вынесены из foreach ($propertyFilters) НИЖЕ! в отдельный цикл по всем ключам $filters с regex f_*_min.
+                // 'range' => $this->applyRangeFilter(
+                //     $query, $subcategory, $property->id,
+                //     $filters["f_{$propertySlug}_min"] ?? null,
+                //     $filters["f_{$propertySlug}_max"] ?? null,
+                // ),
                 'toggle' => $this->applyToggleFilter(
                     $query, $subcategory, $property->id, $value
                 ),
                 default => null,
             };
+        }
+
+        // range-фильтры вынесены из foreach ($propertyFilters) ВЫШЕ! в отдельный цикл по всем ключам $filters с regex f_*_min. Теперь они точно применятся.
+        // Range фильтры — отдельный проход по f_slug_min / f_slug_max.
+        // Они НЕ попадают в $filters['f'] — хранятся в корне $filters.
+        // Ищем все ключи вида f_*_min и подбираем соответствующее свойство.
+        $rangeProperties = null; // загрузим лениво если понадобятся
+        foreach ($filters as $key => $value) {
+            if (!preg_match('/^f_(.+)_min$/', $key, $matches)) continue;
+
+            $slug = $matches[1];
+            $min  = (float) $value;
+            $max  = isset($filters["f_{$slug}_max"]) ? (float) $filters["f_{$slug}_max"] : null;
+
+            // Загружаем свойства одним запросом при первом range-фильтре.
+            if ($rangeProperties === null) {
+                $rangeProperties = Property::where('type', 'range')
+                    ->get()->keyBy('slug');
+            }
+
+            $property = $rangeProperties->get($slug);
+            if (!$property) continue;
+
+            $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
         }
 
         return $query->pluck('id')->all();
@@ -302,7 +327,7 @@ class CatalogFilterService
             );
         }
 
-        // Фильтры по свойствам — каждый через EXISTS на product_variant_id.
+        // Фильтры по свойствам (Checkbox / radio / toggle) — каждый через EXISTS на product_variant_id.
         $propertyFilters = $filters['f'] ?? [];
         if (!empty($propertyFilters)) {
             $properties = Property::whereIn('slug', array_keys($propertyFilters))
@@ -316,17 +341,42 @@ class CatalogFilterService
                     'checkbox', 'radio' => $this->applyVariantCheckboxFilter(
                         $query, $subcategory, $property->id, (array) $value
                     ),
-                    'range' => $this->applyVariantRangeFilter(
-                        $query, $subcategory, $property->id,
-                        $filters["f_{$slug}_min"] ?? null,
-                        $filters["f_{$slug}_max"] ?? null,
-                    ),
+                    // range-фильтры вынесены из foreach ($propertyFilters) НИЖЕ! в отдельный цикл по всем ключам $filters с regex f_*_min.
+                    // 'range' => $this->applyVariantRangeFilter(
+                    //     $query, $subcategory, $property->id,
+                    //     $filters["f_{$slug}_min"] ?? null,
+                    //     $filters["f_{$slug}_max"] ?? null,
+                    // ),
                     'toggle' => $this->applyVariantToggleFilter(
                         $query, $subcategory, $property->id, $value
                     ),
                     default => null,
                 };
             }
+        }
+
+        // range-фильтры вынесены из foreach ($propertyFilters) ВЫШЕ! в отдельный цикл по всем ключам $filters с regex f_*_min. Теперь они точно применятся.
+        // Range фильтры — отдельный проход по f_slug_min / f_slug_max.
+        // Они НЕ попадают в $filters['f'] — хранятся в корне $filters.
+        // Ищем все ключи вида f_*_min и подбираем соответствующее свойство.
+        $rangeProperties = null; // загрузим лениво если понадобятся
+        foreach ($filters as $key => $value) {
+            if (!preg_match('/^f_(.+)_min$/', $key, $matches)) continue;
+
+            $slug = $matches[1];
+            $min  = (float) $value;
+            $max  = isset($filters["f_{$slug}_max"]) ? (float) $filters["f_{$slug}_max"] : null;
+
+            // Загружаем свойства одним запросом при первом range-фильтре.
+            if ($rangeProperties === null) {
+                $rangeProperties = Property::where('type', 'range')
+                    ->get()->keyBy('slug');
+            }
+
+            $property = $rangeProperties->get($slug);
+            if (!$property) continue;
+
+            $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
         }
 
         return $query->pluck('id')->all();

@@ -513,7 +513,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
             ],
 
 
-            // Товар Смартфон Xiaomi Redmi Note 14 (8 вариантов)
+            // Товар Смартфон Xiaomi Redmi Note 14 (6 вариантов)
 
             'xiaomi-redmi-note-14-6gb-128gb-midnight-black' => [
                 'lineup' => 'xiaomi-redmi-note-14',
@@ -577,7 +577,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
             ],
 
 
-            // Товар Смартфон Xiaomi Redmi Note 15 (8 вариантов)
+            // Товар Смартфон Xiaomi Redmi Note 15 (6 вариантов)
 
             'xiaomi-redmi-note-15-6gb-128gb-black' => [
                 'lineup' => 'xiaomi-redmi-note-15',
