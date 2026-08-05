@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('property_options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
-            $table->string('value');
-            $table->string('slug')->unique();
+            $table->string('value')->nullable();
+            $table->string('slug');
             $table->text('excerpt')->nullable();
             // Числовое представление для range-фильтров и сортировки.
             // Примеры: «6 кг» → 6.00, «1200 об/мин» → 1200.00

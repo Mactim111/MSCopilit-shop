@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\ProductVariant;
+use App\Models\Property;
+use App\Models\PropertyOption;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\ProductVariant;
-use App\Models\PropertyOption;
 use Illuminate\Support\Facades\DB;
 
 class ProductVariantPropertyOptionsSeeder extends Seeder
@@ -25,7 +26,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'built_in_memory' => '128gb',
                 'ram' => '8gb',
                 'screen_size' => '6-1',
-                'nfc' => 'yes',
+                'nfc' => 'no',
                 'case_color' => 'belyy',
                 'battery_capacity' => '3561',
                 'w_charg_sup' => 'yes',
@@ -35,7 +36,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'built_in_memory' => '128gb',
                 'ram' => '8gb',
                 'screen_size' => '6-1',
-                'nfc' => 'yes',
+                'nfc' => 'no',
                 'case_color' => 'biryuzovyy',
                 'battery_capacity' => '3561',
                 'w_charg_sup' => 'yes',
@@ -45,7 +46,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'built_in_memory' => '128gb',
                 'ram' => '8gb',
                 'screen_size' => '6-1',
-                'nfc' => 'yes',
+                'nfc' => 'no',
                 'case_color' => 'siniy',
                 'battery_capacity' => '3561',
                 'w_charg_sup' => 'yes',
@@ -55,7 +56,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'built_in_memory' => '128gb',
                 'ram' => '8gb',
                 'screen_size' => '6-1',
-                'nfc' => 'yes',
+                'nfc' => 'no',
                 'case_color' => 'chernyy',
                 'battery_capacity' => '3561',
                 'w_charg_sup' => 'yes',
@@ -641,25 +642,61 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
 
         ];
 
-        foreach ($variantOptions as $variantSlug => $options) {
-            $variant = ProductVariant::where('slug', $variantSlug)->first();
-            if (!$variant) continue;
+        // foreach ($variantOptions as $variantSlug => $options) {
+        //     $variant = ProductVariant::where('slug', $variantSlug)->first();
+        //     if (!$variant) continue;
 
-            foreach ($options as $propertySlug => $optionSlug) {
-                $option = PropertyOption::where('slug', $optionSlug)->first();
-                if ($option) {
-                    DB::table('product_variant_property_options')->updateOrInsert(
-                        [
-                            'product_variant_id' => $variant->id,
-                            'property_option_id' => $option->id,
-                        ],
-                        [
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]
-                    );
+        //     foreach ($options as $propertySlug => $optionSlug) {
+        //         $option = PropertyOption::where('slug', $optionSlug)->first();
+        //         if ($option) {
+        //             DB::table('product_variant_property_options')->updateOrInsert(
+        //                 [
+        //                     'product_variant_id' => $variant->id,
+        //                     'property_option_id' => $option->id,
+        //                 ],
+        //                 [
+        //                     'created_at' => now(),
+        //                     'updated_at' => now(),
+        //                 ]
+        //             );
+        //         }
+        //     }
+        // }
+
+        foreach ($variantOptions as $variantSlug => $propertiesMap) {
+
+            $variant = ProductVariant::where('slug', $variantSlug)->first();
+            if (!$variant) {
+                continue;
+            }
+
+            foreach ($propertiesMap as $propertySlug => $optionSlug) {
+
+                $propertyId = Property::where('slug', $propertySlug)->value('id');
+                if (!$propertyId) {
+                    continue;
                 }
+
+                $option = PropertyOption::where('slug', $optionSlug)
+                    ->where('property_id', $propertyId)
+                    ->first();
+
+                if (!$option) {
+                    continue;
+                }
+
+                DB::table('product_variant_property_options')->updateOrInsert(
+                    [
+                        'product_variant_id' => $variant->id,
+                        'property_option_id' => $option->id,
+                    ],
+                    [
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
             }
         }
+        
     }
 }

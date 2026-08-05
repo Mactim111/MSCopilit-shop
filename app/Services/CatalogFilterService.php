@@ -35,11 +35,11 @@ class CatalogFilterService
     ): LengthAwarePaginator {
         // Получаем ID товаров, прошедших фильтры по свойствам.
         // Если фильтры не выбраны — берём все товары подкатегории.
-        $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
+        $filteredVariantIds = $this->getFilteredVariantIds($subcategory, $filters);
 
         // Строим запрос по вариантам — точно как в твоём subcategory().
-        $query = ProductVariant::whereIn('product_id', $filteredProductIds)
-            ->with(['product', 'images', 'labels', 'propertyOptions.property']);
+        $query = ProductVariant::whereIn('id', $filteredVariantIds)
+        ->with(['product', 'images', 'labels', 'propertyOptions.property']);
 
         // Ценовой фильтр применяем прямо к вариантам
         // (price живёт в product_variants, не нужен индекс).
@@ -126,7 +126,7 @@ class CatalogFilterService
 							->where('property_id', $option->property_id)
 							->where('value_slug', $option->slug)
 							->whereIn('product_id', $filteredProductIds)
-							->distinct('product_id')->count('product_id');
+							->distinct('product_variant_id')->count('product_variant_id');
 					});
 				}
 				if ($property->isCheckbox() || $property->isRadio()) {
@@ -136,7 +136,7 @@ class CatalogFilterService
 							->where('property_id', $option->property_id)
 							->where('value_slug', $option->slug)
 							->whereIn('product_id', $filteredProductIds)
-							->distinct('product_id')->count('product_id');
+							->distinct('product_variant_id')->count('product_variant_id');
 					});
 				}
 			});
@@ -281,6 +281,96 @@ class CatalogFilterService
             $sub->select(DB::raw(1))
                 ->from('product_filter_index as pfi')
                 ->whereColumn('pfi.product_id', 'products.id')
+                ->where('pfi.category_id', $subcategory->id)
+                ->where('pfi.property_id', $propertyId)
+                ->where('pfi.value_slug', 'yes');
+        });
+    }
+
+    private function getFilteredVariantIds(Category $subcategory, array $filters): array
+    {
+        // Стартуем с вариантов подкатегории.
+        $query = ProductVariant::whereHas('product', fn($q) =>
+            $q->where('category_id', $subcategory->id)
+            // ->where('is_active', true)
+        );
+
+        // Фильтр по бренду.
+        if (!empty($filters['brand'])) {
+            $query->whereHas('product.brand', fn($q) =>
+                $q->whereIn('slug', $filters['brand'])
+            );
+        }
+
+        // Фильтры по свойствам — каждый через EXISTS на product_variant_id.
+        $propertyFilters = $filters['f'] ?? [];
+        if (!empty($propertyFilters)) {
+            $properties = Property::whereIn('slug', array_keys($propertyFilters))
+                ->get()->keyBy('slug');
+
+            foreach ($propertyFilters as $slug => $value) {
+                $property = $properties->get($slug);
+                if (!$property) continue;
+
+                match ($property->type) {
+                    'checkbox', 'radio' => $this->applyVariantCheckboxFilter(
+                        $query, $subcategory, $property->id, (array) $value
+                    ),
+                    'range' => $this->applyVariantRangeFilter(
+                        $query, $subcategory, $property->id,
+                        $filters["f_{$slug}_min"] ?? null,
+                        $filters["f_{$slug}_max"] ?? null,
+                    ),
+                    'toggle' => $this->applyVariantToggleFilter(
+                        $query, $subcategory, $property->id, $value
+                    ),
+                    default => null,
+                };
+            }
+        }
+
+        return $query->pluck('id')->all();
+    }
+
+    private function applyVariantCheckboxFilter(Builder $query, Category $subcategory, int $propertyId, array $slugs): void
+    {
+        $slugs = array_filter($slugs);
+        if (empty($slugs)) return;
+
+        $query->whereExists(function ($sub) use ($subcategory, $propertyId, $slugs) {
+            $sub->select(DB::raw(1))
+                ->from('product_filter_index as pfi')
+                ->whereColumn('pfi.product_variant_id', 'product_variants.id')
+                ->where('pfi.category_id', $subcategory->id)
+                ->where('pfi.property_id', $propertyId)
+                ->whereIn('pfi.value_slug', $slugs);
+        });
+    }
+
+    private function applyVariantRangeFilter(Builder $query, Category $subcategory, int $propertyId, ?float $min, ?float $max): void
+    {
+        if ($min === null && $max === null) return;
+
+        $query->whereExists(function ($sub) use ($subcategory, $propertyId, $min, $max) {
+            $sub->select(DB::raw(1))
+                ->from('product_filter_index as pfi')
+                ->whereColumn('pfi.product_variant_id', 'product_variants.id')
+                ->where('pfi.category_id', $subcategory->id)
+                ->where('pfi.property_id', $propertyId)
+                ->whereNotNull('pfi.numeric_value')
+                ->when($min !== null, fn($q) => $q->where('pfi.numeric_value', '>=', $min))
+                ->when($max !== null, fn($q) => $q->where('pfi.numeric_value', '<=', $max));
+        });
+    }
+
+    private function applyVariantToggleFilter(Builder $query, Category $subcategory, int $propertyId, mixed $value): void
+    {
+        if (!$value || $value === '0') return;
+
+        $query->whereExists(function ($sub) use ($subcategory, $propertyId) {
+            $sub->select(DB::raw(1))
+                ->from('product_filter_index as pfi')
+                ->whereColumn('pfi.product_variant_id', 'product_variants.id')
                 ->where('pfi.category_id', $subcategory->id)
                 ->where('pfi.property_id', $propertyId)
                 ->where('pfi.value_slug', 'yes');

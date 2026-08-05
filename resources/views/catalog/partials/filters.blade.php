@@ -169,6 +169,33 @@
     @endforeach
 @endif
 
+{{-- Теги range-фильтров (f_slug_min / f_slug_max) --}}
+@if(isset($availableFilters))
+    @foreach($availableFilters as $property)
+        @if($property->isRange())
+            @php
+                $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
+                $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
+            @endphp
+            @if($rMin !== null || $rMax !== null)
+                <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                            pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
+                            text-[15px] text-[#231F20]"
+                     data-param="range"
+                     data-slug="{{ $property->slug }}">
+                    <span class="mr-[6px]">
+                        {{ $property->title }}: от {{ $rMin ?? $property->range_min }} до {{ $rMax ?? $property->range_max }}
+                    </span>
+                    <button type="button"
+                            class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                        @include('products.icons.close-red')
+                    </button>
+                </div>
+            @endif
+        @endif
+    @endforeach
+@endif
+
 {{-- ── Поиск по фильтрам ──────────────────────────────────────────── --}}
 <div class="w-[316px] py-[14px] relative">
     <input type="text"
@@ -478,22 +505,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.location.href = buildUrl(updated, { page: null });
 
             } else if (param === 'f-array') {
-                const key      = tag.dataset.key;
-                const value    = tag.dataset.value;
-                const url      = new URL(window.location.href);
-                const existing = url.searchParams.getAll(key);
-                url.searchParams.delete(key);
-                existing.filter(v => v !== value)
-                        .forEach(v => url.searchParams.append(key, v));
-                url.searchParams.delete('page');
+                var tagKey   = tag.dataset.key;   // 'f[color][]'
+                var tagValue = tag.dataset.value;
+                var url      = new URL(window.location.href);
 
-                // Перестраиваем через buildUrl чтобы не потерять бренд-сегмент.
-                const newUrl = buildUrl(activeBrands, { page: null });
-                const parsed = new URL(newUrl);
-                // Добавляем обновлённые f[] параметры.
-                existing.filter(v => v !== value)
-                        .forEach(v => parsed.searchParams.append(key, v));
-                window.location.href = parsed.toString();
+                // Собираем все текущие значения этого свойства.
+                var existing = url.searchParams.getAll(tagKey);
+                url.searchParams.delete(tagKey);
+                existing
+                    .filter(function(v) { return v !== tagValue; })
+                    .forEach(function(v) { url.searchParams.append(tagKey, v); });
+
+                url.searchParams.delete('page');
+                window.location.href = url.toString();
+
+            } else if (param === 'range') {
+                const slug = tag.dataset.slug;
+                window.location.href = buildUrl(activeBrands, {
+                    ['f_' + slug + '_min']: null,
+                    ['f_' + slug + '_max']: null,
+                    page: null,
+                });
             }
 
         });
@@ -735,16 +767,31 @@ document.addEventListener('DOMContentLoaded', function () {
 // Добавили новую глобальную функцию из-за проблем в фильтрах типа Checkbox
 // ========================================================================
 function filterCheckboxChange(propertySlug) {
-    var key = 'f[' + propertySlug + '][]';
     var checked = [];
     document.querySelectorAll('input[name="f[' + propertySlug + '][]"]')
         .forEach(function(input) {
             if (input.checked) checked.push(input.value);
         });
-    var params = {};
-    params[key] = checked.length > 0 ? checked : null;
-    params['page'] = null;
-    window.location.href = buildUrl(activeBrands, params);
+
+    // Строим новый URL вручную — не через buildUrl для этого ключа,
+    // потому что браузер кодирует [] в %5B%5D и searchParams.delete не находит их.
+    var url = new URL(window.location.href);
+
+    // Удаляем ВСЕ текущие значения этого свойства перебором ключей.
+    var keysToDelete = [];
+    url.searchParams.forEach(function(v, k) {
+        // Декодированный ключ совпадает с f[slug][]
+        if (k === 'f[' + propertySlug + '][]') keysToDelete.push(k);
+    });
+    keysToDelete.forEach(function(k) { url.searchParams.delete(k); });
+
+    // Добавляем новые значения.
+    checked.forEach(function(v) {
+        url.searchParams.append('f[' + propertySlug + '][]', v);
+    });
+
+    url.searchParams.delete('page');
+    window.location.href = url.toString();
 }
 
 // ================================================================
