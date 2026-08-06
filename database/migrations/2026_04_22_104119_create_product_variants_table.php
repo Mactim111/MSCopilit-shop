@@ -26,6 +26,7 @@ return new class extends Migration
             // по аналогии с полем 'position' в таблице ГАЛЕРЕИ ИЗОБРАЖЕНИЙ для определения Порядка Вывода картинок в Галерее на странице ВАРИАНТА ТОВАРА
             $table->integer('position')->default(0);
             $table->boolean('is_default')->default(false); // является ли вариант товара "основным" (по умолчанию) для данного товара
+            $table->boolean('is_active')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });

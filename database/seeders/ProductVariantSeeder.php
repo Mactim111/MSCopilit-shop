@@ -9,7 +9,7 @@ class ProductVariantSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('product_variants')->insert([
+        $variants = [
 
             
         // Подкатегория Смартфоны Apple iPhone
@@ -5219,6 +5219,17 @@ class ProductVariantSeeder extends Seeder
                 'updated_at'  => now(),
             ],
 
-        ]);
+        ];
+
+        // Автоматически добавляем is_active = true ко всем вариантам - только для тестирования, 
+        // в реальном проекте это поле должно быть добавлено вручную через админку
+        $variants = array_map(function ($variant) {
+            $variant['is_active'] = true;
+            return $variant;
+        }, $variants);
+
+        DB::table('product_variants')->insert($variants);
+
     }
+
 }

@@ -320,7 +320,7 @@ class CatalogFilterService
         // Стартуем с вариантов подкатегории.
         $query = ProductVariant::whereHas('product', fn($q) =>
             $q->where('category_id', $subcategory->id)
-            // ->where('is_active', true)
+            ->where('is_active', true)
         );
 
         // Фильтр по бренду.
