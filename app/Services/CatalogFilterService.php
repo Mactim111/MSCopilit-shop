@@ -222,7 +222,10 @@ class CatalogFilterService
         // Range фильтры — отдельный проход по f_slug_min / f_slug_max.
         // Они НЕ попадают в $filters['f'] — хранятся в корне $filters.
         // Ищем все ключи вида f_*_min и подбираем соответствующее свойство.
+        
         $rangeProperties = null; // загрузим лениво если понадобятся
+        
+        // Range фильтры в getFilteredProductIds() — через product_id, не variant_id!
         foreach ($filters as $key => $value) {
             if (!preg_match('/^f_(.+)_min$/', $key, $matches)) continue;
 
@@ -232,14 +235,14 @@ class CatalogFilterService
 
             // Загружаем свойства одним запросом при первом range-фильтре.
             if ($rangeProperties === null) {
-                $rangeProperties = Property::where('type', 'range')
-                    ->get()->keyBy('slug');
+                $rangeProperties = Property::where('type', 'range')->get()->keyBy('slug');
             }
 
             $property = $rangeProperties->get($slug);
             if (!$property) continue;
 
-            $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
+            // ВАЖНО: используем! applyRangeFilter (не! applyVariantRangeFilter!) т.к. здесь базовый запрос по! таблице! products
+            $this->applyRangeFilter($query, $subcategory, $property->id, $min, $max);
         }
 
         return $query->pluck('id')->all();

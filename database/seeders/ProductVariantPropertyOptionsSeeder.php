@@ -253,7 +253,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'battery_capacity' => '5000',
                 'w_charg_sup' => 'yes',
             ],
-            'samsung-galaxy-s25-ultra-12gb512gb-cernyi-titan' => [
+            'samsung-galaxy-s25-ultra-12gb512gb-chernii-titan' => [
                 'lineup' => 'samsung-s25-ultra',
                 'built_in_memory' => '512gb',
                 'ram' => '12gb',
@@ -263,7 +263,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'battery_capacity' => '5000',
                 'w_charg_sup' => 'yes',
             ],
-            'samsung-galaxy-s25-ultra-12gb512gb-serebryanyi-titan' => [
+            'samsung-galaxy-s25-ultra-12gb512gb-serebrnyi-titan' => [
                 'lineup' => 'samsung-s25-ultra',
                 'built_in_memory' => '512gb',
                 'ram' => '12gb',
@@ -327,7 +327,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'battery_capacity' => '5000',
                 'w_charg_sup' => 'no',
             ],
-            'samsung-galaxy-a57-5g-8gb128gb-sinyi' => [
+            'samsung-galaxy-a57-5g-8gb128gb-siniy' => [
                 'lineup' => 'samsung-a57-5g',
                 'built_in_memory' => '128gb',
                 'ram' => '8gb',
@@ -347,7 +347,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'battery_capacity' => '5000',
                 'w_charg_sup' => 'no',
             ],
-            'samsung-galaxy-a57-5g-8gb256gb-sinyi' => [
+            'samsung-galaxy-a57-5g-8gb256gb-siniy' => [
                 'lineup' => 'samsung-a57-5g',
                 'built_in_memory' => '256gb',
                 'ram' => '8gb',
@@ -555,7 +555,7 @@ class ProductVariantPropertyOptionsSeeder extends Seeder
                 'battery_capacity' => '5500',
                 'w_charg_sup' => 'no',
             ],
-            'xiaomi-redmi-note-14-8gb-258-ocean-blue' => [
+            'xiaomi-redmi-note-14-8gb-256gb-ocean-blue' => [
                 'lineup' => 'xiaomi-redmi-note-14',
                 'built_in_memory' => '256gb',
                 'ram' => '8gb',
