@@ -271,19 +271,32 @@
     <hr class="border-t border-dashed border-gray-300 w-[316px]">
 
     {{-- ── Бренды ─────────────────────────────────────────────────── --}}
-
-    @if(isset($brands) && $brands->isNotEmpty())
-        {{--
+    {{--
+            Ниже - старый метод
             data-title="бренд" — для поиска по заголовку группы.
             Значения брендов доступны через [data-brand-item] — для поиска по значениям.
-        --}}
+    --}}
+    
+    {{-- @if(isset($brands) && $brands->isNotEmpty())
+        
         <div class="filter-section w-[316px]" data-title="бренд">
             <x-catalog.filter-brand
                 :brands="$brands"
                 :activeBrands="$activeBrandSlugs"
             />
         </div>
+    @endif --}}
+
+    @if(isset($sidebarBrands) && $sidebarBrands->isNotEmpty())
+        <div class="filter-section w-[316px]" data-title="бренд">
+            <x-catalog.filter-brand
+                :brands="$sidebarBrands"
+                :activeBrands="$activeBrandSlugs"
+            />
+        </div>
     @endif
+
+
 
     {{-- ── Свойства ───────────────────────────────────────────────── --}}
     @if(isset($availableFilters) && $availableFilters->isNotEmpty())

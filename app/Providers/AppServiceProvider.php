@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Category;
-use Illuminate\Support\ServiceProvider;
+use App\Models\FrontendImage;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -73,7 +74,12 @@ class AppServiceProvider extends ServiceProvider
                 ->orderBy('title')
                 ->get();
 
-            $view->with(compact('actionsCategory', 'categoryGroups'));
+            $bannerTop = FrontendImage::where('group', 'banner-top')
+                ->where('active', true)
+                ->orderBy('order')
+                ->first();
+
+            $view->with(compact('actionsCategory', 'categoryGroups', 'bannerTop'));
         });
     }
 }

@@ -5124,7 +5124,7 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 699.00,
+                'price'       => 799.00,
                 'old_price'   => 849.00,
                 'stock'       => 50,
                 'position'    => 5,

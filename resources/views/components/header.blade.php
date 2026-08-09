@@ -9,20 +9,18 @@
         {{-- ЦЕНТР: КАТАЛОГ + ПОИСК --}}
         <div class="flex items-center flex-1 gap-4">
 
-            {{-- Кнопка Каталог --}}
-            <!-- <a href="/catalog"
-               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 stroke-black fill-white">
-                    <path d="M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"/>
-                </svg>
-                <span class="text-[16px]">Каталог</span>
-            </a> -->
-
             <button id="catalog-toggle"
-                class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer">
-                <span id="catalog-icon-open">☰</span>
-                <span id="catalog-icon-close" class="hidden">✕</span>
-                <span>Каталог</span>
+                    class="flex items-center gap-2 pl-2.5 pr-5 py-2 bg-red-600 text-white rounded-md w-[120px] h-[42px]">
+
+                <div class="relative w-7 h-7 shrink-0">
+                    <span id="catalog-icon-open"
+                        class="absolute inset-0 flex items-center justify-center">☰</span>
+
+                    <span id="catalog-icon-close"
+                        class="absolute inset-0 hidden flex items-center justify-center">✕</span>
+                </div>
+
+                <span class="shrink-0">Каталог</span>
             </button>
 
             @include('components.mega-menu')

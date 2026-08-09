@@ -76,70 +76,86 @@ class CatalogFilterService
      */
     public function getAvailableFilters(Category $subcategory, array $filters): Collection
     {
+        // Базовый пул с учётом ВСЕХ фильтров включая цену.
         $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
 
         return Property::forFilters()
-			->where(function ($q) use ($subcategory, $filteredProductIds) {
-				$q->where(function ($inner) use ($subcategory, $filteredProductIds) {
-					$inner->where('type', 'toggle')
-						->whereExists(function ($sub) use ($subcategory, $filteredProductIds) {
-							$sub->select(DB::raw(1))
-								->from('product_filter_index as pfi')
-								->whereColumn('pfi.property_id', 'properties.id')
-								->where('pfi.category_id', $subcategory->id)
-								->whereIn('pfi.product_id', $filteredProductIds)
-								->where('pfi.value_slug', 'yes');
-						});
-				})->orWhere(function ($inner) use ($subcategory, $filteredProductIds) {
-					$inner->where('type', '!=', 'toggle')
-						->whereHas('options', function ($query) use ($subcategory, $filteredProductIds) {
-							$query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
-								$q->where('category_id', $subcategory->id)
-								  ->whereIn('product_id', $filteredProductIds);
-							});
-						});
-				});
-			})
-			->with(['options' => function ($query) use ($subcategory, $filteredProductIds) {
-				$query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
-					$q->where('category_id', $subcategory->id)
-					  ->whereIn('product_id', $filteredProductIds);
-				})->orderByRaw('COALESCE(numeric_value, 0), value');
-			}])
-			->get()
-			->each(function (Property $property) use ($subcategory, $filteredProductIds) {
-				if ($property->isRange()) {
-					$range = DB::table('product_filter_index')
-						->where('category_id', $subcategory->id)
-						->where('property_id', $property->id)
-						->whereIn('product_id', $filteredProductIds)
-						->whereNotNull('numeric_value')
-						->selectRaw('MIN(numeric_value) as range_min, MAX(numeric_value) as range_max')
-						->first();
-					$property->range_min = (float) ($range->range_min ?? 0);
-					$property->range_max = (float) ($range->range_max ?? 0);
-				}
-				if ($property->isToggle()) {
-					$property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
-						$option->products_count = DB::table('product_filter_index')
-							->where('category_id', $subcategory->id)
-							->where('property_id', $option->property_id)
-							->where('value_slug', $option->slug)
-							->whereIn('product_id', $filteredProductIds)
-							->distinct('product_variant_id')->count('product_variant_id');
-					});
-				}
-				if ($property->isCheckbox() || $property->isRadio()) {
-					$property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
-						$option->products_count = DB::table('product_filter_index')
-							->where('category_id', $subcategory->id)
-							->where('property_id', $option->property_id)
-							->where('value_slug', $option->slug)
-							->whereIn('product_id', $filteredProductIds)
-							->distinct('product_variant_id')->count('product_variant_id');
-					});
-				}
-			});
+            ->where(function ($q) use ($subcategory, $filteredProductIds) {
+                $q->where(function ($inner) use ($subcategory, $filteredProductIds) {
+                    $inner->where('type', 'toggle')
+                        ->whereExists(function ($sub) use ($subcategory, $filteredProductIds) {
+                            $sub->select(DB::raw(1))
+                                ->from('product_filter_index as pfi')
+                                ->whereColumn('pfi.property_id', 'properties.id')
+                                ->where('pfi.category_id', $subcategory->id)
+                                ->whereIn('pfi.product_id', $filteredProductIds)
+                                ->where('pfi.value_slug', 'yes');
+                        });
+                })->orWhere(function ($inner) use ($subcategory, $filteredProductIds) {
+                    $inner->where('type', '!=', 'toggle')
+                        ->whereHas('options', function ($query) use ($subcategory, $filteredProductIds) {
+                            $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
+                                $q->where('category_id', $subcategory->id)
+                                ->whereIn('product_id', $filteredProductIds);
+                            });
+                        });
+                });
+            })
+            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds) {
+                // Загружаем опции ТОЛЬКО из отфильтрованного пула.
+                // Independent faceting считается отдельно в ->each().
+                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
+                    $q->where('category_id', $subcategory->id)
+                    ->whereIn('product_id', $filteredProductIds);
+                })->orderByRaw('COALESCE(numeric_value, 0), value');
+            }])
+            ->get()
+            ->each(function (Property $property) use ($subcategory, $filters, $filteredProductIds) {
+
+                if ($property->isRange()) {
+                    $range = DB::table('product_filter_index')
+                        ->where('category_id', $subcategory->id)
+                        ->where('property_id', $property->id)
+                        ->whereIn('product_id', $filteredProductIds)
+                        ->whereNotNull('numeric_value')
+                        ->selectRaw('MIN(numeric_value) as range_min, MAX(numeric_value) as range_max')
+                        ->first();
+                    $property->range_min = (float) ($range->range_min ?? 0);
+                    $property->range_max = (float) ($range->range_max ?? 0);
+                }
+
+                if ($property->isToggle()) {
+                    $property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
+                        $option->products_count = DB::table('product_filter_index')
+                            ->where('category_id', $subcategory->id)
+                            ->where('property_id', $option->property_id)
+                            ->where('value_slug', $option->slug)
+                            ->whereIn('product_id', $filteredProductIds)
+                            ->distinct('product_variant_id')->count('product_variant_id');
+                    });
+                }
+
+                if ($property->isCheckbox() || $property->isRadio()) {
+                    // Independent faceting: считаем без учёта фильтра
+                    // по ЭТОМУ КОНКРЕТНОМУ свойству.
+                    // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
+                    $filtersWithoutSelf = $filters;
+                    unset($filtersWithoutSelf['f'][$property->slug]);
+                    $productIdsWithoutSelf = $this->getFilteredProductIds(
+                        $subcategory,
+                        $filtersWithoutSelf
+                    );
+
+                    $property->options->each(function ($option) use ($subcategory, $productIdsWithoutSelf) {
+                        $option->products_count = DB::table('product_filter_index')
+                            ->where('category_id', $subcategory->id)
+                            ->where('property_id', $option->property_id)
+                            ->where('value_slug', $option->slug)
+                            ->whereIn('product_id', $productIdsWithoutSelf)
+                            ->distinct('product_variant_id')->count('product_variant_id');
+                    });
+                }
+            });
     }
 
     /**
@@ -159,6 +175,27 @@ class CatalogFilterService
         ];
     }
 
+    public function getAvailableBrands(
+        Category $subcategory,
+        array $filters,
+        \Illuminate\Support\Collection $allCategoryBrands
+    ): \Illuminate\Support\Collection {
+        // Фильтры без бренда — для independent faceting бренда.
+        $filtersWithoutBrand = $filters;
+        unset($filtersWithoutBrand['brand']);
+
+        $productIds = $this->getFilteredProductIds($subcategory, $filtersWithoutBrand);
+
+        // Бренды из товаров прошедших ВСЕ фильтры кроме бренда (цена, свойства).
+        $brandIds = Product::whereIn('id', $productIds)
+            ->whereNotNull('brand_id')
+            ->distinct()
+            ->pluck('brand_id');
+
+        // Фильтруем из всех брендов категории — сохраняем порядок.
+        return $allCategoryBrands->whereIn('id', $brandIds)->values();
+    }
+
     // ------------------------------------------------------------------
     // Приватные методы
     // ------------------------------------------------------------------
@@ -172,13 +209,50 @@ class CatalogFilterService
      */
     private function getFilteredProductIds(Category $subcategory, array $filters): array
     {
-        // Все товары подкатегории — базовый пул.
-        $allProductIds = $subcategory->allProducts()->pluck('id')->all();
+        
+        // Базовый пул — товары подкатегории.
+        // Для сводных подкатегорий (pivot) берём товары через category_product.
+        $pivotIds = DB::table('category_product')
+            ->where('category_id', $subcategory->id)
+            ->pluck('product_id');
+
+        $baseQuery = $pivotIds->isNotEmpty()
+            ? Product::whereIn('id', $pivotIds)
+            : Product::where('category_id', $subcategory->id);
+
+        // ПЕРЕД! фильтром по бренду, перед propertyFilters:
+        if (!empty($filters['price_min']) || !empty($filters['price_max'])) {
+            $baseQuery->whereHas('variants', function ($q) use ($filters) {
+                if (!empty($filters['price_min'])) {
+                    $q->where('price', '>=', (float) $filters['price_min']);
+                }
+                if (!empty($filters['price_max'])) {
+                    $q->where('price', '<=', (float) $filters['price_max']);
+                }
+            });
+        }
+        
+        // Фильтр по бренду применяем СРАЗУ к базовому пулу —
+        // это ключевое исправление: раньше бренд применялся позже
+        // и не влиял на $allProductIds, поэтому линейки других
+        // брендов оставались видны в сайдбаре.
+        if (!empty($filters['brand'])) {
+            $baseQuery->whereHas('brand', fn($b) =>
+                $b->whereIn('slug', $filters['brand'])
+            );
+        }
+
+        $allProductIds = $baseQuery->pluck('id')->all();
 
         $propertyFilters = $filters['f'] ?? [];
 
-        // Если фильтры по свойствам не выбраны — возвращаем все товары.
-        if (empty($propertyFilters)) {
+        // Проверяем есть ли вообще какие-то фильтры (свойства или range).
+        $hasRangeFilters = collect(array_keys($filters))->contains(
+            fn($k) => preg_match('/^f_.+_min$/', $k)
+        );
+
+        // Если никаких фильтров нет — возвращаем базовый пул.
+        if (empty($propertyFilters) && !$hasRangeFilters) {
             return $allProductIds;
         }
 
@@ -187,15 +261,16 @@ class CatalogFilterService
             ->get()
             ->keyBy('slug');
 
-        // Начинаем с полного пула и последовательно сужаем
-        // через EXISTS-подзапросы к product_filter_index.
+        // Начинаем сужать базовый пул через EXISTS-подзапросы.
         $query = Product::whereIn('id', $allProductIds);
 
-        if (isset($filters['brand'])) {
-            $query->whereHas('brand', fn($b) =>
-                $b->whereIn('slug', $filters['brand'])
-            );
-        }
+        // Бренд уже применён выше к $allProductIds — здесь НЕ повторяем.
+
+        // if (isset($filters['brand'])) {
+        //     $query->whereHas('brand', fn($b) =>
+        //         $b->whereIn('slug', $filters['brand'])
+        //     );
+        // }
 
         foreach ($propertyFilters as $propertySlug => $value) {
             $property = $properties->get($propertySlug);
@@ -457,4 +532,56 @@ class CatalogFilterService
             default            => $query->orderBy('position'),
         };
     }
+
+    // НОВЫЙ МЕТОД - При выборе линейки — ВЫБОР ЗНАЧЕНИЙ в фильтре БРЕНДА сужается до брендов этих линеек. Пользователь видит только релевантные бренды
+    /**
+     * Получить бренды для фильтра в сайдбаре.
+     *
+     * Логика:
+     * — Если выбраны линейки → показываем только бренды этих линеек
+     * — Если выбраны бренды → показываем все бренды категории
+     *   (чтобы можно было добавить ещё один бренд)
+     * — Если ничего не выбрано → все бренды категории
+     */
+    // public function getBrandsForFilters(
+    //     Category $subcategory,
+    //     array $filters,
+    //     \Illuminate\Support\Collection $allCategoryBrands
+    // ): \Illuminate\Support\Collection {
+        
+    //     $selectedLineups = $filters['f']['lineup'] ?? []; // slug линеек
+
+    //     // Линейки не выбраны — показываем все бренды категории.
+    //     if (empty($selectedLineups)) {
+    //         return $allCategoryBrands;
+    //     }
+
+    //     // Линейки выбраны — находим property_id свойства Линейка.
+    //     $lineupPropertyId = DB::table('properties')
+    //         ->where('slug', 'lineup')
+    //         ->value('id');
+
+    //     if (!$lineupPropertyId) {
+    //         return $allCategoryBrands;
+    //     }
+
+    //     // Находим product_id вариантов с выбранными линейками через индекс.
+    //     $productIds = DB::table('product_filter_index')
+    //         ->where('category_id', $subcategory->id)
+    //         ->where('property_id', $lineupPropertyId)
+    //         ->whereIn('value_slug', $selectedLineups)
+    //         ->distinct()
+    //         ->pluck('product_id');
+
+    //     // Получаем brand_id товаров этих линеек.
+    //     $brandIds = DB::table('products')
+    //         ->whereIn('id', $productIds)
+    //         ->whereNotNull('brand_id')
+    //         ->whereNull('deleted_at')
+    //         ->distinct()
+    //         ->pluck('brand_id');
+
+    //     // Возвращаем только бренды выбранных линеек из общего списка.
+    //     return $allCategoryBrands->whereIn('id', $brandIds)->values();
+    // }
 }

@@ -3,7 +3,7 @@
 @endphp
 
 @if($recentVariants->count() >= 5)
-<div class="max-w-[1484px] overflow-hidden mx-auto relative mt-[70px] mb-[40px]">
+<div class="max-w-[1500px] overflow-hidden mx-auto relative mt-[70px] mb-[40px]">
 
     {{-- Заголовок --}}
     <div class="h-[42px] mb-[20px] flex items-center">
@@ -16,12 +16,10 @@
 
         {{-- Кнопка назад --}}
         <button 
-            class="js-swiper-prev absolute left-[1px] top-1/2 -translate-y-1/2
-                   w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                   flex items-center justify-center cursor-pointer z-10">
-            <span class="text-red-600">
-                @include('products.icons.chevron-left-thin')
-            </span>
+            class="js-swiper-prev absolute left-[1px] top-[calc(50%-8px)] -translate-y-1/2
+                w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                flex items-center justify-center cursor-pointer z-10">
+            <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
         </button>
 
         {{-- SWIPER --}}
@@ -30,12 +28,12 @@
              data-loop="true"
              data-pagination="true"
              data-navigation="true"
-             data-space="12.5">
+             data-space="8.5">
 
             <div class="swiper-wrapper py-[16px] pb-[25px]">
 
                 @foreach($recentVariants as $variant)
-                    <div class="swiper-slide !w-auto">
+                    <div class="swiper-slide !w-auto px-[3px]">
 
                         <a href="{{ route('catalog.variant', $variant->slug) }}"
                            class="rv-card w-[280.8px] min-h-[96px] p-[8px] flex gap-[8px] flex-shrink-0
@@ -48,7 +46,7 @@
                                 focus-visible:border-gray-200
                                 focus-visible:outline-none">
 
-                            <div class="w-[80px] h-[80px] overflow-hidden flex-shrink-0">
+                            <div class="w-[80px] h-[80px] overflow-hidden flex-shrink-0 ">
                                 <img src="{{ $variant->mainImage() }}"
                                      alt="{{ $variant->title }}"
                                      class="w-full h-full object-cover">
@@ -71,12 +69,10 @@
 
         {{-- Кнопка вперед --}}
         <button 
-            class="js-swiper-next absolute right-[1px] top-1/2 -translate-y-1/2
-                   w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                   flex items-center justify-center cursor-pointer z-10">
-            <span class="text-red-600">
-                @include('products.icons.chevron-right-thin')
-            </span>
+            class="js-swiper-next absolute right-[1px] top-[calc(50%-8px)] -translate-y-1/2
+                w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                flex items-center justify-center cursor-pointer z-10">
+            <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
         </button>
 
     </div>

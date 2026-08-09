@@ -7,39 +7,30 @@
     - подкатегории третьего уровня = children() от категорий второго уровня
     - сначала выводим подкатегории, у которых есть товары (кликабельные)
     - затем подкатегории без товаров (фейковые, но выглядят как ссылки)
-    - кнопки навигации не резервируют место
+    - кнопки навигации НЕ резервируют место внутри слайдера
+    - кнопки вынесены за пределы контейнера 1500px (как у 5 Элемент)
+    - кнопки абсолютные, контейнер relative — поэтому они могут выходить наружу
+    - JS работает по селекторам, поэтому структура DOM не влияет на работу
     - мягкая тень ПОД слайдером (усиленная, как у 5 Элемент)
 --}}
 
-<div class="w-full bg-white border-b border-gray-100 shadow-sm sticky top-[42px] z-40   
-            " style="
-                box-shadow:
-                    0px 10px 14px -6px rgba(0,0,0,0.22),
-                    0px 4px 8px -4px rgba(0,0,0,0.18);
-             ">
+<div class="w-full bg-white">
 
-    <div class="max-w-[1500px] mx-auto h-[42px] relative mb-2">
+    {{-- Внешний контейнер 1500px — кнопки будут его прямыми детьми --}}
+    <div class="max-w-[1500px] mx-auto relative h-[42px]">
 
-        {{-- Усиленная тень ПОД слайдером (как у 5 Элемент, но чуть мощнее) --}}
-        <!-- <div class="absolute bottom-0 left-0 w-full h-[18px] pointer-events-none z-0"
-             style="
-                box-shadow:
-                    0px 10px 14px -6px rgba(0,0,0,0.22),
-                    0px 4px 8px -4px rgba(0,0,0,0.18);
-             ">
-        </div> -->
-
-        {{-- Кнопка назад --}}
+        {{-- Кнопка назад (вынесена за пределы контейнера) --}}
         <button type="button"
-            class="js-cat-prev absolute left-0 top-1/2 -translate-y-1/2
-                   w-[34px] h-[34px] rounded-full bg-white border border-gray-100 shadow-md
-                   flex items-center justify-center cursor-pointer z-20 opacity-0 pointer-events-none transition">
+            class="js-cat-prev absolute left-[-16px] top-1/2 -translate-y-1/2
+                   w-[32px] h-[32px] rounded-full bg-white border border-gray-100
+                   shadow-md hover:shadow-lg transition
+                   flex items-center justify-center cursor-pointer z-20 opacity-0 pointer-events-none">
             <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
         </button>
 
-        {{-- Лента подкатегорий --}}
+        {{-- Лента подкатегорий (внутри контейнера, кнопки не занимают место) --}}
         <div class="js-cat-track flex items-center gap-6 overflow-hidden whitespace-nowrap
-                    pl-[4px] pr-[40px] h-full relative z-10">
+                    pl-[4px] pr-[4px] h-full relative z-10">
 
             {{-- Акции --}}
             <a href="/sales"
@@ -67,10 +58,11 @@
 
         </div>
 
-        {{-- Кнопка вперед --}}
+        {{-- Кнопка вперед (вынесена за пределы контейнера) --}}
         <button type="button"
-            class="js-cat-next absolute right-0 top-1/2 -translate-y-1/2
-                   w-[34px] h-[34px] rounded-full bg-white border border-gray-100 shadow-md
+            class="js-cat-next absolute right-[-16px] top-1/2 -translate-y-1/2
+                   w-[32px] h-[32px] rounded-full bg-white border border-gray-100
+                   shadow-md hover:shadow-lg transition
                    flex items-center justify-center cursor-pointer z-20">
             <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
         </button>
@@ -81,6 +73,10 @@
 {{-- JS слайдера --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Важно:
+    // Кнопки вынесены за пределы контейнера 1500px.
+    // JS ищет их по селекторам, поэтому структура DOM не влияет на работу.
 
     const track = document.querySelector('.js-cat-track');
     const btnPrev = document.querySelector('.js-cat-prev');

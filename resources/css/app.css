@@ -172,6 +172,21 @@
     background: #DC092E;
 }
 
+/* Базовая полоска слайдера banner-slider*/
+.swiper-pagination-bullet {
+    width: 32px;
+    height: 2px;
+    background-color: #BDBBBC; /* серый */
+    opacity: 1;
+    border-radius: 2px;
+}
+
+/* Активная полоска слайдера banner-slider */
+.swiper-pagination-bullet-active {
+    background-color: #DC092E; /* красный */
+}
+
+
 .zoom-cursor {
     cursor: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none'>\

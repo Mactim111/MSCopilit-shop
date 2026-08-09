@@ -1,23 +1,23 @@
 <div id="mega-menu"
-     class="hidden fixed left-0 right-0 top-[70px] z-40 bg-white shadow-lg border-t border-gray-200
-            h-[calc(100vh-70px)] overflow-y-auto no-scrollbars">
+     class="hidden fixed left-0 right-0 z-40 bg-white
+        overflow-y-auto no-scrollbars">
 
     <div class="mx-auto max-w-[1500px] flex">
 
         {{-- ЛЕВАЯ КОЛОНКА --}}
-        <div class="w-3/12 border-r border-gray-100 bg-gray-50">
-            <ul class="py-4 space-y-1">
+        <div class="w-3/12">
+            <ul class="py-[4px] space-y-1">
 
                 {{-- АКЦИИ --}}
                 
-                    <li>
+                    <li class="overflow-visible">
                         <a href="#"
-                           class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:bg-white cursor-pointer"
-                           data-group="actions">
+                            class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:border-gray-200 cursor-pointer
+                                hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.25)] rounded-lg transition-all duration-150 border border-transparent" data-group="actions">
                             <span class="flex items-center gap-3">
                                 <img src="{{ asset('storage/assets/img/actions.png') }}"
-                                     class="w-[54px] h-[36px] object-cover rounded"
-                                     alt="Акции">
+                                    class="w-[54px] h-[36px] object-cover rounded"
+                                    alt="Акции">
                                 <span>Акции</span>
                             </span>
                             @include('admin.svg.chevron-right', ['class' => 'w-[7px] h-[14px] text-gray-400'])
@@ -29,8 +29,8 @@
                 @foreach($categoryGroups as $group)
                     <li>
                         <a href="{{ route('catalog.group', $group) }}"
-                           class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:bg-white cursor-pointer"
-                           data-group="group-{{ $group->id }}">
+                            class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:border-gray-200 cursor-pointer
+                                hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.25)] rounded-lg transition-all duration-150 border border-transparent" data-group="group-{{ $group->id }}">
                             <span class="flex items-center gap-3">
                                 <img src="{{ asset($group->image) }}"
                                      class="w-[54px] h-[36px] object-cover rounded"

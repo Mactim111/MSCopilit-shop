@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\FrontendImage;
 use App\Models\ProductVariant;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -44,11 +45,23 @@ class HomeController extends Controller
             ->orderBy('title')
             ->get();
 
+        $banners = FrontendImage::where('group', 'banner-slider')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        $bannerTop = FrontendImage::where('group', 'banner-top')
+            ->where('active', true)
+            ->first();
+
+
         return view('home', compact(
             'popular_variants',
             'new_variants',
             'discounts',
-            'groups'
+            'groups',
+            'banners',
+            'bannerTop'
         ));
     }
 }
