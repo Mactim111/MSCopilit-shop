@@ -101,15 +101,25 @@ class CatalogFilterService
                         });
                 });
             })
-            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds) {
+
+            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds, $filters) {
                 // Загружаем опции ТОЛЬКО из отфильтрованного пула.
                 // Independent faceting считается отдельно в ->each().
-                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds) {
+                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds, $filters) {
                     $q->where('category_id', $subcategory->id)
-                    ->whereIn('product_id', $filteredProductIds);
+                    ->whereIn('product_id', $filteredProductIds)
+                    // НОВОЕ: учитываем цену при загрузке опций
+                    ->when(!empty($filters['price_min']), fn($q) =>
+                        $q->where('price', '>=', (float) $filters['price_min'])
+                    )
+                    ->when(!empty($filters['price_max']), fn($q) =>
+                        $q->where('price', '<=', (float) $filters['price_max'])
+                    );
                 })->orderByRaw('COALESCE(numeric_value, 0), value');
             }])
+
             ->get()
+
             ->each(function (Property $property) use ($subcategory, $filters, $filteredProductIds) {
 
                 if ($property->isRange()) {
@@ -141,18 +151,25 @@ class CatalogFilterService
                     // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
                     $filtersWithoutSelf = $filters;
                     unset($filtersWithoutSelf['f'][$property->slug]);
-                    $productIdsWithoutSelf = $this->getFilteredProductIds(
-                        $subcategory,
-                        $filtersWithoutSelf
-                    );
+                    // Логика: $productIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) прямо к запросу индекса — 
+                    // получаем количество вариантов нужной цены с данной опцией. Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
+                    $productIdsWithoutSelf = $this->getFilteredProductIds($subcategory,$filtersWithoutSelf);
 
-                    $property->options->each(function ($option) use ($subcategory, $productIdsWithoutSelf) {
+                    $property->options->each(function ($option) use ($subcategory, $productIdsWithoutSelf, $filters) {
                         $option->products_count = DB::table('product_filter_index')
                             ->where('category_id', $subcategory->id)
                             ->where('property_id', $option->property_id)
                             ->where('value_slug', $option->slug)
                             ->whereIn('product_id', $productIdsWithoutSelf)
-                            ->distinct('product_variant_id')->count('product_variant_id');
+                            ->distinct('product_variant_id')
+                            // НОВОЕ: учитываем цену при подсчёте вариантов
+                            ->when(!empty($filters['price_min']), fn($q) =>
+                                $q->where('price', '>=', (float) $filters['price_min'])
+                            )
+                            ->when(!empty($filters['price_max']), fn($q) =>
+                                $q->where('price', '<=', (float) $filters['price_max'])
+                            )
+                            ->count('product_variant_id');
                     });
                 }
             });

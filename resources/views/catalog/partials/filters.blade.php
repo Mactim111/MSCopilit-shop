@@ -116,92 +116,96 @@
 
 {{-- ── Теги применённых фильтров ─────────────────────────────────── --}}
 
-{{-- Тег ценового фильтра (НАШ! оригинальный!) --}}
-@if(request()->hasAny(['price_min', 'price_max']))
-    <div class="filter-prop-tag bg-gray-100 border border-[#231F20] rounded-sm
-                pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center text-[15px] text-[#231F20]"
-         data-param="price">
-        <span class="mr-[6px]">
-            Цена: от {{ request('price_min', $minPrice) }} до {{ request('price_max', $maxPrice) }}
-        </span>
-        <button type="button"
-                class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-            @include('products.icons.close-red')
-        </button>
-    </div>
-@endif
+<div class="filter-tags flex flex-wrap gap-[8px] mb-[16px]">
 
-{{-- Теги брендов ТЕПЕРЬ — читаем из route-сегмента, не из query--}}
-@foreach($activeBrandSlugs as $slug)
-    @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
-    @if($brandTitle)
-        <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                    pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                    text-[15px] text-[#231F20]"
-                data-param="brand-segment"
-                data-value="{{ $slug }}">
-            <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
+    {{-- Тег ценового фильтра (НАШ! оригинальный!) --}}
+    @if(request()->hasAny(['price_min', 'price_max']))
+        <div class="filter-prop-tag bg-gray-100 border border-[#231F20] rounded-sm
+                    pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center text-[15px] text-[#231F20]"
+            data-param="price">
+            <span class="mr-[6px]">
+                Цена: от {{ request('price_min', $minPrice) }} до {{ request('price_max', $maxPrice) }}
+            </span>
             <button type="button"
                     class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
                 @include('products.icons.close-red')
             </button>
         </div>
     @endif
-@endforeach
 
-{{-- Теги активных фильтров по свойствам --}}
-@if(isset($availableFilters))
-    @foreach($availableFilters as $property)
-        @php
-            $activeValues = $filters['f'][$property->slug] ?? [];
-            if (!is_array($activeValues)) $activeValues = [$activeValues];
-        @endphp
-        @foreach($activeValues as $activeSlug)
-            @php $optionLabel = $property->options->firstWhere('slug', $activeSlug)?->value; @endphp
-            @if($optionLabel)
-                <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                            pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                            text-[15px] text-[#231F20]"
-                     data-param="f-array"
-                     data-key="f[{{ $property->slug }}][]"
-                     data-value="{{ $activeSlug }}">
-                    <span class="mr-[6px]">{{ $property->title }}: {{ $optionLabel }}</span>
-                    <button type="button"
-                            class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                        @include('products.icons.close-red')
-                    </button>
-                </div>
-            @endif
-        @endforeach
-    @endforeach
-@endif
-
-{{-- Теги range-фильтров (f_slug_min / f_slug_max) --}}
-@if(isset($availableFilters))
-    @foreach($availableFilters as $property)
-        @if($property->isRange())
-            @php
-                $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
-                $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
-            @endphp
-            @if($rMin !== null || $rMax !== null)
-                <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                            pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                            text-[15px] text-[#231F20]"
-                     data-param="range"
-                     data-slug="{{ $property->slug }}">
-                    <span class="mr-[6px]">
-                        {{ $property->title }}: от {{ $rMin ?? $property->range_min }} до {{ $rMax ?? $property->range_max }}
-                    </span>
-                    <button type="button"
-                            class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                        @include('products.icons.close-red')
-                    </button>
-                </div>
-            @endif
+    {{-- Теги брендов ТЕПЕРЬ — читаем из route-сегмента, не из query--}}
+    @foreach($activeBrandSlugs as $slug)
+        @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
+        @if($brandTitle)
+            <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                        pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
+                        text-[15px] text-[#231F20]"
+                    data-param="brand-segment"
+                    data-value="{{ $slug }}">
+                <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
+                <button type="button"
+                        class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                    @include('products.icons.close-red')
+                </button>
+            </div>
         @endif
     @endforeach
-@endif
+
+    {{-- Теги активных фильтров по свойствам --}}
+    @if(isset($availableFilters))
+        @foreach($availableFilters as $property)
+            @php
+                $activeValues = $filters['f'][$property->slug] ?? [];
+                if (!is_array($activeValues)) $activeValues = [$activeValues];
+            @endphp
+            @foreach($activeValues as $activeSlug)
+                @php $optionLabel = $property->options->firstWhere('slug', $activeSlug)?->value; @endphp
+                @if($optionLabel)
+                    <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                                pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
+                                text-[15px] text-[#231F20]"
+                        data-param="f-array"
+                        data-key="f[{{ $property->slug }}][]"
+                        data-value="{{ $activeSlug }}">
+                        <span class="mr-[6px]">{{ $property->title }}: {{ $optionLabel }}</span>
+                        <button type="button"
+                                class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                            @include('products.icons.close-red')
+                        </button>
+                    </div>
+                @endif
+            @endforeach
+        @endforeach
+    @endif
+
+    {{-- Теги range-фильтров (f_slug_min / f_slug_max) --}}
+    @if(isset($availableFilters))
+        @foreach($availableFilters as $property)
+            @if($property->isRange())
+                @php
+                    $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
+                    $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
+                @endphp
+                @if($rMin !== null || $rMax !== null)
+                    <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                                pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
+                                text-[15px] text-[#231F20]"
+                        data-param="range"
+                        data-slug="{{ $property->slug }}">
+                        <span class="mr-[6px]">
+                            {{ $property->title }}: от {{ $rMin ?? $property->range_min }} до {{ $rMax ?? $property->range_max }}
+                        </span>
+                        <button type="button"
+                                class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                            @include('products.icons.close-red')
+                        </button>
+                    </div>
+                @endif
+            @endif
+        @endforeach
+    @endif
+
+</div>
 
 {{-- ── Поиск по фильтрам ──────────────────────────────────────────── --}}
 <div class="w-[316px] py-[14px] relative">
