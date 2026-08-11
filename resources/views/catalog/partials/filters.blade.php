@@ -64,14 +64,6 @@
      * Бренд теперь в сегменте маршрута — проверяем через route('brands').
      */
     $hasActiveFilters =
-        // ниже старая версия, где УВЫ! Кнопка «Очистить фильтры» не появляется для checkbox/toggle
-        // !empty($activeBrandSlugs) ||
-        // collect(request()->keys())->contains(
-        //     fn($k) =>
-        //         $k === 'price_min'        ||
-        //         $k === 'price_max'        ||
-        //         str_starts_with($k, 'f[') ||
-        //         str_starts_with($k, 'f_')
         request()->has('price_min') ||
         request()->has('price_max') ||
         !empty($activeBrandSlugs)   ||

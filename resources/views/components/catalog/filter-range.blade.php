@@ -50,8 +50,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!slider || !inputMin || !inputMax) return;
     var min    = {{ (float) $min }};
     var max    = {{ (float) $max }};
-    var step   = (min % 1 !== 0 || max % 1 !== 0) ? 0.1 : 1;
-    var digits = step < 1 ? 1 : 0;
+
+    // УСЛОВИЕ если min/max не целые числа, то шаг 0.1, иначе 1 -  ЕСЛИ нужна точность до 0.1 в слайдерах фильтров типа range,
+    // то можно раскомментировать эти две строки, но тогда в слайдере будет шаг 0.1
+    // var step   = (min % 1 !== 0 || max % 1 !== 0) ? 0.1 : 1;
+    // var digits = step < 1 ? 1 : 0;
+
+    // ЕСЛИ нужна точность до 0.01 в слайдерах фильтров типа range
+    // var step   = 0.01;
+    // var digits = 2;
+
+    // ЛИБО! Вариант Б — умный (динамическая точность) - В МЕТОДЕ ниже Определяем количество знаков после запятой у min/max и подставляем в step/digits. Е
+    // сли min/max целые числа, то step=1, digits=0. Если min/max с точностью до 0.1, то step=0.1, digits=1. Если min/max с точностью до 0.01, то step=0.01, digits=2
+    function countDecimals(value) {
+        if (Math.floor(value) === value) return 0;
+        return value.toString().split(".")[1].length;
+    }
+
+    var digits = Math.max(countDecimals(min), countDecimals(max));
+    var step   = Math.pow(10, -digits);
+
     noUiSlider.create(slider, {
         start: [{{ (float) ($activeMin ?? $min) }}, {{ (float) ($activeMax ?? $max) }}],
         connect: true,
@@ -59,7 +77,12 @@ document.addEventListener('DOMContentLoaded', function () {
         step: step,
         behaviour: 'tap-drag',
         format: {
+            // toFixed() возвращает строку, поэтому parseFloat() для преобразования обратно в число
+            // НИЖЕ ВАРИАНТ ЕСЛИ нужна точность до 0.1 в слайдерах фильтров типа range либо ECЛИ! применяем Динамическую Точность ЧЕРЕЗ МЕТОД countDecimals() ВЫШЕ 
+            // - тогда раскомментить строку ниже и закомментить строку для РУЧНОЙ! УСТАНОВКИ точности до 0.01
             to:   function(v) { return parseFloat(v.toFixed(digits)); },
+            // ЕСЛИ нужна точность до 0.01 в слайдерах фильтров типа range - если нет - закомментить строку выше и раскомментить строку ниже
+            // to:   function(v) { return parseFloat(v.toFixed(2)); },
             from: function(v) { return parseFloat(v); }
         }
     });

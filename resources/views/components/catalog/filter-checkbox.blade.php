@@ -10,13 +10,18 @@
     // Логика та же что у range (@if ($min < $max)):
     // Показываем даже если одно значение — пользователь должен видеть что он фильтрует.
     $shouldShow = $availableOptions->count() >= 1;
+    // шторка ТЕПЕРЬ прячет все значения фильтров, если их больше 3, А НЕ КАК РАНЬШЕ - ВСЕ. Вернуть назад - убрать $showToggle и раскомментить x-data и button, убрав НОВЫЕ!
+    $showToggle = $availableOptions->count() > 3;
 @endphp
 
 @if($shouldShow)
     <div
-        x-data="{ open: {{ count($active) > 0 ? 'true' : 'false' }} }"
+        x-data="{ open: {{ $showToggle ? (count($active) > 0 ? 'true' : 'false') : 'true' }} }"
+        {{-- x-data="{ open: {{ count($active) > 0 ? 'true' : 'false' }} }" --}}
+
         class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
     >
+        {{--
         <button type="button" @click="open = !open"
             class="flex w-full items-center justify-between
                 text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
@@ -26,9 +31,27 @@
                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
             </svg>
-        </button>
+        </button> 
+         --}}
+        <button
+            type="button"
+            @click="open = !open"
+            class="flex w-full items-center justify-between
+                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors"
+        >
+            <span data-filter-title>{{ $property->title }}</span>
 
-        <ul x-show="open"
+            {{-- стрелка показывается только если опций > 3 --}}
+            @if($showToggle)
+                <svg class="w-[20px] h-[12px] flex-none transition-transform duration-200"
+                    :class="open ? 'rotate-180' : ''"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            @endif
+        </button>
+        
+         <ul x-show="open"
             x-transition:enter="transition ease-out duration-150"
             x-transition:enter-start="opacity-0 -translate-y-1"
             x-transition:enter-end="opacity-100 translate-y-0"

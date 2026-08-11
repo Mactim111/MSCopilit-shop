@@ -78,6 +78,7 @@ class CatalogFilterService
     {
         // Базовый пул с учётом ВСЕХ фильтров включая цену.
         $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
+        $filteredVariantIds = $this->getFilteredVariantIds($subcategory, $filters);
 
         return Property::forFilters()
             ->where(function ($q) use ($subcategory, $filteredProductIds) {
@@ -102,12 +103,12 @@ class CatalogFilterService
                 });
             })
 
-            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds, $filters) {
+            ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
                 // Загружаем опции ТОЛЬКО из отфильтрованного пула.
-                // Independent faceting считается отдельно в ->each().
-                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredProductIds, $filters) {
+                // Independent faceting считается отдельно в ->each()
+                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds, $filters) {
                     $q->where('category_id', $subcategory->id)
-                    ->whereIn('product_id', $filteredProductIds)
+                    ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id вместо product_id
                     // НОВОЕ: учитываем цену при загрузке опций
                     ->when(!empty($filters['price_min']), fn($q) =>
                         $q->where('price', '>=', (float) $filters['price_min'])
@@ -120,7 +121,7 @@ class CatalogFilterService
 
             ->get()
 
-            ->each(function (Property $property) use ($subcategory, $filters, $filteredProductIds) {
+            ->each(function (Property $property) use ($subcategory, $filters, $filteredProductIds, $filteredVariantIds) {
 
                 if ($property->isRange()) {
                     $range = DB::table('product_filter_index')
@@ -135,13 +136,14 @@ class CatalogFilterService
                 }
 
                 if ($property->isToggle()) {
-                    $property->options->each(function ($option) use ($subcategory, $filteredProductIds) {
+                    $property->options->each(function ($option) use ($subcategory, $filteredVariantIds) {
                         $option->products_count = DB::table('product_filter_index')
                             ->where('category_id', $subcategory->id)
                             ->where('property_id', $option->property_id)
                             ->where('value_slug', $option->slug)
-                            ->whereIn('product_id', $filteredProductIds)
-                            ->distinct('product_variant_id')->count('product_variant_id');
+                            ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id
+                            ->distinct('product_variant_id')
+                            ->count('product_variant_id');
                     });
                 }
 
@@ -149,26 +151,27 @@ class CatalogFilterService
                     // Independent faceting: считаем без учёта фильтра
                     // по ЭТОМУ КОНКРЕТНОМУ свойству.
                     // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
+                    // Получаем variant_ids для пула без текущего свойства
                     $filtersWithoutSelf = $filters;
-                    unset($filtersWithoutSelf['f'][$property->slug]);
-                    // Логика: $productIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) прямо к запросу индекса — 
-                    // получаем количество вариантов нужной цены с данной опцией. Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
-                    $productIdsWithoutSelf = $this->getFilteredProductIds($subcategory,$filtersWithoutSelf);
+                    unset($filtersWithoutSelf['f'][$property->slug]);    
+                    $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
+                    // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
+                    // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
+                    // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
+                    $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
 
-                    $property->options->each(function ($option) use ($subcategory, $productIdsWithoutSelf, $filters) {
                         $option->products_count = DB::table('product_filter_index')
                             ->where('category_id', $subcategory->id)
                             ->where('property_id', $option->property_id)
                             ->where('value_slug', $option->slug)
-                            ->whereIn('product_id', $productIdsWithoutSelf)
-                            ->distinct('product_variant_id')
-                            // НОВОЕ: учитываем цену при подсчёте вариантов
+                            ->whereIn('product_variant_id', $variantIdsWithoutSelf) // ← variant_id
                             ->when(!empty($filters['price_min']), fn($q) =>
                                 $q->where('price', '>=', (float) $filters['price_min'])
                             )
                             ->when(!empty($filters['price_max']), fn($q) =>
                                 $q->where('price', '<=', (float) $filters['price_max'])
                             )
+                            ->distinct('product_variant_id')
                             ->count('product_variant_id');
                     });
                 }
@@ -182,7 +185,6 @@ class CatalogFilterService
      */
     public function getPriceRange(Category $subcategory, array $filters): array
     {
-        // $productIds = $subcategory->allProducts()->pluck('id');
         // товары, прошедшие ВСЕ фильтры
         $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
 
@@ -550,55 +552,4 @@ class CatalogFilterService
         };
     }
 
-    // НОВЫЙ МЕТОД - При выборе линейки — ВЫБОР ЗНАЧЕНИЙ в фильтре БРЕНДА сужается до брендов этих линеек. Пользователь видит только релевантные бренды
-    /**
-     * Получить бренды для фильтра в сайдбаре.
-     *
-     * Логика:
-     * — Если выбраны линейки → показываем только бренды этих линеек
-     * — Если выбраны бренды → показываем все бренды категории
-     *   (чтобы можно было добавить ещё один бренд)
-     * — Если ничего не выбрано → все бренды категории
-     */
-    // public function getBrandsForFilters(
-    //     Category $subcategory,
-    //     array $filters,
-    //     \Illuminate\Support\Collection $allCategoryBrands
-    // ): \Illuminate\Support\Collection {
-        
-    //     $selectedLineups = $filters['f']['lineup'] ?? []; // slug линеек
-
-    //     // Линейки не выбраны — показываем все бренды категории.
-    //     if (empty($selectedLineups)) {
-    //         return $allCategoryBrands;
-    //     }
-
-    //     // Линейки выбраны — находим property_id свойства Линейка.
-    //     $lineupPropertyId = DB::table('properties')
-    //         ->where('slug', 'lineup')
-    //         ->value('id');
-
-    //     if (!$lineupPropertyId) {
-    //         return $allCategoryBrands;
-    //     }
-
-    //     // Находим product_id вариантов с выбранными линейками через индекс.
-    //     $productIds = DB::table('product_filter_index')
-    //         ->where('category_id', $subcategory->id)
-    //         ->where('property_id', $lineupPropertyId)
-    //         ->whereIn('value_slug', $selectedLineups)
-    //         ->distinct()
-    //         ->pluck('product_id');
-
-    //     // Получаем brand_id товаров этих линеек.
-    //     $brandIds = DB::table('products')
-    //         ->whereIn('id', $productIds)
-    //         ->whereNotNull('brand_id')
-    //         ->whereNull('deleted_at')
-    //         ->distinct()
-    //         ->pluck('brand_id');
-
-    //     // Возвращаем только бренды выбранных линеек из общего списка.
-    //     return $allCategoryBrands->whereIn('id', $brandIds)->values();
-    // }
 }
