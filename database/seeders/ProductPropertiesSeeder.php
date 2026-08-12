@@ -35,14 +35,14 @@ class ProductPropertiesSeeder extends Seeder
 
             // iPhone 17
             'apple-iphone-17' => [
-                'lineup' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 1],
+                // 'lineup' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 1],
                 'case_color' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 2],
                 'built_in_memory' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 3],
             ],
 
             // iPhone 17 Pro Max
             'apple-iphone-17-pro-max' => [
-                'lineup' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 1],
+                // 'lineup' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 1],
                 'case_color' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 2],
                 'built_in_memory' => ['used_for_variant_card' => 1, 'position_in_variant_card' => 3],
             ],

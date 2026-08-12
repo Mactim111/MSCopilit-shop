@@ -21,8 +21,8 @@
 
         class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
     >
-        {{--
-        <button type="button" @click="open = !open"
+        
+        {{-- <button type="button" @click="open = !open"
             class="flex w-full items-center justify-between
                 text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
             <span data-filter-title>{{ $property->title }}</span>
@@ -31,8 +31,9 @@
                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
             </svg>
-        </button> 
-         --}}
+        </button>  --}}
+        
+        {{-- кнопка shevron-up показывается только если опций > 3 --}}
         <button
             type="button"
             @click="open = !open"
@@ -41,7 +42,7 @@
         >
             <span data-filter-title>{{ $property->title }}</span>
 
-            {{-- стрелка показывается только если опций > 3 --}}
+            
             @if($showToggle)
                 <svg class="w-[20px] h-[12px] flex-none transition-transform duration-200"
                     :class="open ? 'rotate-180' : ''"

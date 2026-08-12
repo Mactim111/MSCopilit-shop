@@ -103,18 +103,42 @@ class CatalogFilterService
                 });
             })
 
-            ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
+            // ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
+            //     // Загружаем опции ТОЛЬКО из отфильтрованного пула.
+            //     // Independent faceting считается отдельно в ->each()
+            //     $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds, $filters) {
+            //         $q->where('category_id', $subcategory->id)
+            //         ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id вместо product_id
+            //         // НОВОЕ: учитываем цену при загрузке опций
+            //         ->when(!empty($filters['price_min']), fn($q) =>
+            //             $q->where('price', '>=', (float) $filters['price_min'])
+            //         )
+            //         ->when(!empty($filters['price_max']), fn($q) =>
+            //             $q->where('price', '<=', (float) $filters['price_max'])
+            //         );
+            //     })->orderByRaw('COALESCE(numeric_value, 0), value');
+            // }])
+
+            ->with(['options' => function ($query) use ($subcategory, $filteredProductIds, $filteredVariantIds, $filters) {
                 // $filteredVariantIds в getFilteredVariantIds() может быть пустым массивом ЕСЛИ! ни! один! вариант не! прошёл! фильтр. Тогда ->whereIn('product_variant_id', []) вернёт 0! записей 
                 // — что правильно, но MySQL на больших таблицах может давать предупреждение. Добавили НИЖЕ защиту в ->with()
-                if (empty($filteredVariantIds)) {
-                    $query->whereRaw('1 = 0'); // ничего не загружаем
-                    return;
-                }
-                // Загружаем опции ТОЛЬКО из отфильтрованного пула.
-                // Independent faceting считается отдельно в ->each()
-                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds, $filters) {
+                // if (empty($filteredVariantIds)) {
+                //     $query->whereRaw('1 = 0'); // ничего не загружаем
+                //     return;
+                // }
+                // Загружаем ВСЕ опции товаров из базового пула (только бренд + цена).
+                // Фильтрацию по конкретным свойствам делаем в ->each() через products_count.
+                // Опция скрывается если products_count = 0, а не если не загружена.
+                $filtersOnlyBrandAndPrice = [
+                    'brand'     => $filters['brand'] ?? [],
+                    'price_min' => $filters['price_min'] ?? null,
+                    'price_max' => $filters['price_max'] ?? null,
+                ];
+                $baseVariantIds = $this->getFilteredVariantIds($subcategory, $filtersOnlyBrandAndPrice);
+
+                $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $baseVariantIds, $filters) {
                     $q->where('category_id', $subcategory->id)
-                    ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id вместо product_id
+                    ->whereIn('product_variant_id', $baseVariantIds) // ← variant_id вместо product_id
                     // НОВОЕ: учитываем цену при загрузке опций
                     ->when(!empty($filters['price_min']), fn($q) =>
                         $q->where('price', '>=', (float) $filters['price_min'])
@@ -153,33 +177,89 @@ class CatalogFilterService
                     });
                 }
 
-                if ($property->isCheckbox() || $property->isRadio()) {
-                    // Independent faceting: считаем без учёта фильтра
-                    // по ЭТОМУ КОНКРЕТНОМУ свойству.
-                    // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
-                    // Получаем variant_ids для пула без текущего свойства
-                    $filtersWithoutSelf = $filters;
-                    unset($filtersWithoutSelf['f'][$property->slug]);    
-                    $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
-                    // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
-                    // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
-                    // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
-                    $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
+                // if ($property->isCheckbox() || $property->isRadio()) {
+                //     // Independent faceting: считаем без учёта фильтра
+                //     // по ЭТОМУ КОНКРЕТНОМУ свойству.
+                //     // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
+                //     // Получаем variant_ids для пула без текущего свойства
+                //     $filtersWithoutSelf = $filters;
+                //     unset($filtersWithoutSelf['f'][$property->slug]);    
+                //     $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
+                //     // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
+                //     // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
+                //     // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
+                //     $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
 
-                        $option->products_count = DB::table('product_filter_index')
-                            ->where('category_id', $subcategory->id)
-                            ->where('property_id', $option->property_id)
-                            ->where('value_slug', $option->slug)
-                            ->whereIn('product_variant_id', $variantIdsWithoutSelf) // ← variant_id
-                            ->when(!empty($filters['price_min']), fn($q) =>
-                                $q->where('price', '>=', (float) $filters['price_min'])
-                            )
-                            ->when(!empty($filters['price_max']), fn($q) =>
-                                $q->where('price', '<=', (float) $filters['price_max'])
-                            )
-                            ->distinct('product_variant_id')
-                            ->count('product_variant_id');
-                    });
+                //         $option->products_count = DB::table('product_filter_index')
+                //             ->where('category_id', $subcategory->id)
+                //             ->where('property_id', $option->property_id)
+                //             ->where('value_slug', $option->slug)
+                //             ->whereIn('product_variant_id', $variantIdsWithoutSelf) // ← variant_id
+                //             ->when(!empty($filters['price_min']), fn($q) =>
+                //                 $q->where('price', '>=', (float) $filters['price_min'])
+                //             )
+                //             ->when(!empty($filters['price_max']), fn($q) =>
+                //                 $q->where('price', '<=', (float) $filters['price_max'])
+                //             )
+                //             ->distinct('product_variant_id')
+                //             ->count('product_variant_id');
+                //     });
+                // }
+
+                if ($property->isCheckbox() || $property->isRadio()) {
+
+                    // для свойств С активными значениями считаем без себя (independent)
+                    $activeValues = $filters['f'][$property->slug] ?? [];
+
+                    if (!empty($activeValues)) {
+                        // Independent faceting: считаем без учёта фильтра по ЭТОМУ КОНКРЕТНОМУ свойству. Цена и все остальные фильтры СОХРАНЯЮТСЯ.
+                        // Свойство имеет активные значения — independent faceting.
+                        // Показываем ВСЕ опции которые были до применения этого фильтра.
+                        // Счётчики считаем БЕЗ учёта этого свойства — из пула без него.
+                        $filtersWithoutSelf = $filters;
+                        unset($filtersWithoutSelf['f'][$property->slug]);
+                        // для свойств БЕЗ активных значений считаем из $filteredVariantIds (dependent)
+                        $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
+
+                        // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
+                        // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
+                        // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
+                        $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
+                            $option->products_count = DB::table('product_filter_index')
+                                ->where('category_id', $subcategory->id)
+                                ->where('property_id', $option->property_id)
+                                ->where('value_slug', $option->slug)
+                                ->whereIn('product_variant_id', $variantIdsWithoutSelf)
+                                ->when(!empty($filters['price_min']), fn($q) =>
+                                    $q->where('price', '>=', (float) $filters['price_min'])
+                                )
+                                ->when(!empty($filters['price_max']), fn($q) =>
+                                    $q->where('price', '<=', (float) $filters['price_max'])
+                                )
+                                ->distinct('product_variant_id')
+                                ->count('product_variant_id');
+                        });
+
+                    } else {
+                        // Свойство НЕ имеет активных значений — dependent faceting.
+                        // Показываем только опции из текущей выборки (с учётом всех фильтров).
+                        // Скрываем опции которых нет у вариантов из текущей выборки.
+                        $property->options->each(function ($option) use ($subcategory, $filteredVariantIds, $filters) {
+                            $option->products_count = DB::table('product_filter_index')
+                                ->where('category_id', $subcategory->id)
+                                ->where('property_id', $option->property_id)
+                                ->where('value_slug', $option->slug)
+                                ->whereIn('product_variant_id', $filteredVariantIds)
+                                ->when(!empty($filters['price_min']), fn($q) =>
+                                    $q->where('price', '>=', (float) $filters['price_min'])
+                                )
+                                ->when(!empty($filters['price_max']), fn($q) =>
+                                    $q->where('price', '<=', (float) $filters['price_max'])
+                                )
+                                ->distinct('product_variant_id')
+                                ->count('product_variant_id');
+                        });
+                    }
                 }
             });
     }
@@ -288,6 +368,14 @@ class CatalogFilterService
 
         // Начинаем сужать базовый пул через EXISTS-подзапросы.
         $query = Product::whereIn('id', $allProductIds);
+
+        // Бренд уже применён выше к $allProductIds — здесь НЕ повторяем.
+
+        // if (isset($filters['brand'])) {
+        //     $query->whereHas('brand', fn($b) =>
+        //         $b->whereIn('slug', $filters['brand'])
+        //     );
+        // }
 
         foreach ($propertyFilters as $propertySlug => $value) {
             $property = $properties->get($propertySlug);
@@ -437,11 +525,6 @@ class CatalogFilterService
                         $query, $subcategory, $property->id, (array) $value
                     ),
                     // range-фильтры вынесены из foreach ($propertyFilters) НИЖЕ! в отдельный цикл по всем ключам $filters с regex f_*_min.
-                    // 'range' => $this->applyVariantRangeFilter(
-                    //     $query, $subcategory, $property->id,
-                    //     $filters["f_{$slug}_min"] ?? null,
-                    //     $filters["f_{$slug}_max"] ?? null,
-                    // ),
                     'toggle' => $this->applyVariantToggleFilter(
                         $query, $subcategory, $property->id, $value
                     ),
