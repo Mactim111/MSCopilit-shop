@@ -104,6 +104,12 @@ class CatalogFilterService
             })
 
             ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
+                // $filteredVariantIds в getFilteredVariantIds() может быть пустым массивом ЕСЛИ! ни! один! вариант не! прошёл! фильтр. Тогда ->whereIn('product_variant_id', []) вернёт 0! записей 
+                // — что правильно, но MySQL на больших таблицах может давать предупреждение. Добавили НИЖЕ защиту в ->with()
+                if (empty($filteredVariantIds)) {
+                    $query->whereRaw('1 = 0'); // ничего не загружаем
+                    return;
+                }
                 // Загружаем опции ТОЛЬКО из отфильтрованного пула.
                 // Independent faceting считается отдельно в ->each()
                 $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds, $filters) {
@@ -282,14 +288,6 @@ class CatalogFilterService
 
         // Начинаем сужать базовый пул через EXISTS-подзапросы.
         $query = Product::whereIn('id', $allProductIds);
-
-        // Бренд уже применён выше к $allProductIds — здесь НЕ повторяем.
-
-        // if (isset($filters['brand'])) {
-        //     $query->whereHas('brand', fn($b) =>
-        //         $b->whereIn('slug', $filters['brand'])
-        //     );
-        // }
 
         foreach ($propertyFilters as $propertySlug => $value) {
             $property = $properties->get($propertySlug);
