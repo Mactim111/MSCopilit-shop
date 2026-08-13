@@ -12,7 +12,7 @@
     - Инициализация происходит глобально через app.js.
 --}}
 
-<div class="max-w-[1500px] mx-auto relative">
+<div class="max-w-[1500px] mx-auto relative margin-bottom-6">
 
     {{-- Кнопка назад (половина круга внутри, половина снаружи) --}}
     <button 
