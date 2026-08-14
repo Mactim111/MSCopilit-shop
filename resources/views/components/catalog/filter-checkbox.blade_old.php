@@ -10,8 +10,8 @@
     // Логика та же что у range (@if ($min < $max)):
     // Показываем даже если одно значение — пользователь должен видеть что он фильтрует.
     $shouldShow = $availableOptions->count() >= 1;
-    // шторка ТЕПЕРЬ прячет все значения фильтров, если их больше 3, А НЕ КАК РАНЬШЕ - ВСЕ. Вернуть назад - убрать $showToggle и раскомментить x-data и button, убрав НОВЫЕ!
-    $showToggle = $availableOptions->count() > 3;
+        // шторка ТЕПЕРЬ прячет все значения фильтров, если их больше 3, А НЕ КАК РАНЬШЕ - ВСЕ. Вернуть назад - убрать $showToggle и раскомментить x-data и button, убрав НОВЫЕ!
+        $showToggle = $availableOptions->count() > 3;
 @endphp
 
 @if($shouldShow)
@@ -20,7 +20,7 @@
         {{-- x-data="{ open: {{ count($active) > 0 ? 'true' : 'false' }} }" --}}
         class="w-[316px] border-b border-dashed border-gray-300 py-[14px]"
     >
-
+        
         {{-- <button type="button" @click="open = !open"
             class="flex w-full items-center justify-between
                 text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
@@ -31,7 +31,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
             </svg>
         </button>  --}}
-
+        
         {{-- кнопка shevron-up показывается только если опций > 3 --}}
         <button
             type="button"
@@ -48,8 +48,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
                 </svg>
             @endif
-        </button>   
-
+        </button>
+        
         <ul x-show="open"
             x-transition:enter="transition ease-out duration-150"
             x-transition:enter-start="opacity-0 -translate-y-1"
@@ -58,12 +58,11 @@
             x-cloak
             data-options-list>
 
-            @php $visibleIndex = 0; @endphp
             @foreach ($property->options as $option)
                 @if (($option->products_count ?? 0) > 0)
                     <li
                         data-option-item
-                        @if($visibleIndex >= 6) style="display:none" @endif
+                        @if($loop->index >= 6) style="display:none" @endif
                         class="flex items-center gap-[8px]"
                     >
                         <input
@@ -88,9 +87,9 @@
                             <span class="text-[13px] text-gray-400 ml-1">({{ $option->products_count }})</span>
                         </label>
                     </li>
-                    @php $visibleIndex++; @endphp
                 @endif
             @endforeach
+
         </ul>
 
         @if ($property->options->where('products_count', '>', 0)->count() > 6)
