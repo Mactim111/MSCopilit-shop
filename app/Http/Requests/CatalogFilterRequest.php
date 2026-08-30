@@ -47,7 +47,12 @@ class CatalogFilterRequest extends FormRequest
 
         // Добавляем range-параметры вручную, так как они не проходят через rules()
         foreach ($this->all() as $key => $value) {
-            if (preg_match('/^f_[a-z0-9_]+_(min|max)$/', $key) && is_numeric($value)) {
+            // // логика IF ниже оказалась не верной для ручного ввода значений в поля range-фильтров - типа диагонали экрана 
+            // if (preg_match('/^f_[a-z0-9_]+_(min|max)$/', $key) && is_numeric($value)) {
+            // Исправлено: [a-z0-9_]+ был жадным и не матчил slugи с подчёркиванием типа f_screen_size_max или f_battery_capacity_min.
+            // Теперь ищем конкретно _min или _max в конце строки.
+            // Стало:
+            if (preg_match('/^f_(.+)_(min|max)$/', $key) && is_numeric($value)) {
                 $filters[$key] = (float) $value;
             }
         }
@@ -59,8 +64,13 @@ class CatalogFilterRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             foreach ($this->all() as $key => $value) {
-                // Матчим f_anything_min и f_anything_max
-                if (!preg_match('/^f_[a-z0-9_]+_(min|max)$/', $key)) {
+                // Матчим f_anything_min и f_anything_max - 
+                // логика IF ниже оказалась не верной для ручного ввода значений в поля range-фильтров - типа диагонали экрана -
+                // так как ПАТТЕРН [a-z0-9_]+ жадный и захватит screen_size_max, не оставив _max для финальной группы
+                // if (!preg_match('/^f_[a-z0-9_]+_(min|max)$/', $key)) {
+                // Исправлено: [a-z0-9_]+ был жадным и не матчил slugи с подчёркиванием типа f_screen_size_max или f_battery_capacity_min.
+                // Теперь ищем конкретно _min или _max в конце строки.
+                if (!preg_match('/^f_(.+)_(min|max)$/', $key)) {
                     continue;
                 }
 

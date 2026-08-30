@@ -204,7 +204,7 @@ class ProductVariant extends Model
         $price = number_format($this->price, 2, '.', ' ');
         [$whole, $fraction] = explode('.', $price);
 
-        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
+        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span><i class=\"nbrb-icon\">BYN</i>";
     }
 
     /**

@@ -40,6 +40,8 @@ class PropertiesSeeder extends Seeder
                 'type'  => 'range',
                 'used_for_filters' => 1,
                 'position_in_filters' => 4,
+                'step' => 0.01,
+                'digits' => 2,
             ],
             [
                 'title' => 'NFC',
@@ -61,6 +63,8 @@ class PropertiesSeeder extends Seeder
                 'type'  => 'range',
                 'used_for_filters' => 1,
                 'position_in_filters' => 7,
+                'step' => 1,
+                'digits' => 0,
             ],
             [
                 'title' => 'Поддержка беспроводной зарядки',

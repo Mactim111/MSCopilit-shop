@@ -1248,8 +1248,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 5499.00,
-                'old_price'   => 6699.00,
+                'price'       => 5499.99,
+                'old_price'   => 6699.99,
                 'stock'       => 30,
                 'position'    => 1,
                 'created_at'  => now(),
@@ -1337,8 +1337,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 5499.00,
-                'old_price'   => 6699.00,
+                'price'       => 5499.99,
+                'old_price'   => 6699.99,
                 'stock'       => 40,
                 'position'    => 2,
                 'created_at'  => now(),
@@ -1426,8 +1426,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 5499.00,
-                'old_price'   => 6699.00,
+                'price'       => 5499.99,
+                'old_price'   => 6699.99,
                 'stock'       => 40,
                 'position'    => 3,
                 'created_at'  => now(),
@@ -3070,7 +3070,7 @@ class ProductVariantSeeder extends Seeder
                     Страна происхождения (производства):	Китай\n
                 ',
                 'price'       => 399.00,
-                'old_price'   => 529.00,
+                'old_price'   => 529.99,
                 'stock'       => 100,
                 'position'    => 1,
                 'created_at'  => now(),
@@ -3160,7 +3160,7 @@ class ProductVariantSeeder extends Seeder
                     Страна происхождения (производства):	Китай\n
                 ',
                 'price'       => 499.00,
-                'old_price'   => 529.00,
+                'old_price'   => 529.99,
                 'stock'       => 90,
                 'position'    => 2,
                 'created_at'  => now(),
@@ -3249,8 +3249,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 499.00,
-                'old_price'   => 529.00,
+                'price'       => 499.99,
+                'old_price'   => 529.99,
                 'stock'       => 80,
                 'position'    => 3,
                 'created_at'  => now(),
@@ -3339,8 +3339,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 499.00,
-                'old_price'   => 529.00,
+                'price'       => 499.99,
+                'old_price'   => 529.99,
                 'stock'       => 70,
                 'position'    => 4,
                 'created_at'  => now(),
@@ -3429,8 +3429,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 399.00,
-                'old_price'   => 499.00,
+                'price'       => 399.99,
+                'old_price'   => 499.99,
                 'stock'       => 70,
                 'position'    => 5,
                 'created_at'  => now(),
@@ -3519,8 +3519,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 399.00,
-                'old_price'   => 499.00,
+                'price'       => 399.99,
+                'old_price'   => 499.99,
                 'stock'       => 90,
                 'position'    => 6,
                 'created_at'  => now(),
@@ -3609,8 +3609,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 399.00,
-                'old_price'   => 499.00,
+                'price'       => 399.99,
+                'old_price'   => 499.99,
                 'stock'       => 80,
                 'position'    => 7,
                 'created_at'  => now(),
@@ -3699,8 +3699,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 449.00,
-                'old_price'   => 499.00,
+                'price'       => 449.99,
+                'old_price'   => 499.99,
                 'stock'       => 100,
                 'position'    => 8,
                 'created_at'  => now(),
@@ -3789,8 +3789,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 449.00,
-                'old_price'   => 499.00,
+                'price'       => 449.99,
+                'old_price'   => 499.99,
                 'stock'       => 80,
                 'position'    => 9,
                 'created_at'  => now(),
@@ -3879,8 +3879,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 449.00,
-                'old_price'   => 499.00,
+                'price'       => 449.99,
+                'old_price'   => 499.99,
                 'stock'       => 70,
                 'position'    => 10,
                 'created_at'  => now(),
@@ -3969,8 +3969,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 549.00,
-                'old_price'   => 659.00,
+                'price'       => 549.99,
+                'old_price'   => 659.99,
                 'stock'       => 100,
                 'position'    => 11,
                 'created_at'  => now(),
@@ -4059,8 +4059,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 549.00,
-                'old_price'   => 659.00,
+                'price'       => 549.99,
+                'old_price'   => 659.99,
                 'stock'       => 90,
                 'position'    => 12,
                 'created_at'  => now(),
@@ -4149,8 +4149,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 549.00,
-                'old_price'   => 659.00,
+                'price'       => 549.99,
+                'old_price'   => 659.99,
                 'stock'       => 70,
                 'position'    => 13,
                 'created_at'  => now(),
@@ -4241,8 +4241,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 649.00,
-                'old_price'   => 899.00,
+                'price'       => 649.99,
+                'old_price'   => 899.99,
                 'stock'       => 100,
                 'position'    => 1,
                 'created_at'  => now(),
@@ -4330,8 +4330,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 649.00,
-                'old_price'   => 899.00,
+                'price'       => 649.99,
+                'old_price'   => 899.99,
                 'stock'       => 90,
                 'position'    => 2,
                 'created_at'  => now(),
@@ -4419,8 +4419,8 @@ class ProductVariantSeeder extends Seeder
                     Гарантийное обслуживание: Гарантия 1 год\n
                     Страна происхождения (производства):	Китай\n
                 ',
-                'price'       => 649.00,
-                'old_price'   => 899.00,
+                'price'       => 649.99,
+                'old_price'   => 899.99,
                 'stock'       => 80,
                 'position'    => 3,
                 'created_at'  => now(),

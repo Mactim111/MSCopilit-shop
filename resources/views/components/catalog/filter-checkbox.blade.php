@@ -11,7 +11,7 @@
     // Показываем даже если одно значение — пользователь должен видеть что он фильтрует.
     $shouldShow = $availableOptions->count() >= 1;
     // шторка ТЕПЕРЬ прячет все значения фильтров, если их больше 3, А НЕ КАК РАНЬШЕ - ВСЕ. Вернуть назад - убрать $showToggle и раскомментить x-data и button, убрав НОВЫЕ!
-    $showToggle = $availableOptions->count() > 3;
+    $showToggle = $availableOptions->count() > 3;   
 @endphp
 
 @if($shouldShow)
@@ -37,7 +37,7 @@
             type="button"
             @click="open = !open"
             class="flex w-full items-center justify-between
-                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors">
+                text-[15px] font-bold text-[#231F20] hover:text-[#DC092E] transition-colors cursor-pointer">
             <span data-filter-title>{{ $property->title }}</span>
 
             

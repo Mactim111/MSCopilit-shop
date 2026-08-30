@@ -118,34 +118,6 @@
     right: -10px !important;
 }
 
-/* Чтобы при листании в слайдере карточек не выделялись картинки */
-/* .slider-track.dragging {
-    cursor: grabbing;
-    user-select: none;
-}
-.slider-track img {
-    pointer-events: none;
-} */
-
-/* .slider-track {
-    scroll-snap-type: x mandatory;
-} */
-
-/* .slider-track > * {
-    scroll-snap-align: start;
-} */
-
-/* чтобы оставить скролл, но не видеть полосу */
-/* Firefox */
-/* .slider-track {
-    overflow-x: auto;
-    scrollbar-width: none;              
-} */
-/* Chrome / Edge / Safari */
-/* .slider-track::-webkit-scrollbar {
-    display: none;                      
-} */
-
 /* Контейнер индикаторов слайдера*/
 .rv-pagination {
     display: flex;
@@ -167,6 +139,10 @@
     pointer-events: auto !important;   /* ← клики точно идут по ним */
 }
 
+.rv-pagination .sub-bullet-active {
+    background: #DC092E;
+}
+
 /* Активная полоска */
 .rv-pagination .swiper-pagination-bullet-active {
     background: #DC092E;
@@ -181,11 +157,20 @@
     border-radius: 2px;
 }
 
-/* Активная полоска слайдера banner-slider */
+/* Активная полоска слайдера banner-slider   */
 .swiper-pagination-bullet-active {
     background-color: #DC092E; /* красный */
 }
 
+/* Полоски для слайдера подкатегорий с картинками, который на главной странице вверху сразу под рекламным слайдером-баннером */
+.rv-pagination .sub-bullet {
+    width: 32px;
+    height: 4px; /* ← толще */
+    background: #BDBBBC;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
 
 .zoom-cursor {
     cursor: url("data:image/svg+xml;utf8,\
@@ -227,6 +212,17 @@ input[type="checkbox"]:checked::before {
     border-bottom: 2px solid #fff;
     transform: rotate(-45deg);
     margin: 3px 0 0 4px;
+}
+
+/* Убираем стрелки из number-инпутов во всех браузерах */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
 }
 
 

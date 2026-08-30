@@ -34,7 +34,7 @@
         {{-- ВАЖНО: добавили pb-[25px] --}}
         <div class="swiper-wrapper pb-[25px]">
 
-            @foreach($banners as $banner)
+            @foreach($one_image_banner_slider as $banner)
                 <div class="swiper-slide">
                     <img src="{{ asset($banner->path) }}"
                          alt="{{ $banner->title }}"

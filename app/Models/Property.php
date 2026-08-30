@@ -11,7 +11,7 @@ class Property extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['title', 'slug', 'excerpt', 'used_for_filters', 'position_in_filters', 'type'];
+    protected $fillable = ['title', 'slug', 'excerpt', 'used_for_filters', 'position_in_filters', 'type', 'step', 'digits'];
 
     protected $casts = [
         'used_for_filters'   => 'boolean',

@@ -45,14 +45,42 @@ class HomeController extends Controller
             ->orderBy('title')
             ->get();
 
-        $banners = FrontendImage::where('group', 'banner-slider')
+        $main_banners = FrontendImage::where('group', 'main-banner-slider')
             ->where('active', true)
             ->orderBy('order')
             ->get();
 
-        $bannerTop = FrontendImage::where('group', 'banner-top')
+        $banner_bestsellers = FrontendImage::where('group', 'banner-best-sellers')
             ->where('active', true)
-            ->first();
+            ->orderBy('order')
+            ->get();
+
+        $new_arrivals_banners = FrontendImage::where('group', 'new-arrivals-banner')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        // $bannerTop = FrontendImage::where('group', 'banner-top')
+        //     ->where('active', true)
+        //     ->first();
+
+        // $categoriesHitShared = view()->shared('categoriesHit'); // Получаем то, что расшарил провайдер
+        // if ($categoriesHitShared) {
+        //     $subcategories = $categoriesHitShared->map(function($cat) {
+        //         return [
+        //             'title' => $cat->title,
+        //             'image' => $cat->imageUrl(),
+        //             'real'  => $cat->products_count > 0,
+        //             'url'   => $cat->products_count > 0
+        //                 ? route('catalog.subcategory', [
+        //                     $cat->parent->parent->slug,
+        //                     $cat->parent->slug,
+        //                     $cat->slug
+        //                 ])
+        //                 : null,
+        //         ];
+        //     });
+        // }
 
 
         return view('home', compact(
@@ -60,8 +88,11 @@ class HomeController extends Controller
             'new_variants',
             'discounts',
             'groups',
-            'banners',
-            'bannerTop'
+            'main_banners',
+            'banner_bestsellers',
+            'new_arrivals_banners'
+            // 'bannerTop',
+            // 'subcategories',
         ));
     }
 }

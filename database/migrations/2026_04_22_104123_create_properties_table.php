@@ -32,6 +32,13 @@ return new class extends Migration
             $table->boolean('used_for_filters')->default(0); // выводить ли в блоке ФИЛЬТРОВ на странице ПОДКАТЕГОРИИ
             // Порядок вывода в сайдбаре фильтров.
             $table->integer('position_in_filters')->default(0); // порядок в фильтрах
+
+            // Шаг слайдера (0.01, 0.1, 1, 100, ...)
+            $table->decimal('step', 10, 4)->default(1);
+
+            // Количество знаков после запятой (0, 1, 2)
+            $table->unsignedTinyInteger('digits')->default(0);
+            
             $table->softDeletes();
             $table->timestamps();
         });

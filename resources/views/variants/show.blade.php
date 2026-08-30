@@ -6,44 +6,46 @@
 
     <div class="mx-auto mb-70">
 
-        {{-- Хлебные крошки --}}
-        <x-breadcrumbs :items="array_filter([
-            ['title' => 'Главная', 'url' => route('home')],
-            ['title' => 'Каталог', 'url' => route('catalog.index')],
+        <div class="py-6 text-[13px]">
+            {{-- Хлебные крошки --}}
+            <x-breadcrumbs :items="array_filter([
+                ['title' => 'Главная', 'url' => route('home')],
+                ['title' => 'Каталог', 'url' => route('catalog.index')],
 
-            // Подкатегория
-            [
-                'title' => $subcategory->title,
-                'url' => route('catalog.subcategory', [
-                    $group->slug,
-                    $category->slug,
-                    $subcategory->slug
-                ])
-            ],
+                // Подкатегория
+                [
+                    'title' => $subcategory->title,
+                    'url' => route('catalog.subcategory', [
+                        $group->slug,
+                        $category->slug,
+                        $subcategory->slug
+                    ])
+                ],
 
-            // Бренд
-            [
-                'title' => $brand->title,
-                'url' => route('catalog.subcategory.brand', [
-                    $group->slug,
-                    $category->slug,
-                    $subcategory->slug,
-                    $brand->slug
-                ]) 
-            ],
+                // Бренд
+                [
+                    'title' => $brand->title,
+                    'url' => route('catalog.subcategory.brand', [
+                        $group->slug,
+                        $category->slug,
+                        $subcategory->slug,
+                        $brand->slug
+                    ]) 
+                ],
 
-            // Линейка (если есть)
-            $product->lineup
-                ? ['title' => $product->lineup, 'url' => '#']
-                : null,
+                // Линейка (если есть)
+                // $product->lineup
+                //     ? ['title' => $product->lineup, 'url' => '#']
+                //     : null,
 
-            // Вариант товара
-            ['title' => $variant->title]
-        ])" />
+                // Вариант товара
+                ['title' => $variant->title]
+            ])" />
+        </div>
 
 
         {{-- Название + код товара в одной строке --}}
-        <div class="flex justify-between items-center mt-4 mb-2">
+        <div class="flex justify-between items-center mb-2">
             <h1 class="text-[#231f20] text-[28px] font-bold">{{ $variant->title }}</h1>
 
             <div class="text-[#231f20] text-[14px]">

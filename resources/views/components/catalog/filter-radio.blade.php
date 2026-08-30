@@ -43,10 +43,11 @@
             x-cloak
             data-options-list>
 
+            @php $visibleIndex = 0; @endphp
             @foreach ($property->options as $option)
                 @if (($option->products_count ?? 0) > 0)
                     <li
-                        data-option-item @if($loop->index >= 6) style="display:none" @endif
+                        data-option-item @if($visibleIndex >= 6) style="display:none" @endif
                         class="flex items-center gap-[8px]"
                     >
                         <input
@@ -68,6 +69,7 @@
                             <span class="text-[13px] text-gray-400 ml-1">({{ $option->products_count }})</span>
                         </label>
                     </li>
+                    @php $visibleIndex++; @endphp
                 @endif
             @endforeach
 

@@ -103,62 +103,6 @@ class CatalogFilterService
                 });
             })
 
-            // ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
-            //     // Загружаем опции ТОЛЬКО из отфильтрованного пула.
-            //     // Independent faceting считается отдельно в ->each()
-            //     $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds, $filters) {
-            //         $q->where('category_id', $subcategory->id)
-            //         ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id вместо product_id
-            //         // НОВОЕ: учитываем цену при загрузке опций
-            //         ->when(!empty($filters['price_min']), fn($q) =>
-            //             $q->where('price', '>=', (float) $filters['price_min'])
-            //         )
-            //         ->when(!empty($filters['price_max']), fn($q) =>
-            //             $q->where('price', '<=', (float) $filters['price_max'])
-            //         );
-            //     })->orderByRaw('COALESCE(numeric_value, 0), value');
-            // }])
-
-            // ->with(['options' => function ($query) use ($subcategory, $filteredProductIds, $filteredVariantIds, $filters) {
-            //     // $filteredVariantIds в getFilteredVariantIds() может быть пустым массивом ЕСЛИ! ни! один! вариант не! прошёл! фильтр. Тогда ->whereIn('product_variant_id', []) вернёт 0! записей 
-            //     // — что правильно, но MySQL на больших таблицах может давать предупреждение. Добавили НИЖЕ защиту в ->with()
-            //     // if (empty($filteredVariantIds)) {
-            //     //     $query->whereRaw('1 = 0'); // ничего не загружаем
-            //     //     return;
-            //     // }
-            //     // Загружаем ВСЕ опции товаров из базового пула (только бренд + цена).
-            //     // Фильтрацию по конкретным свойствам делаем в ->each() через products_count.
-            //     // Опция скрывается если products_count = 0, а не если не загружена.
-            //     $filtersOnlyBrandAndPrice = [
-            //         'brand'     => $filters['brand'] ?? [],
-            //         'price_min' => $filters['price_min'] ?? null,
-            //         'price_max' => $filters['price_max'] ?? null,
-            //     ];
-            //     $baseVariantIds = $this->getFilteredVariantIds($subcategory, $filtersOnlyBrandAndPrice);
-
-            //     $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $baseVariantIds, $filters) {
-            //         $q->where('category_id', $subcategory->id)
-            //         ->whereIn('product_variant_id', $baseVariantIds) // ← variant_id вместо product_id
-            //         // НОВОЕ: учитываем цену при загрузке опций
-            //         ->when(!empty($filters['price_min']), fn($q) =>
-            //             $q->where('price', '>=', (float) $filters['price_min'])
-            //         )
-            //         ->when(!empty($filters['price_max']), fn($q) =>
-            //             $q->where('price', '<=', (float) $filters['price_max'])
-            //         );
-            //     })->orderByRaw('COALESCE(numeric_value, 0), value');
-            // }])
-
-            // ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
-            //     // Для загрузки опций используем $filteredVariantIds — все активные фильтры.
-            //     // Independent faceting (показ всех опций активного фильтра) реализован
-            //     // в ->each() через $variantIdsWithoutSelf, а не через расширенный пул здесь.
-            //     $query->whereHas('variants.filterIndex', function ($q) use ($subcategory, $filteredVariantIds) {
-            //         $q->where('category_id', $subcategory->id)
-            //         ->whereIn('product_variant_id', $filteredVariantIds);
-            //     })->orderByRaw('COALESCE(numeric_value, 0), value');
-            // }])
-
             ->with(['options' => function ($query) use ($subcategory, $filteredVariantIds, $filters) {
                 // Для каждого активного свойства добавляем его "без-себя" варианты.
                 // Это позволяет активному фильтру видеть все свои опции.
@@ -214,70 +158,10 @@ class CatalogFilterService
                     });
                 }
 
-                // if ($property->isCheckbox() || $property->isRadio()) {
-                //     // Independent faceting: считаем без учёта фильтра
-                //     // по ЭТОМУ КОНКРЕТНОМУ свойству.
-                //     // Цена и все остальные фильтры СОХРАНЯЮТСЯ.
-                //     // Получаем variant_ids для пула без текущего свойства
-                //     $filtersWithoutSelf = $filters;
-                //     unset($filtersWithoutSelf['f'][$property->slug]);    
-                //     $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
-                //     // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
-                //     // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
-                //     // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
-                //     $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
-
-                //         $option->products_count = DB::table('product_filter_index')
-                //             ->where('category_id', $subcategory->id)
-                //             ->where('property_id', $option->property_id)
-                //             ->where('value_slug', $option->slug)
-                //             ->whereIn('product_variant_id', $variantIdsWithoutSelf) // ← variant_id
-                //             ->when(!empty($filters['price_min']), fn($q) =>
-                //                 $q->where('price', '>=', (float) $filters['price_min'])
-                //             )
-                //             ->when(!empty($filters['price_max']), fn($q) =>
-                //                 $q->where('price', '<=', (float) $filters['price_max'])
-                //             )
-                //             ->distinct('product_variant_id')
-                //             ->count('product_variant_id');
-                //     });
-                // }
-
                 if ($property->isCheckbox() || $property->isRadio()) {
 
                     // для свойств С активными значениями считаем без себя (independent)
                     $activeValues = $filters['f'][$property->slug] ?? [];
-
-                    // if (!empty($activeValues)) {
-                    //     // Independent faceting: считаем без учёта фильтра по ЭТОМУ КОНКРЕТНОМУ свойству. Цена и все остальные фильтры СОХРАНЯЮТСЯ.
-                    //     // Свойство имеет активные значения — independent faceting.
-                    //     // Показываем ВСЕ опции которые были до применения этого фильтра.
-                    //     // Счётчики считаем БЕЗ учёта этого свойства — из пула без него.
-                    //     $filtersWithoutSelf = $filters;
-                    //     unset($filtersWithoutSelf['f'][$property->slug]);
-                    //     // для свойств БЕЗ активных значений считаем из $filteredVariantIds (dependent)
-                    //     $variantIdsWithoutSelf = $this->getFilteredVariantIds($subcategory, $filtersWithoutSelf);
-
-                    //     // Логика: $variantIdsWithoutSelf даёт товары без учёта своего свойства, но с учётом бренда и линейки. Добавляем ->where('price', ...) 
-                    //     // прямо к запросу индекса — получаем количество вариантов нужной цены с данной опцией. 
-                    //     // Если таких нет — products_count = 0 — опция не показывается в сайдбаре.
-                    //     $property->options->each(function ($option) use ($subcategory, $variantIdsWithoutSelf, $filters) {
-                    //         $option->products_count = DB::table('product_filter_index')
-                    //             ->where('category_id', $subcategory->id)
-                    //             ->where('property_id', $option->property_id)
-                    //             ->where('value_slug', $option->slug)
-                    //             ->whereIn('product_variant_id', $variantIdsWithoutSelf)
-                    //             ->when(!empty($filters['price_min']), fn($q) =>
-                    //                 $q->where('price', '>=', (float) $filters['price_min'])
-                    //             )
-                    //             ->when(!empty($filters['price_max']), fn($q) =>
-                    //                 $q->where('price', '<=', (float) $filters['price_max'])
-                    //             )
-                    //             ->distinct('product_variant_id')
-                    //             ->count('product_variant_id');
-                    //     });
-
-                    // } 
 
                     if (!empty($activeValues)) {
                         // Independent: показываем все опции этого свойства из пула бренд+цена.
@@ -338,14 +222,35 @@ class CatalogFilterService
      * Берём из product_variants напрямую — точнее чем из индекса,
      * так как в индексе price может быть устаревшей после изменения цены.
      */
+    // public function getPriceRange(Category $subcategory, array $filters): array
+    // {
+    //     // товары, прошедшие ВСЕ фильтры
+    //     $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
+
+    //     return [
+    //         'min' => (float) (ProductVariant::whereIn('product_id', $filteredProductIds)->min('price') ?? 0),
+    //         'max' => (float) (ProductVariant::whereIn('product_id', $filteredProductIds)->max('price') ?? 0),
+    //     ];
+    // }
+
     public function getPriceRange(Category $subcategory, array $filters): array
     {
-        // товары, прошедшие ВСЕ фильтры
-        $filteredProductIds = $this->getFilteredProductIds($subcategory, $filters);
+        // Используем variant_ids — учитываем конкретные варианты а не товары целиком.
+        $filteredVariantIds = $this->getFilteredVariantIds($subcategory, $filters);
+
+        if (empty($filteredVariantIds)) {
+            return ['min' => 0, 'max' => 0];
+        }
+
+        $range = DB::table('product_filter_index')
+            ->where('category_id', $subcategory->id)
+            ->whereIn('product_variant_id', $filteredVariantIds) // ← variant_id вместо product_id
+            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+            ->first();
 
         return [
-            'min' => (float) (ProductVariant::whereIn('product_id', $filteredProductIds)->min('price') ?? 0),
-            'max' => (float) (ProductVariant::whereIn('product_id', $filteredProductIds)->max('price') ?? 0),
+            'min' => (float) ($range->min_price ?? 0),
+            'max' => (float) ($range->max_price ?? 0),
         ];
     }
 
@@ -383,7 +288,6 @@ class CatalogFilterService
      */
     private function getFilteredProductIds(Category $subcategory, array $filters): array
     {
-        
         // Базовый пул — товары подкатегории.
         // Для сводных подкатегорий (pivot) берём товары через category_product.
         $pivotIds = DB::table('category_product')
@@ -394,7 +298,8 @@ class CatalogFilterService
             ? Product::whereIn('id', $pivotIds)
             : Product::where('category_id', $subcategory->id);
 
-        // ПЕРЕД! фильтром по бренду, перед propertyFilters:
+        // --- ФИЛЬТР ПО ЦЕНЕ ---
+        // ВАЖНО: применяется ДО фильтров по свойствам.
         if (!empty($filters['price_min']) || !empty($filters['price_max'])) {
             $baseQuery->whereHas('variants', function ($q) use ($filters) {
                 if (!empty($filters['price_min'])) {
@@ -405,47 +310,48 @@ class CatalogFilterService
                 }
             });
         }
-        
-        // Фильтр по бренду применяем СРАЗУ к базовому пулу —
-        // это ключевое исправление: раньше бренд применялся позже
-        // и не влиял на $allProductIds, поэтому линейки других
-        // брендов оставались видны в сайдбаре.
+
+        // --- ФИЛЬТР ПО БРЕНДУ ---
+        // ВАЖНО: бренд применяется СРАЗУ к базовому пулу.
         if (!empty($filters['brand'])) {
             $baseQuery->whereHas('brand', fn($b) =>
                 $b->whereIn('slug', $filters['brand'])
             );
         }
 
+        // Получаем ID всех товаров после применения цены и бренда.
         $allProductIds = $baseQuery->pluck('id')->all();
 
+        // Фильтры по свойствам (checkbox/radio/toggle)
         $propertyFilters = $filters['f'] ?? [];
 
-        // Проверяем есть ли вообще какие-то фильтры (свойства или range).
+        // Проверяем наличие range-фильтров (f_slug_min / f_slug_max)
+
+        // ниже код от Copilot c потенциальной проблемой - Паттерн /^f_.+_(min|max)$/ здесь жадный — для f_screen_size_max он не найдёт совпадение. 
+        // Исправили в итоге на версию с НЕЖАДНЫМ ПАТТЕРНОМ '/^f_(.+?)_(min|max)$/' , предложенную Claude
+        // $hasRangeFilters = collect(array_keys($filters))->contains(
+        //     fn($k) => preg_match('/^f_.+_(min|max)$/', $k)
+        // );
+
+        // версия с НЕЖАДНЫМ ПАТТЕРНОМ от Claude, которую в итоге применяем
         $hasRangeFilters = collect(array_keys($filters))->contains(
-            fn($k) => preg_match('/^f_.+_min$/', $k)
+            fn($k) => preg_match('/^f_(.+?)_(min|max)$/', $k)
         );
 
-        // Если никаких фильтров нет — возвращаем базовый пул.
+        // Если нет ни свойств, ни range — возвращаем базовый пул.
         if (empty($propertyFilters) && !$hasRangeFilters) {
             return $allProductIds;
         }
 
-        // Загружаем свойства одним запросом чтобы знать их типы.
+        // Загружаем свойства (checkbox/radio/toggle)
         $properties = Property::whereIn('slug', array_keys($propertyFilters))
             ->get()
             ->keyBy('slug');
 
-        // Начинаем сужать базовый пул через EXISTS-подзапросы.
+        // Начинаем сужать пул товаров через EXISTS-подзапросы.
         $query = Product::whereIn('id', $allProductIds);
 
-        // Бренд уже применён выше к $allProductIds — здесь НЕ повторяем.
-
-        // if (isset($filters['brand'])) {
-        //     $query->whereHas('brand', fn($b) =>
-        //         $b->whereIn('slug', $filters['brand'])
-        //     );
-        // }
-
+        // --- ОБРАБОТКА checkbox/radio/toggle ---
         foreach ($propertyFilters as $propertySlug => $value) {
             $property = $properties->get($propertySlug);
             if (!$property) continue;
@@ -454,12 +360,6 @@ class CatalogFilterService
                 'checkbox', 'radio' => $this->applyCheckboxFilter(
                     $query, $subcategory, $property->id, (array) $value
                 ),
-                // range-фильтры вынесены из foreach ($propertyFilters) НИЖЕ! в отдельный цикл по всем ключам $filters с regex f_*_min.
-                // 'range' => $this->applyRangeFilter(
-                //     $query, $subcategory, $property->id,
-                //     $filters["f_{$propertySlug}_min"] ?? null,
-                //     $filters["f_{$propertySlug}_max"] ?? null,
-                // ),
                 'toggle' => $this->applyToggleFilter(
                     $query, $subcategory, $property->id, $value
                 ),
@@ -467,31 +367,68 @@ class CatalogFilterService
             };
         }
 
-        // range-фильтры вынесены из foreach ($propertyFilters) ВЫШЕ! в отдельный цикл по всем ключам $filters с regex f_*_min. Теперь они точно применятся.
-        // Range фильтры — отдельный проход по f_slug_min / f_slug_max.
-        // Они НЕ попадают в $filters['f'] — хранятся в корне $filters.
-        // Ищем все ключи вида f_*_min и подбираем соответствующее свойство.
-        
-        $rangeProperties = null; // загрузим лениво если понадобятся
-        
-        // Range фильтры в getFilteredProductIds() — через product_id, не variant_id!
+        // --- ФИНАЛЬНАЯ, ПРАВИЛЬНАЯ ОБРАБОТКА RANGE-ФИЛЬТРОВ ---
+        // ВАЖНО: мы НЕ обрабатываем range внутри foreach(propertyFilters),
+        // потому что range-фильтры НЕ лежат в $filters['f'], а в корне $filters.
+
+        // 1) Собираем все min/max в структуру:
+        //    ['screen_size' => ['min' => 6.67, 'max' => 6.77], ...]
+        $rangeFilters = [];
+
         foreach ($filters as $key => $value) {
-            if (!preg_match('/^f_(.+)_min$/', $key, $matches)) continue;
-
-            $slug = $matches[1];
-            $min  = (float) $value;
-            $max  = isset($filters["f_{$slug}_max"]) ? (float) $filters["f_{$slug}_max"] : null;
-
-            // Загружаем свойства одним запросом при первом range-фильтре.
-            if ($rangeProperties === null) {
-                $rangeProperties = Property::where('type', 'range')->get()->keyBy('slug');
+            // Ищем f_slug_min или f_slug_max
+            if (!preg_match('/^f_(.+?)_(min|max)$/', $key, $matches)) {
+                continue;
             }
 
-            $property = $rangeProperties->get($slug);
-            if (!$property) continue;
+            $slug = $matches[1];   // screen_size
+            $type = $matches[2];   // min или max
 
-            // ВАЖНО: используем! applyRangeFilter (не! applyVariantRangeFilter!) т.к. здесь базовый запрос по! таблице! products
-            $this->applyRangeFilter($query, $subcategory, $property->id, $min, $max);
+            if (!isset($rangeFilters[$slug])) {
+                $rangeFilters[$slug] = ['min' => null, 'max' => null];
+            }
+
+            // ВАЖНО: теперь min и max НЕ путаются!
+            $rangeFilters[$slug][$type] = (float) $value;
+        }
+
+        // 2) Применяем диапазоны
+
+        // ниже код предложил Copilot
+        // $rangeProperties = null;
+        // foreach ($rangeFilters as $slug => $bounds) {
+        //     $min = $bounds['min'];
+        //     $max = $bounds['max'];
+
+        //     // Загружаем свойства типа range
+        //     if ($rangeProperties === null) {
+        //         $rangeProperties = Property::where('type', 'range')->get()->keyBy('slug');
+        //     }
+
+        //     $property = $rangeProperties->get($slug);
+        //     if (!$property) continue;
+
+        //     // ВАЖНО: здесь applyRangeFilter работает по product_id
+        //     $this->applyRangeFilter($query, $subcategory, $property->id, $min, $max);
+        // }
+
+        // Применили код от Claude, где он предложил вынести загрузку $rangeProperties перед! циклом
+        // То есть убираем $rangeProperties = null и проверку === null внутри цикла, заменяем на одну проверку !empty($rangeFilters) снаружи. 
+        // Запрос к БД выполняется один раз до цикла, а не лениво внутри.
+
+        if (!empty($rangeFilters)) {
+            $rangeProperties = Property::where('type', 'range')
+                ->get()->keyBy('slug');
+
+            foreach ($rangeFilters as $slug => $bounds) {
+                $property = $rangeProperties->get($slug);
+                if (!$property) continue;
+
+                $this->applyRangeFilter(
+                    $query, $subcategory, $property->id,
+                    $bounds['min'], $bounds['max']
+                );
+            }
         }
 
         return $query->pluck('id')->all();
@@ -572,15 +509,16 @@ class CatalogFilterService
             ->where('is_active', true)
         );
 
-        // Фильтр по бренду.
+        // --- ФИЛЬТР ПО БРЕНДУ ---
         if (!empty($filters['brand'])) {
             $query->whereHas('product.brand', fn($q) =>
                 $q->whereIn('slug', $filters['brand'])
             );
         }
 
-        // Фильтры по свойствам (Checkbox / radio / toggle) — каждый через EXISTS на product_variant_id.
+        // --- ФИЛЬТРЫ checkbox/radio/toggle ---
         $propertyFilters = $filters['f'] ?? [];
+
         if (!empty($propertyFilters)) {
             $properties = Property::whereIn('slug', array_keys($propertyFilters))
                 ->get()->keyBy('slug');
@@ -593,7 +531,6 @@ class CatalogFilterService
                     'checkbox', 'radio' => $this->applyVariantCheckboxFilter(
                         $query, $subcategory, $property->id, (array) $value
                     ),
-                    // range-фильтры вынесены из foreach ($propertyFilters) НИЖЕ! в отдельный цикл по всем ключам $filters с regex f_*_min.
                     'toggle' => $this->applyVariantToggleFilter(
                         $query, $subcategory, $property->id, $value
                     ),
@@ -602,28 +539,63 @@ class CatalogFilterService
             }
         }
 
-        // range-фильтры вынесены из foreach ($propertyFilters) ВЫШЕ! в отдельный цикл по всем ключам $filters с regex f_*_min. Теперь они точно применятся.
-        // Range фильтры — отдельный проход по f_slug_min / f_slug_max.
-        // Они НЕ попадают в $filters['f'] — хранятся в корне $filters.
-        // Ищем все ключи вида f_*_min и подбираем соответствующее свойство.
-        $rangeProperties = null; // загрузим лениво если понадобятся
+        // --- ФИНАЛЬНАЯ ОБРАБОТКА RANGE-ФИЛЬТРОВ ---
+        // Собираем min/max в структуру
+        $rangeFilters = [];
+
         foreach ($filters as $key => $value) {
-            if (!preg_match('/^f_(.+)_min$/', $key, $matches)) continue;
-
-            $slug = $matches[1];
-            $min  = (float) $value;
-            $max  = isset($filters["f_{$slug}_max"]) ? (float) $filters["f_{$slug}_max"] : null;
-
-            // Загружаем свойства одним запросом при первом range-фильтре.
-            if ($rangeProperties === null) {
-                $rangeProperties = Property::where('type', 'range')
-                    ->get()->keyBy('slug');
+            if (!preg_match('/^f_(.+?)_(min|max)$/', $key, $matches)) {
+                continue;
             }
 
-            $property = $rangeProperties->get($slug);
-            if (!$property) continue;
+            $slug = $matches[1];
+            $type = $matches[2];
 
-            $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
+            if (!isset($rangeFilters[$slug])) {
+                $rangeFilters[$slug] = ['min' => null, 'max' => null];
+            }
+
+            $rangeFilters[$slug][$type] = (float) $value;
+        }
+
+        // Применяем диапазоны
+
+        // !!!ниже код, предложенный Copilot!!! где загрузка $rangeProperties внутри цикла foreach - Это правильно — lazy loading, один запрос на все range-свойства. 
+        // Но можно вынести загрузку $rangeProperties перед циклом для чистоты, как предложил Claude - что мы потом и сделали
+        // $rangeProperties = null;
+
+        // foreach ($rangeFilters as $slug => $bounds) {
+        //     $min = $bounds['min'];
+        //     $max = $bounds['max'];
+
+        //     if ($rangeProperties === null) {
+        //         $rangeProperties = Property::where('type', 'range')
+        //             ->get()->keyBy('slug');
+        //     }
+
+        //     $property = $rangeProperties->get($slug);
+        //     if (!$property) continue;
+
+        //     // ВАЖНО: здесь applyVariantRangeFilter работает по variant_id
+        //     $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
+        // }
+
+        // Мы же использовали код от Claude, где он предложил вынести загрузку $rangeProperties перед циклом для чистоты
+        // То есть убираем $rangeProperties = null и проверку === null внутри цикла, заменяем на одну проверку !empty($rangeFilters) снаружи. 
+        // Запрос к БД выполняется один раз до цикла, а не лениво внутри.
+        if (!empty($rangeFilters)) {
+            $rangeProperties = Property::where('type', 'range')
+                ->get()->keyBy('slug');
+
+            foreach ($rangeFilters as $slug => $bounds) {
+                $property = $rangeProperties->get($slug);
+                if (!$property) continue;
+
+                $this->applyVariantRangeFilter(
+                    $query, $subcategory, $property->id,
+                    $bounds['min'], $bounds['max']
+                );
+            }
         }
 
         return $query->pluck('id')->all();

@@ -31,22 +31,17 @@
         </div>
     </div>
 
-     {{-- Слайдер категорий --}}
+     {{-- Слайдер из заголовков популярных подкатегорий --}}
     <div id="category-slider-wrapper" class="transition-transform duration-200">
         <x-category-slider />
     </div>
 
     {{-- Sticky border line --}}
-    <div class="w-full sticky top-[72px] z-40 bg-white h-[12px]"
-        style="
-            box-shadow:
-                0px 12px 20px -6px rgba(0,0,0,0.32),
-                0px 6px 14px -4px rgba(0,0,0,0.28);
-        ">
+    <div class="w-full sticky top-[72px] z-40 bg-white h-[10px] border-b-white shadow-lg shadow-[0_6px_20px_-4px_rgba(0,0,0,0.32)]">
     </div>
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
-    <main class="min-h-screen mt-5">
+    <main class="min-h-screen">
         <div class="max-w-[1500px] mx-auto">
 
             @if(session('success'))

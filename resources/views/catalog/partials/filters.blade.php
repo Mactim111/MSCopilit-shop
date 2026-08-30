@@ -89,6 +89,46 @@
         $subcategory->slug,
     ]);
 
+    // Флаг: есть ли хотя бы один ВИДИМЫЙ тег
+    $hasVisibleTags = false;
+
+    // 1. Тег цены
+    if (request()->hasAny(['price_min', 'price_max'])) {
+        $hasVisibleTags = true;
+    }
+
+    // 2. Теги брендов
+    foreach ($activeBrandSlugs as $slug) {
+        if ($brands->firstWhere('slug', $slug)) {
+            $hasVisibleTags = true;
+            break;
+        }
+    }
+
+    // 3. Теги свойств
+    if (isset($availableFilters)) {
+        foreach ($availableFilters as $property) {
+
+            // обычные f[slug][]
+            $activeValues = $filters['f'][$property->slug] ?? [];
+            if (!is_array($activeValues)) $activeValues = [$activeValues];
+            if (count($activeValues)) {
+                $hasVisibleTags = true;
+                break;
+            }
+
+            // range-фильтры
+            if ($property->isRange()) {
+                $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
+                $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
+                if ($rMin !== null || $rMax !== null) {
+                    $hasVisibleTags = true;
+                    break;
+                }
+            }
+        }
+    }
+
 @endphp
 
 {{-- ── Заголовок "Фильтры" + кнопка очистки вверху ──────────────── --}}
@@ -108,96 +148,101 @@
 
 {{-- ── Теги применённых фильтров ─────────────────────────────────── --}}
 
-<div class="filter-tags flex flex-wrap gap-[8px] mb-[16px]">
+@if($hasVisibleTags)
 
-    {{-- Тег ценового фильтра (НАШ! оригинальный!) --}}
-    @if(request()->hasAny(['price_min', 'price_max']))
-        <div class="filter-prop-tag bg-gray-100 border border-[#231F20] rounded-sm
-                    pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center text-[15px] text-[#231F20]"
-            data-param="price">
-            <span class="mr-[6px]">
-                Цена: от {{ request('price_min', $minPrice) }} до {{ request('price_max', $maxPrice) }}
-            </span>
-            <button type="button"
-                    class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                @include('products.icons.close-red')
-            </button>
-        </div>
-    @endif
+    <div class="filter-tags flex flex-wrap gap-[8px] mb-[14px] mt-[14px]">
 
-    {{-- Теги брендов ТЕПЕРЬ — читаем из route-сегмента, не из query--}}
-    @foreach($activeBrandSlugs as $slug)
-        @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
-        @if($brandTitle)
+        {{-- Тег ценового фильтра (НАШ! оригинальный!) --}}
+        @if(request()->hasAny(['price_min', 'price_max']))
             <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                        pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                        text-[15px] text-[#231F20]"
-                    data-param="brand-segment"
-                    data-value="{{ $slug }}">
-                <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
+                        pl-[11px] pr-[6px] py-[5px] flex items-center text-[15px] text-[#231F20]"
+                data-param="price">
+                <span class="mr-[6px]">
+                    Цена: от {{ request('price_min', $minPrice) }} до {{ request('price_max', $maxPrice) }}
+                </span>
                 <button type="button"
                         class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
                     @include('products.icons.close-red')
                 </button>
             </div>
         @endif
-    @endforeach
 
-    {{-- Теги активных фильтров по свойствам --}}
-    @if(isset($availableFilters))
-        @foreach($availableFilters as $property)
-            @php
-                $activeValues = $filters['f'][$property->slug] ?? [];
-                if (!is_array($activeValues)) $activeValues = [$activeValues];
-            @endphp
-            @foreach($activeValues as $activeSlug)
-                @php $optionLabel = $property->options->firstWhere('slug', $activeSlug)?->value; @endphp
-                @if($optionLabel)
-                    <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                                pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                                text-[15px] text-[#231F20]"
-                        data-param="f-array"
-                        data-key="f[{{ $property->slug }}][]"
-                        data-value="{{ $activeSlug }}">
-                        <span class="mr-[6px]">{{ $property->title }}: {{ $optionLabel }}</span>
-                        <button type="button"
-                                class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                            @include('products.icons.close-red')
-                        </button>
-                    </div>
-                @endif
-            @endforeach
-        @endforeach
-    @endif
-
-    {{-- Теги range-фильтров (f_slug_min / f_slug_max) --}}
-    @if(isset($availableFilters))
-        @foreach($availableFilters as $property)
-            @if($property->isRange())
-                @php
-                    $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
-                    $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
-                @endphp
-                @if($rMin !== null || $rMax !== null)
-                    <div class="filter-prop-tag border border-[#231F20] rounded-sm
-                                pl-[11px] pr-[6px] py-[5px] mb-[8px] flex items-center
-                                text-[15px] text-[#231F20]"
-                        data-param="range"
-                        data-slug="{{ $property->slug }}">
-                        <span class="mr-[6px]">
-                            {{ $property->title }}: от {{ $rMin ?? $property->range_min }} до {{ $rMax ?? $property->range_max }}
-                        </span>
-                        <button type="button"
-                                class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
-                            @include('products.icons.close-red')
-                        </button>
-                    </div>
-                @endif
+        {{-- Теги брендов ТЕПЕРЬ — читаем из route-сегмента, не из query--}}
+        @foreach($activeBrandSlugs as $slug)
+            @php $brandTitle = $brands->firstWhere('slug', $slug)?->title; @endphp
+            @if($brandTitle)
+                <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                            pl-[11px] pr-[6px] py-[5px] flex items-center
+                            text-[15px] text-[#231F20]"
+                        data-param="brand-segment"
+                        data-value="{{ $slug }}">
+                    <span class="mr-[6px]">Бренд: {{ $brandTitle }}</span>
+                    <button type="button"
+                            class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                        @include('products.icons.close-red')
+                    </button>
+                </div>
             @endif
         @endforeach
-    @endif
 
-</div>
+        {{-- Теги активных фильтров по свойствам --}}
+        @if(isset($availableFilters))
+            @foreach($availableFilters as $property)
+                @php
+                    $activeValues = $filters['f'][$property->slug] ?? [];
+                    if (!is_array($activeValues)) $activeValues = [$activeValues];
+                @endphp
+                @foreach($activeValues as $activeSlug)
+                    @php $optionLabel = $property->options->firstWhere('slug', $activeSlug)?->value; @endphp
+                    @if($optionLabel)
+                        <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                                    pl-[11px] pr-[6px] py-[5px] flex items-center
+                                    text-[15px] text-[#231F20]"
+                            data-param="f-array"
+                            data-key="f[{{ $property->slug }}][]"
+                            data-value="{{ $activeSlug }}">
+                            <span class="mr-[6px]">{{ $property->title }}: {{ $optionLabel }}</span>
+                            <button type="button"
+                                    class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                                @include('products.icons.close-red')
+                            </button>
+                        </div>
+                    @endif
+                @endforeach
+            @endforeach
+        @endif
+
+        {{-- Теги range-фильтров (f_slug_min / f_slug_max) --}}
+        @if(isset($availableFilters))
+            @foreach($availableFilters as $property)
+                @if($property->isRange())
+                    @php
+                        $rMin = $filters['f_' . $property->slug . '_min'] ?? null;
+                        $rMax = $filters['f_' . $property->slug . '_max'] ?? null;
+                    @endphp
+                    @if($rMin !== null || $rMax !== null)
+                        <div class="filter-prop-tag border border-[#231F20] rounded-sm
+                                    pl-[11px] pr-[6px] py-[5px] flex items-center
+                                    text-[15px] text-[#231F20]"
+                            data-param="range"
+                            data-slug="{{ $property->slug }}">
+                            <span class="mr-[6px]">
+                                {{ ($property->title) }}: от {{ $rMin ?? $property->range_min }} до {{ $rMax ?? $property->range_max }}
+                            </span>
+                            <button type="button"
+                                    class="filter-tag-close flex items-center justify-center w-[16px] h-[16px] text-[#DC092E]">
+                                @include('products.icons.close-red')
+                            </button>
+                        </div>
+                    @endif
+                @endif
+            @endforeach
+        @endif
+        
+    </div>
+    <hr class="border-t border-dashed border-gray-300 w-[316px]">
+
+@endif
 
 {{-- ── Поиск по фильтрам ──────────────────────────────────────────── --}}
 <div class="w-[316px] py-[14px] relative">
@@ -249,39 +294,24 @@
     @endif
 
     {{-- ── Цена ──────────────────────────────────────────────────── --}}
-    <div class="w-[316px] py-[14px] flex flex-col">
+    <div class="w-[316px] pt-[14px] flex flex-col pb-[6px]">
         <div class="text-[15px] font-bold mb-3 text-[#231F20]">Цена</div>
 
-        <div class="flex items-center gap-2 mb-[16px]">
-            <input type="number" id="price-min" name="price_min"
+        <div class="flex items-center gap-2 mb-[20px]">
+            <input type="number" step="{{ $property->step }}" id="price-min" name="price_min"
                    value="{{ request('price_min', $minPrice) }}"
-                   class="w-[154px] h-[40px] px-3 border border-gray-400 rounded-lg text-sm">
-            <input type="number" id="price-max" name="price_max"
+                   class="w-[154px] h-[40px] px-3 border border-gray-400 focus:border focus:border-[#231F20] focus:outline-none rounded-lg text-sm">
+            <input type="number" step="{{ $property->step }}" id="price-max" name="price_max"
                    value="{{ request('price_max', $maxPrice) }}"
-                   class="w-[154px] h-[40px] px-3 border border-gray-400 rounded-lg text-sm">
+                   class="w-[154px] h-[40px] px-3 border border-gray-400 focus:border focus:border-[#231F20] focus:outline-none rounded-lg text-sm">
         </div>
 
-        <div id="price-slider" class="w-[316px] h-[24px] pt-[8px]"></div>
+        <div id="price-slider" class="w-[316px] h-[24px]"></div>
     </div>
 
     <hr class="border-t border-dashed border-gray-300 w-[316px]">
 
     {{-- ── Бренды ─────────────────────────────────────────────────── --}}
-    {{--
-            Ниже - старый метод
-            data-title="бренд" — для поиска по заголовку группы.
-            Значения брендов доступны через [data-brand-item] — для поиска по значениям.
-    --}}
-    
-    {{-- @if(isset($brands) && $brands->isNotEmpty())
-        
-        <div class="filter-section w-[316px]" data-title="бренд">
-            <x-catalog.filter-brand
-                :brands="$brands"
-                :activeBrands="$activeBrandSlugs"
-            />
-        </div>
-    @endif --}}
 
     @if(isset($sidebarBrands) && $sidebarBrands->isNotEmpty())
         <div class="filter-section w-[316px]" data-title="бренд">
@@ -317,7 +347,7 @@
             @endphp
 
             <div class="filter-section w-[316px] {{ $isHidden ? 'filter-extra' : '' }}"
-                 data-title="{{ mb_strtolower($property->title) }}"
+                 data-title="{{ e(mb_strtolower($property->title)) }}"
                  @if($isHidden) style="display:none" @endif>
                 <x-catalog.filter-group
                     :property="$property"
@@ -330,7 +360,7 @@
     @endif
 
     {{-- ── Кнопки в подвале сайдбара ─────────────────────────────── --}}
-    <hr class="border-t border-dashed border-gray-300 w-[316px] mt-[4px]">
+    {{-- <hr class="border-t border-dashed border-gray-300 w-[316px] mt-[4px]"> --}}
 
     <div class="w-[316px] pt-[13px] pb-[12px] flex flex-col gap-[8px]">
 
@@ -426,78 +456,178 @@ document.addEventListener('DOMContentLoaded', function () {
     // теперь группа с активным фильтром всегда видна — если у свойства есть активные значения, оно всегда видно независимо от порога, устанавливающего 
     // число секций (групп) фильтров, показываемых в сайдбаре фильтров по умолч. (6 шт. - остальные открываются кликом по "Все фильтры") !
     // ================================================================
-    // ЦЕНОВОЙ СЛАЙДЕР
+    
+    // ================================================================
+    // ЦЕНОВОЙ СЛАЙДЕР — ЖЁСТКАЯ ТОЧНОСТЬ 0.01 (как у 5 Элемент)
     // ================================================================
     const slider   = document.getElementById('price-slider');
     const inputMin = document.getElementById('price-min');
     const inputMax = document.getElementById('price-max');
-    const min      = {{ $minPrice }};
-    const max      = {{ $maxPrice }};
 
-    if (slider && min < max) {
-        noUiSlider.create(slider, {
-            start: [{{ request('price_min', $minPrice) }}, {{ request('price_max', $maxPrice) }}],
-            connect: true,
-            range: { min, max },
-            step: 1,
-            behaviour: 'tap-drag',
-            format: {
-                to:   v => Math.round(v),
-                from: v => Number(v),
-            },
-        });
+    // Значения min/max приходят из базы — НО ТОЧНОСТЬ ЦЕНЫ НЕ ДОЛЖНА
+    // зависеть от того, какие значения есть в базе.
+    const min = {{ (float) $minPrice }};
+    const max = {{ (float) $maxPrice }};
 
-        // Синхронизируем поля ввода при движении ручек.
-        slider.noUiSlider.on('update', (values) => {
-            inputMin.value = values[0];
-            inputMax.value = values[1];
-        });
+    // ================================================================
+    // ЖЁСТКАЯ ТОЧНОСТЬ ЦЕНЫ:
+    // step = 0.01  → ручки двигаются с точностью до копеек
+    // digits = 2   → форматирование до двух знаков после запятой
+    // ================================================================
+    const step   = 0.01;   // фиксированный шаг
+    const digits = 2;      // фиксированная точность
 
-        // Ручной ввод в поля → обновляем позицию ручек слайдера.
-        inputMin.addEventListener('change', function () {
-            slider.noUiSlider.set([this.value || min, null]);
-        });
-        inputMax.addEventListener('change', function () {
-            slider.noUiSlider.set([null, this.value || max]);
-        });
+    // Если min === max — фиксированная цена, слайдер не нужен
+    if (slider && min === max) {
 
-        // Enter в поле → применяем через URL (не через form.submit).
-        inputMin.addEventListener('keypress', function (e) {
-            if (e.key !== 'Enter') return;
-            window.location.href = buildUrl(activeBrands, {
-                price_min: this.value || min,
-                page: null,
+        inputMin.value = min.toFixed(digits);
+        inputMax.value = max.toFixed(digits);
+
+        inputMin.setAttribute('readonly', 'readonly');
+        inputMax.setAttribute('readonly', 'readonly');
+
+        inputMin.classList.add('bg-gray-50', 'cursor-default', 'text-gray-400');
+        inputMax.classList.add('bg-gray-50', 'cursor-default', 'text-gray-400');
+
+        slider.style.display = 'none';
+
+    // } else {
+    } else if (slider && min < max) {
+            // ================================================================
+            // СОЗДАЁМ СЛАЙДЕР С ЖЁСТКОЙ ТОЧНОСТЬЮ 0.01
+            // ================================================================
+            noUiSlider.create(slider, {
+                start: [
+                    {{ (float) request('price_min', $minPrice) }},
+                    {{ (float) request('price_max', $maxPrice) }}
+                ],
+                connect: true,
+                range: { min, max },
+                step: step,                 // ← ЖЁСТКАЯ ТОЧНОСТЬ
+                behaviour: 'tap-drag',
+                
+                // УМНОЕ ОТОБРАЖЕНИЕ В ПОЛЯХ ВВОДА ФИЛЬТРА (вместо числа например 400,00 показываем просто 400)
+                format: {
+                    to: function (v) {
+                        const num = parseFloat(v);
+
+                        // Полная защита от мусора, NaN, Infinity
+                        if (isNaN(num) || !isFinite(num)) return '';
+
+                        // Если число целое → показываем без дробной части
+                        if (Number.isInteger(num)) {
+                            return num.toString();
+                        }
+
+                        // Если дробное → показываем с двумя знаками
+                        return num.toFixed(2);
+                    },
+                    from: function (v) {
+                        return parseFloat(v);
+                    }
+                }
             });
-        });
-        inputMax.addEventListener('keypress', function (e) {
-            if (e.key !== 'Enter') return;
-            window.location.href = buildUrl(activeBrands, {
-                price_max: this.value || max,
-                page: null,
+
+            // ================================================================
+            // СИНХРОНИЗАЦИЯ ПОЛЕЙ С ДВИЖЕНИЕМ ГАНТЕЛЕЙ
+            // ================================================================
+            slider.noUiSlider.on('update', (values) => {
+                inputMin.value = values[0];
+                inputMax.value = values[1];
             });
-        });
 
-        // Отпустили ручку слайдера → применяем через URL.
-        // НЕ через form.submit() — иначе brand и f[] потеряются.
-        slider.noUiSlider.on('change', (values) => {
-            const minVal = Number(values[0]);
-            const maxVal = Number(values[1]);
+            // ================================================================
+            // РУЧНОЙ ВВОД → ОБНОВЛЕНИЕ ПОЗИЦИИ РУЧЕК
+            // ================================================================
+            inputMin.addEventListener('change', function () {
+                slider.noUiSlider.set([parseFloat(this.value) || min, null]);
+            });
 
-            if (minVal === min && maxVal === max) {
-                window.location.href = buildUrl(activeBrands, {
-                    price_min: null,
-                    price_max: null,
-                    page: null,
-                });
-            } else {
+            inputMax.addEventListener('change', function () {
+                slider.noUiSlider.set([null, parseFloat(this.value) || max]);
+            });
+
+            // ================================================================
+            // УМНАЯ ЛОГИКА ПРИМЕНЕНИЯ ДИАПАЗОНА (как мы сделали вчера)
+            // ================================================================
+            let firstChanged = null;
+
+            inputMin.addEventListener('input', function () {
+                if (!firstChanged) firstChanged = 'min';
+            });
+
+            inputMax.addEventListener('input', function () {
+                if (!firstChanged) firstChanged = 'max';
+            });
+
+            // ENTER в MIN
+            inputMin.addEventListener('keypress', function (e) {
+                if (e.key !== 'Enter') return;
+
+                const minVal = parseFloat(inputMin.value) || min;
+                const maxVal = parseFloat(inputMax.value) || max;
+
+                if (firstChanged === 'min') {
+                    window.location.href = buildUrl(activeBrands, {
+                        price_min: minVal,
+                        page: null,
+                    });
+                    return;
+                }
+
                 window.location.href = buildUrl(activeBrands, {
                     price_min: minVal,
                     price_max: maxVal,
                     page: null,
                 });
-            }
-        });
+            });
+
+            // ENTER в MAX
+            inputMax.addEventListener('keypress', function (e) {
+                if (e.key !== 'Enter') return;
+
+                const minVal = parseFloat(inputMin.value) || min;
+                const maxVal = parseFloat(inputMax.value) || max;
+
+                if (firstChanged === 'max') {
+                    window.location.href = buildUrl(activeBrands, {
+                        price_max: maxVal,
+                        page: null,
+                    });
+                    return;
+                }
+
+                window.location.href = buildUrl(activeBrands, {
+                    price_min: minVal,
+                    price_max: maxVal,
+                    page: null,
+                });
+            });
+
+            // ================================================================
+            // АВТО‑ПРИМЕНЕНИЕ ПРИ ОТПУСКАНИИ ГАНТЕЛЕЙ
+            // ================================================================
+            slider.noUiSlider.on('change', (values) => {
+                const minVal = Number(values[0]);
+                const maxVal = Number(values[1]);
+
+                if (minVal === min && maxVal === max) {
+                    window.location.href = buildUrl(activeBrands, {
+                        price_min: null,
+                        price_max: null,
+                        page: null,
+                    });
+                } else {
+                    window.location.href = buildUrl(activeBrands, {
+                        price_min: minVal,
+                        price_max: maxVal,
+                        page: null,
+                    });
+                }
+            });
+
     }
+
 
     // ================================================================
     // УДАЛЕНИЕ ТЕГОВ (крестики)
