@@ -1,35 +1,29 @@
-{{-- Слайдер "Хиты продаж" (Двойные баннеры) --}}
-@if(isset($banner_bestsellers) && $banner_bestsellers->count() > 4)
-<div class="w-full bg-white mb-[40px]"> {{-- Отступ 40px ПОД всем блоком --}}
-    
-    {{-- Главный контейнер 1500px. py-[18px] задает отступы сверху и снизу --}}
+<div class="w-full bg-white mb-[70px]">
+    {{-- 
+       РОДИТЕЛЬ: 1500px, relative. 
+       pt-[18px] и pb-[38px] создадут те самые "зеленые полосы" в консоли.
+    --}}
     <div class="max-w-[1500px] mx-auto relative pt-[18px] pb-[18px]">
 
-        {{-- Кнопка назад (Наполовину снаружи контейнера) --}}
+        {{-- 
+           Кнопки: точно по центру баннера. 
+           Расчет: 18px (верхний паддинг) + 10px (внутренний py слайдера) + 145px (половина высоты баннера 290) = 173px.
+        --}}
         <button type="button"
-            class="js-swiper-prev absolute left-[-16px] top-1/2 -translate-y-1/2
+            class="js-swiper-prev absolute left-[-16px] top-[173px] -translate-y-1/2
                    w-[32px] h-[32px] rounded-full bg-white border border-gray-100
-                   shadow-md hover:shadow-lg transition
-                   flex items-center justify-center cursor-pointer z-20">
+                   shadow-md hover:shadow-lg transition flex items-center justify-center cursor-pointer z-20">
             <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
         </button>
 
-        {{-- Кнопка вперед (Наполовину снаружи контейнера) --}}
         <button type="button"
-            class="js-swiper-next absolute right-[-16px] top-1/2 -translate-y-1/2
+            class="js-swiper-next absolute right-[-16px] top-[173px] -translate-y-1/2
                    w-[32px] h-[32px] rounded-full bg-white border border-gray-100
-                   shadow-md hover:shadow-lg transition
-                   flex items-center justify-center cursor-pointer z-20">
+                   shadow-md hover:shadow-lg transition flex items-center justify-center cursor-pointer z-20">
             <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
         </button>
 
-        {{-- 
-           SWIPER 
-           - data-slides="2": Показываем 2 слайда
-           - data-group="2": Листаем секциями по 2
-           - data-space="12": В сумме с паддингами слайдов даст зазор 24px между баннерами
-           - data-autoplay="true": Включает автопрокрутку (задержка меняется в app.js)
-        --}}
+        {{-- SWIPER --}}
         <div class="js-swiper swiper w-full overflow-hidden"
             data-slides="2"
             data-space="12" 
@@ -39,43 +33,26 @@
             data-autoplay="true"
             data-group="2">
 
-            <div class="swiper-wrapper py-[10px]"> {{-- py-[10px] дает место для тени, чтобы она не обрезалась сверху/снизу --}}
-                
+            {{-- Внутренний отступ для теней оставляем --}}
+            <div class="swiper-wrapper py-[6px]">
                 @foreach($two_image_banner_slider as $banner)
-                    {{-- 
-                       px-[6px]: "Утапливает" слайд внутрь на 6px. 
-                       Это нужно, чтобы тень крайнего слайда не съедалась границей контейнера 1500px.
-                    --}}
                     <div class="swiper-slide flex justify-center px-[6px]">
-
                         <a href="{{ $banner->link ?? '#' }}"
-                           class="w-full h-[290px] rounded-lg overflow-hidden bg-white
-                                  transition-all duration-300 block
-                                  {{-- Изначально тени и рамки нет --}}
-                                  shadow-none 
-                                  {{-- При фокусе/ховере появляется тень как у предыдущего слайдера, без рамки --}}
-                                  hover:shadow-[0_4px_14px_rgba(0,0,0,0.22)]
-                                  focus-visible:shadow-[0_4px_14px_rgba(0,0,0,0.22)]
-                                  focus-visible:outline-none">
-
-                            <img src="{{ asset($banner->path) }}"
-                                 alt="{{ $banner->title }}"
-                                 class="w-full h-full object-cover">
+                           class="w-full h-[290px] rounded-lg overflow-hidden bg-white transition-all duration-300 block 
+                                  hover:shadow-[0_4px_14px_rgba(0,0,0,0.22)]">
+                            <img src="{{ asset($banner->path) }}" alt="{{ $banner->title }}" class="w-full h-full object-cover">
                         </a>
-
                     </div>
                 @endforeach
-
             </div>
         </div>
 
         {{-- 
-           Пагинация (Полоски). 
-           Их количество (3 при 6 баннерах) Swiper рассчитает сам из-за data-group="2".
-           mt-[12px] регулирует отступ полосок от нижнего края картинок.
+           ПАГИНАЦИЯ: 
+           Теперь она absolute и прижата к низу родителя (bottom-[8px]). 
+           Она окажется ВНУТРИ зеленого паддинга pb-[18px].
         --}}
-        <div class="js-swiper-pagination rv-pagination mt-[12px]"></div>
+        <div class="js-swiper-pagination rv-pagination !absolute !bottom-[6px] left-0 w-full flex justify-center z-10 mt-0"></div>
 
     </div>
 </div>
-@endif

@@ -194,8 +194,7 @@
     @include('catalog.partials.similar')
 
     {{-- Блок "Ранее вы смотрели" --}}
-    <!-- @include('catalog.partials.recently-viewed') -->
-    @include('catalog.partials.recently-viewed2')
+    @include('components.two-image-banner-slider')
 
     <x-variant-image-modal-window 
     :images="$variant->images"

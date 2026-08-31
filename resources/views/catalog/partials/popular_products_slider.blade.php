@@ -43,7 +43,7 @@
             data-pagination="true"
             data-group="1">
 
-            <div class="swiper-wrapper py-[12px] pb-[30px]">
+            <div class="swiper-wrapper py-[10px]">
                 @foreach($popularVariants as $variant)
                     {{-- 
                        px-[6px] возвращает крайние слайды ближе к кнопкам.
@@ -172,7 +172,7 @@
             </div>
         </div>
 
-        <div class="js-swiper-pagination rv-pagination mt-[10px]"></div>
+        <div class="js-swiper-pagination rv-pagination"></div>
 
     </div>
 </div>

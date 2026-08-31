@@ -45,9 +45,9 @@
         <div class="max-w-[1500px] mx-auto">
 
             @if(session('success'))
-            <div class="mb-4 p-3 bg-green-100 text-green-700 rounded text-center">
-                {{ session('success') }}
-            </div>
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded text-center">
+                    {{ session('success') }}
+                </div>
             @endif
 
             @yield('content')
