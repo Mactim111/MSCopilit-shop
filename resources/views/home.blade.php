@@ -13,6 +13,10 @@
             @include('components.subcategory-slider')
             @include('catalog.partials.popular_products_slider')
             @include('components.two-image-banner-slider', ['two_image_banner_slider' => $banner_bestsellers])
+            @include('components.title-with-tags', [
+                'slider_title' => 'Хиты продаж',
+                'categoriesHit' => $categoriesHit // твоя переменная из AppServiceProvider
+            ])
             @include('catalog.partials.popular_products_slider')
             @include('components.two-image-banner-slider', ['two_image_banner_slider' => $banner_bestsellers])
 

@@ -194,7 +194,7 @@
     @include('catalog.partials.similar')
 
     {{-- Блок "Ранее вы смотрели" --}}
-    @include('components.two-image-banner-slider')
+    @include('catalog.partials.popular_products_slider')
 
     <x-variant-image-modal-window 
     :images="$variant->images"
