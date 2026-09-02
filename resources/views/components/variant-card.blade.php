@@ -78,13 +78,13 @@
 
             @if($inCart)
                 <a href="{{ route('cart.index') }}"
-                   class="w-[122px] h-[40px] block text-center bg-white border border-red-600 text-red-600 font-semibold px-2 py-1 rounded-lg transition">
+                   class="w-[122px] h-[40px] block text-center bg-white border border-red-600 text-red-600 font-semibold px-2 py-1 rounded-lg transition cursor-pointer">
                     В корзине
                 </a>
             @else
                 <form action="{{ route('cart.add', $variant) }}" method="POST">
                     @csrf
-                    <button class="w-[122px] h-[40px] text-center bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition">
+                    <button class="w-[122px] h-[40px] text-center bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition cursor-pointer">
                         В корзину
                     </button>
                 </form>

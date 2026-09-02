@@ -58,7 +58,7 @@
                         --}}
                         <div class="w-full h-[470px] border border-gray-100 rounded-xl p-[12px] bg-white 
                                     shadow-[0_2px_8px_rgba(0,0,0,0.1)]
-                                    cursor-pointer transition-all duration-300
+                                    transition-all duration-300
                                     hover:shadow-[0_4px_14px_rgba(0,0,0,0.22)]
                                     hover:border-gray-200
                                     focus-visible:shadow-[0_4px_14px_rgba(0,0,0,0.22)]
@@ -78,7 +78,7 @@
                             </div>
 
                             {{-- Фото --}}
-                            <a href="{{ route('catalog.variant', $variant->slug) }}" class="mb-3 block">
+                            <a href="{{ route('catalog.variant', $variant->slug) }}" class="mb-3 block cursor-pointer">
                                 <div class="w-full aspect-square max-w-[246px] mx-auto rounded-lg overflow-hidden bg-white flex items-center justify-center">
                                     <img src="{{ $variant->mainImage() }}" alt="{{ $variant->title }}"
                                          class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105">
@@ -86,7 +86,7 @@
                             </a>
 
                             {{-- Название --}}
-                            <a href="{{ route('catalog.variant', $variant->slug) }}" class="mb-3 block grow">
+                            <a href="{{ route('catalog.variant', $variant->slug) }}" class="mb-3 block grow cursor-pointer">
                                 <h2 class="text-[15px] font-bold line-clamp-2 h-[42px] leading-tight text-[#231F20] hover:text-red-600 transition">
                                     {{ $variant->title }}
                                 </h2>
@@ -122,14 +122,16 @@
 
                                 @if($inCart)
                                 <a href="{{ route('cart.index') }}"
-                                    class="block w-full h-[40px] bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors text-[15px]">
+                                    class="flex items-center justify-center w-full h-[40px] bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors 
+                                    text-[15px] cursor-pointer">
                                     В корзине
                                 </a>
                                 @else
                                 <div class="text-right">
                                     <form action="{{ route('cart.add', $variant) }}" method="POST" class="mx-auto">
                                         @csrf
-                                        <button class="w-full h-[40px] bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors text-[15px]">
+                                        <button class="w-full h-[40px] bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors text-[15px]
+                                        cursor-pointer">
                                             В корзину
                                         </button>
                                     </form>

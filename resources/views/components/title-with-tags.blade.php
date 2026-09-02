@@ -22,7 +22,7 @@
     <div class="relative flex-1 h-full pl-[18px] pb-[10px] overflow-hidden group">
         
         {{-- Кнопка НАЗАД с градиентным фоном (появляется при прокрутке) --}}
-        <div class="js-tag-prev-wrapper absolute left-[18px] top-0 bottom-0 w-[60px] z-30 
+        <div class="js-tag-prev-wrapper absolute left-[18px] top-0 bottom-[10px] w-[60px] z-30 
                     bg-gradient-to-r from-white via-white/80 to-transparent 
                     flex items-center opacity-0 pointer-events-none transition-opacity duration-300">
             <button type="button"
@@ -33,7 +33,7 @@
         </div>
 
         {{-- Кнопка ВПЕРЕД с градиентным фоном --}}
-        <div class="js-tag-next-wrapper absolute right-0 top-0 bottom-0 w-[60px] z-30 
+        <div class="js-tag-next-wrapper absolute right-0 top-0 bottom-[10px] w-[60px] z-30 
                     bg-gradient-to-l from-white via-white/80 to-transparent 
                     flex items-center justify-end transition-opacity duration-300">
             <button type="button"
