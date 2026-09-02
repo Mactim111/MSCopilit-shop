@@ -14,10 +14,6 @@
 <div class="w-full bg-white mb-[35px]">
     <div class="max-w-[1500px] mx-auto relative">
 
-        <div class="flex items-center justify-between mb-[20px]">
-            <h2 class="text-[28px] font-bold text-[#231F20]">Популярные товары</h2>
-        </div>
-
         {{-- Кнопки навигации --}}
         <button type="button"
             class="js-swiper-prev absolute left-[-16px] top-[45%] -translate-y-1/2

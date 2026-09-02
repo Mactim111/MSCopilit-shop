@@ -190,11 +190,24 @@
 
     </div>
 
-    {{-- Блок "Рекомендуемые товары" --}}
-    @include('catalog.partials.similar')
+    {{-- Блок "Похожие товары" --}}
+    {{-- Ниже закомментировано подключение старого компонента - проверить, нужен ли ОН еще, если не нужен - удалить, так как ниже перешли на универсальные блоки заголовка, 
+    тегов, слайдера --}}
+    {{-- @include('catalog.partials.similar') --}}
+    @include('components.title-with-tags', [
+                'slider_title' => 'Похожие товары',
+            ])
+    @include('catalog.partials.popular_products_slider')
+
+    {{-- Блок "Покупают вместе" --}}
+    @include('components.title-with-tags', [
+                'slider_title' => 'Покупают вместе',
+                'slider_tags' => $categoriesHit // наша переменная из AppServiceProvider
+            ])
+    @include('catalog.partials.popular_products_slider')
 
     {{-- Блок "Ранее вы смотрели" --}}
-    @include('catalog.partials.popular_products_slider')
+    @include('catalog.partials.recently-viewed2')
 
     <x-variant-image-modal-window 
     :images="$variant->images"
