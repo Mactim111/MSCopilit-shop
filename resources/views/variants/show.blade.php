@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="mx-auto mb-70">
+    <div class="mx-auto mb-[70px]">
 
         <div class="py-6 text-[13px]">
             {{-- Хлебные крошки --}}
@@ -197,14 +197,14 @@
     @include('components.title-with-tags', [
                 'slider_title' => 'Похожие товары',
             ])
-    @include('catalog.partials.popular_products_slider')
+    @include('catalog.partials.product-variants-slider', ['product_variants_slider' => $banner_bestsellers])
 
     {{-- Блок "Покупают вместе" --}}
     @include('components.title-with-tags', [
                 'slider_title' => 'Покупают вместе',
                 'slider_tags' => $categoriesHit // наша переменная из AppServiceProvider
             ])
-    @include('catalog.partials.popular_products_slider')
+    @include('catalog.partials.product-variants-slider', ['product_variants_slider' => $banner_bestsellers])
 
     {{-- Блок "Ранее вы смотрели" --}}
     @include('catalog.partials.recently-viewed2')

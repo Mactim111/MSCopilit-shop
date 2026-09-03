@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\FrontendImage;
+use App\Models\PageSection;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
@@ -22,10 +23,10 @@ class HomeController extends Controller
 
 
         // Популярные (пока просто сортировка по position)
-        $popular_variants = (clone $variantsQuery)
-            ->orderBy('position')
-            ->take(20)
-            ->get();
+        // $popular_variants = (clone $variantsQuery)
+        //     ->orderBy('position')
+        //     ->take(20)
+        //     ->get();
 
         // Новинки
         $new_variants = (clone $variantsQuery)
@@ -60,6 +61,13 @@ class HomeController extends Controller
             ->orderBy('order')
             ->get();
 
+        $popular_variants = ProductVariant::with(['product', 'labels'])
+            ->where('active', true)
+            ->orderBy('order')
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
+
         // $bannerTop = FrontendImage::where('group', 'banner-top')
         //     ->where('active', true)
         //     ->first();
@@ -82,6 +90,11 @@ class HomeController extends Controller
         //     });
         // }
 
+        $sections = PageSection::where('page_name', 'home')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
 
         return view('home', compact(
             'popular_variants',
@@ -90,7 +103,8 @@ class HomeController extends Controller
             'groups',
             'main_banners',
             'banner_bestsellers',
-            'new_arrivals_banners'
+            'new_arrivals_banners',
+            'sections',
             // 'bannerTop',
             // 'subcategories',
         ));

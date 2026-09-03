@@ -1,14 +1,10 @@
 @php
     use App\Models\CartItem;
     use Illuminate\Support\Facades\Auth;
-    // Оставляем логику получения данных
-    $popularVariants = \App\Models\ProductVariant::with(['product', 'labels'])
-        ->inRandomOrder()
-        ->limit(10)
-        ->get();
+    
 @endphp
 
-@if($popularVariants->count() >= 5)
+@if($product_variants_slider->count() >= 5)
 
 {{-- у 5 ЭЛЕМЕНТ под слайдером mb-[70px] НО! оно так на странице не выглядит! по этому у себя применили mb-[35px] --}}
 <div class="w-full bg-white mb-[35px]">
@@ -40,7 +36,7 @@
             data-group="1">
 
             <div class="swiper-wrapper py-[10px]">
-                @foreach($popularVariants as $variant)
+                @foreach($product_variants_slider as $variant)
                     {{-- 
                        px-[6px] возвращает крайние слайды ближе к кнопкам.
                        Теперь кнопка будет "резать" край карточки, а не висеть отдельно.

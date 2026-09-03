@@ -3,7 +3,7 @@
 @endphp
 
 @if($recentVariants->count() >= 5)
-<div class="max-w-[1500px] overflow-hidden mx-auto relative mt-[70px] mb-[40px]">
+<div class="max-w-[1500px] overflow-hidden mx-auto relative mt-[70px] mb-[0px]">
 
     {{-- Заголовок --}}
     <div class="h-[42px] mb-[20px] flex items-center">
