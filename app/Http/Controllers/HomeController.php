@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\FrontendImage;
-use App\Models\PageSection;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
@@ -46,28 +45,6 @@ class HomeController extends Controller
             ->orderBy('title')
             ->get();
 
-        $main_banners = FrontendImage::where('group', 'main-banner-slider')
-            ->where('active', true)
-            ->orderBy('order')
-            ->get();
-
-        $banner_bestsellers = FrontendImage::where('group', 'banner-best-sellers')
-            ->where('active', true)
-            ->orderBy('order')
-            ->get();
-
-        $new_arrivals_banners = FrontendImage::where('group', 'new-arrivals-banner')
-            ->where('active', true)
-            ->orderBy('order')
-            ->get();
-
-        $popular_variants = ProductVariant::with(['product', 'labels'])
-            ->where('active', true)
-            ->orderBy('order')
-            ->inRandomOrder()
-            ->limit(10)
-            ->get();
-
         // $bannerTop = FrontendImage::where('group', 'banner-top')
         //     ->where('active', true)
         //     ->first();
@@ -89,22 +66,40 @@ class HomeController extends Controller
         //         ];
         //     });
         // }
+        $popular_variants = ProductVariant::with(['product', 'labels'])
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
 
-        $sections = PageSection::where('page_name', 'home')
+        $main_banners = FrontendImage::where('group', 'main-banner-slider')
             ->where('active', true)
             ->orderBy('order')
             ->get();
 
+        $banner_bestsellers = FrontendImage::where('group', 'banner-best-sellers')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        $new_arrivals_banners = FrontendImage::where('group', 'new-arrivals-banner')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        $sections = \App\Models\PageSection::where('page_name', 'home')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
 
         return view('home', compact(
+            'sections',
             'popular_variants',
             'new_variants',
             'discounts',
             'groups',
             'main_banners',
             'banner_bestsellers',
-            'new_arrivals_banners',
-            'sections',
+            'new_arrivals_banners'
             // 'bannerTop',
             // 'subcategories',
         ));

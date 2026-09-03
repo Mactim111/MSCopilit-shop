@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             PropertyOptionsSeeder::class,
             ProductVariantPropertyOptionsSeeder::class,
             FrontendImagesSeeder::class,
+            PageSectionSeeder::class,
         ]);
     }
 }

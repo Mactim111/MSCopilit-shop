@@ -190,12 +190,27 @@
 
     </div>
 
-    {{-- Блоки заголовков с тегами и слайдеры --}}
-    <section class="w-full">
-        @foreach($sections as $section)
-            <x-section-renderer :section="$section" :currentVariant="$variant" />
-        @endforeach
-    </section>
+    {{-- Блок "Похожие товары" --}}
+    {{-- Ниже закомментировано подключение старого компонента - проверить, нужен ли ОН еще, если не нужен - удалить, так как ниже перешли на универсальные блоки заголовка, 
+    тегов, слайдера --}}
+    {{-- @include('catalog.partials.similar') --}}
+    @include('components.title-with-tags', [
+                'slider_title' => 'Похожие товары',
+            ])
+    @include('catalog.partials.product-variants-slider', ['product_variants_slider' => $popular_variants])
+
+    {{-- Блок "Покупают вместе" --}}
+    @include('components.title-with-tags', [
+                'slider_title' => 'Покупают вместе',
+                'slider_tags' => $categoriesHit // наша переменная из AppServiceProvider
+            ])
+    @include('catalog.partials.product-variants-slider', ['product_variants_slider' => $popular_variants])
+
+    {{-- Блок "Ранее вы смотрели" --}}
+    @include('components.title-with-tags', [
+                'slider_title' => 'Ранее вы смотрели',
+            ])
+    @include('catalog.partials.recently-viewed-slider', ['recently_viewed_slider' => $popular_variants])
 
     <x-variant-image-modal-window 
     :images="$variant->images"

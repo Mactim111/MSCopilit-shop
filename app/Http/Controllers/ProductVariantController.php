@@ -79,6 +79,22 @@ class ProductVariantController extends Controller
             ->take(6)
             ->get();
 
+        // Переменные для слайдеров с карточками вариантов товаров типа Хиты продаж
+        $popular_variants = ProductVariant::with(['product', 'labels'])
+            ->inRandomOrder()
+            ->limit(10)
+            ->get();
+
+        // ---------------------------------------------------------
+        // ЗАГРУЗКА ДИНАМИЧЕСКИХ СЕКЦИЙ (Похожие, Вместе, Ранее смотрели)
+        // ---------------------------------------------------------
+        $sections = \App\Models\PageSection::where('page_name', 'product_show')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
+        // Добавляем! ниже 'sections' в compact
+
         return view('variants.show', compact(
             'variant',
             'product',
@@ -90,7 +106,9 @@ class ProductVariantController extends Controller
             'category',
             'group',
             'relatedVariants',
+            'popular_variants',
             'variantMatrix',   // ← добавлено для свитчера
+            'sections',        // ← добавлено для динамических секций
         ));
     }
 }

@@ -9,26 +9,41 @@
     $data = $frontend->getSectionData($section, $currentVariant);
 @endphp
 
-{{-- Если данных нет — вообще ничего не рисуем --}}
-@if($data['items']->count() > 0)
-    
-    {{-- Сначала рисуем заголовок и теги (наш универсальный компонент) --}}
-    @include('components.title-with-tags', [
-        'slider_title' => $data['title'],
-        'slider_tags'  => $data['tags']
-    ])
+{{-- Выбор шаблона в зависимости от типа из БД --}}
+@switch($section->type)
 
-    {{-- Затем рисуем сам слайдер с карточками (6 шт. в ряд) вариантов товаров --}}
-    {{-- Мы используем один и тот же компонент слайдера, просто передаем разные выборки вариантов товаров --}}
-    @include('catalog.partials.product-variants-slider', [
-        'popular_variants' => $data['items'] 
-    ])
+    @case('one_banner')
+        @include('components.one-image-banner-slider', ['one_image_banner_slider' => $data['items']])
+        @break
 
-{{-- Если это двойной баннер --}}
-@elseif($section->type == 'double_banner' && $data['items']->isNotEmpty())
+    @case('subcategory_cards')
+        @include('components.subcategory-slider') {{-- Он сам берет данные из shared --}}
+        @break
 
-    @include('components.two-image-banner-slider', [
-        'two_image_banner_slider' => $data['items']
-    ])
+    @case('product_slider')
+        @include('components.title-with-tags', [
+            'slider_title' => $data['title'],
+            'slider_tags'  => $data['tags']
+        ])
+        @include('catalog.partials.product-variants-slider', [
+            'product_variants_slider' => $data['items'] 
+        ])
+        @break
 
-@endif  
+    @case('double_banner')
+        @include('components.two-image-banner-slider', [
+            'two_image_banner_slider' => $data['items']
+        ])
+        @break
+
+    @case('recently_viewed')
+        {{-- Сначала заголовок --}}
+        @include('components.title-with-tags', ['slider_title' => $data['title']])
+        
+        {{-- Затем исправленный слайдер --}}
+        @include('catalog.partials.recently-viewed-slider', [
+            'recently_viewed_slider' => $data['items']
+        ])
+        @break
+
+@endswitch

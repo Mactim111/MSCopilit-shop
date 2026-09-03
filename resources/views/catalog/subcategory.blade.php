@@ -86,7 +86,7 @@
     </div>
 
     {{-- Блок "Ранее вы смотрели" --}}
-    @include('catalog.partials.recently-viewed2')
+    @include('catalog.partials.recently-slider')
     
     {{-- Блок "Рекоммендуемые товары" --}}
     <!-- @include('catalog.partials.recommend2') -->
