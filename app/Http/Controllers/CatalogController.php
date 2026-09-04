@@ -143,6 +143,14 @@ class CatalogController extends Controller
         $title = $this->makeDynamicTitle($subcategory, $filters);
         $breadcrumbBrandTitle = $this->makeBreadcrumbBrandTitle($filters);
 
+        // ---------------------------------------------------------
+        // ЗАГРУЗКА ДИНАМИЧЕСКИХ СЕКЦИЙ (Ранее смотрели и др.)
+        // ---------------------------------------------------------
+        $sections = \App\Models\PageSection::where('page_name', 'subcategory_show')
+            ->where('active', true)
+            ->orderBy('order')
+            ->get();
+
         return view('catalog.subcategory', compact(
             'group',
             'category',
@@ -156,6 +164,7 @@ class CatalogController extends Controller
             'sidebarBrands',       // бренды для сайдбара — сужаются при линейке
             'title',             // string — динамический заголовок страницы
             'breadcrumbBrandTitle',   // string — заголовок для хлебных крошек
+            'sections' // <-- Передаем секции в шаблон
         ));
     }
 }

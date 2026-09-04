@@ -39,7 +39,7 @@
     </div>
 
     {{-- Заголовок подкатегории + количество товаров --}}
-    <div class="max-w-[1500px] mx-auto flex items-center h-[42px] mb-[20px]">
+    <div class="max-w-[1500px] mx-auto flex items-center h-[42px] mb-5">
         <h1 class="text-[34px] font-bold text-[#231F20] leading-none">
             {{ $title }}
 
@@ -51,7 +51,7 @@
     </div>
 
     {{-- Основная двухколоночная часть: 3 + 9 колонок --}}
-    <div class="max-w-[1500px] mx-auto flex">
+    <div class="max-w-[1500px] mx-auto flex mb-[70px]">
 
         {{-- Левая колонка: фильтры --}}
         <aside class="w-full max-w-[348px] pr-[32px] flex flex-col">
@@ -61,8 +61,8 @@
         {{-- Правая колонка: резерв под блок характеристик + сортировка + список + пагинация --}}
         <main class="w-full max-w-[1152px] flex flex-col">
 
-            {{-- Резерв под блок случайных характеристик (1152x76) --}}
-            <div class="w-full h-[76px] bg-white border border-gray-200 rounded-lg mb-4 px-[30px] py-[14px]">
+            {{-- Резерв под блок случайных характеристик - ТЕГОВ! (1152x76) --}}
+            <div class="w-full h-[76px] bg-white rounded-lg mb-6">
                 {{-- TODO: блок случайных характеристик подкатегории --}}
                 {{-- Зарезервировано под будущий функционал --}}
             </div>
@@ -85,11 +85,12 @@
 
     </div>
 
-    {{-- Блок "Ранее вы смотрели" --}}
-    @include('catalog.partials.recently-slider')
-    
-    {{-- Блок "Рекоммендуемые товары" --}}
-    <!-- @include('catalog.partials.recommend2') -->
+    {{-- Блоки заголовков с тегами и слайдеры --}}
+    <section class="w-full">
+        @foreach($sections as $section)
+            <x-section-renderer :section="$section" />
+        @endforeach
+    </section>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -77,7 +77,7 @@ class PageSectionSeeder extends Seeder
                 'show_tags'   => false,
                 'order'       => 60,
             ],
-            // Секции для страницы варианта товара (шаблон 'variants.show') и страницы подкатегории (шаблон 'catalog.subcategory'), 
+            // 7. Секции для страницы варианта товара (шаблон 'variants.show') и страницы подкатегории (шаблон 'catalog.subcategory'), 
             // и других страниц, где могут использоваться слайдеры с ПЯТЬЮ в ряд мелкими карточками вариантов товаров (содержат ТОЛЬКО! слева фото, а справа название варианта товара). 
             [
                 'page_name'   => 'product_show',
@@ -102,6 +102,15 @@ class PageSectionSeeder extends Seeder
                 'source_type' => 'manual',
                 'show_tags'   => false,
                 'order'       => 30,
+            ],
+            
+            [
+                'page_name'   => 'subcategory_show',
+                'title'       => 'Ранее вы смотрели',
+                'type'        => 'recently_viewed',
+                'source_type' => 'manual', // логика внутри FrontendService@getSectionData
+                'show_tags'   => false,
+                'order'       => 10,
             ],
         ];
 
