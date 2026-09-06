@@ -60,11 +60,11 @@
                 <th>Price</th>
                 <th>Quantity</th>
             </tr>
-            @foreach($cart as $product)
+            @foreach($cart as $item)
                 <tr>
-                    <td class="strip">{{ $product['title'] }}</td>
-                    <td class="strip">${{ $product['price'] }}</td>
-                    <td class="strip">{{ $product['quantity'] }}</td>
+                    <td class="strip">{{ $item['title'] }}</td>
+                    <td class="strip">${{ $item['price'] }}</td>
+                    <td class="strip">{{ $item['quantity'] }}</td>
                 </tr>
             @endforeach
             <tr>

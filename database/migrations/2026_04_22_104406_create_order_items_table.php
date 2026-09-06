@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete(); // Если удалили заказ целиком — удаляем и позиции
             $table->foreignId('product_variant_id')
-                ->references('id')
-                ->on('product_variants');
+                ->nullable() // Это позволит базе данных записать NULL при удалении
+                ->constrained('product_variants')
+                //НИЖЕ! база данных позволит удалить товар, просто занулит ID в заказе (т.к. у нас есть SoftDeletes это просто подстраховка на случай 
+                // «жесткого» удаления. При обычном удалении (Soft Delete) база данных вообще не будет дергать эти ключи.).
+                ->nullOnDelete();
             $table->string('title');
             $table->decimal('price', 10, 2);
             $table->integer('quantity');

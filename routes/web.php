@@ -41,21 +41,18 @@ Route::get('/catalog/{group}/{category}/{subcategory}/brand={brands}', [CatalogC
 // Вариант товара
 Route::get('/products/{variant}', [ProductVariantController::class, 'show'])->name('catalog.variant');
 
+// --- КОРЗИНА (теперь без привязки к модели в маршруте) ---
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{variant}', [CartController::class, 'add'])->name('cart.add');
+Route::put('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update'); // Заменили {item} на {id}
+Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove'); // Заменили {item} на {id}
+
+// --- ЗАКАЗЫ (вынесли из группы auth, чтобы гости могли покупать) ---
+Route::get('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
+Route::post('/checkout', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/thanks/{order}', [OrderController::class, 'thanks'])->name('orders.thanks');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Корзина
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{variant}', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/update/{item}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{item}', [CartController::class, 'remove'])->name('cart.remove');
-
-// Заказы
-    Route::get('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
-    Route::post('/checkout', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/thanks/{order}', [OrderController::class, 'thanks'])->name('orders.thanks');
-
-
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');

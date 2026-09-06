@@ -151,11 +151,34 @@ class CatalogController extends Controller
             ->orderBy('order')
             ->get();
 
+        // ---------------------------------------------------------
+        // Теги быстрых фильтров — только если нет активных фильтров.
+        // ---------------------------------------------------------
+
+        // Закомментировать код ниже, ЕСЛИ в шаблоне подключена ТЕСТОВАЯ версия компонента БЕЗ выборки тегов из Сервиса и Контроллера- чисто ВИЗУАЛ! - от aistudio.google.com
+        // Раскомментировать код ниже, ЕСЛИ в шаблоне подключена РАБОЧАЯ версия компонента с выборкой тегов из Сервиса и Контроллера от Claude
+
+        // первоначальная версия проверки активных фильтров, которая скрывала блок тегов при наличии активных фильтров
+        // $hasActiveFilters = !empty($filters['brand'])
+        //     || !empty($filters['f'])
+        //     || !empty($filters['price_min'])
+        //     || !empty($filters['price_max'])
+        //     || collect(array_keys($filters))->contains(fn($k) => str_starts_with($k, 'f_'));
+            
+        // версия с активной плиткой блока тегов — Убираем условие $hasActiveFilters — блок показываем всегда
+        // (сервис сам решает, что показывать)
+        // $subcategoryTags = $hasActiveFilters ? collect() : $filterService->getSubcategoryTags(
+        $subcategoryTags = $filterService->getSubcategoryTags(
+            $subcategory,
+            [$group->slug, $category->slug, $subcategory->slug],
+            $filters // ← добавили
+        );
+
         return view('catalog.subcategory', compact(
             'group',
             'category',
             'subcategory',
-            'variants',          // LengthAwarePaginator — совместим с твоей пагинацией
+            'variants',          // LengthAwarePaginator — совместим с НАШЕЙ! пагинацией
             'availableFilters',  // Collection<Property> — для сайдбара фильтров
             'minPrice',          // float — для слайдера цены
             'maxPrice',          // float — для слайдера цены
@@ -164,7 +187,9 @@ class CatalogController extends Controller
             'sidebarBrands',       // бренды для сайдбара — сужаются при линейке
             'title',             // string — динамический заголовок страницы
             'breadcrumbBrandTitle',   // string — заголовок для хлебных крошек
-            'sections' // <-- Передаем секции в шаблон
+            'sections', // <-- Передаем секции в шаблон
+            // Раскомментировать строку ниже, ЕСЛИ в шаблоне подключена РАБОЧАЯ версия компонента с выборкой тегов из Сервиса и Контроллера от Claude
+            'subcategoryTags'
         ));
     }
 }

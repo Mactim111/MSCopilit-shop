@@ -3,7 +3,7 @@
 @section('title', 'Корзина')
 
 @section('content')
-    <div class="max-w-7xl mx-auto mt-4 mb-2">
+    <div class="max-w-full mx-auto mt-4 mb-2">
 
         <h1 class="text-3xl font-bold mb-8">Корзина</h1>
 
@@ -17,21 +17,12 @@
             </div>
         @else
 
-            <div class="bg-white rounded-xl shadow p-6 mb-8">
+            <div class="bg-white rounded-xl shadow">
                 <table class="w-full">
-                    <thead>
-                    <tr class="text-left text-gray-500 border-b">
-                        <th class="pb-3">Товар</th>
-                        <th class="pb-3">Цена</th>
-                        <th class="pb-3">Кол-во</th>
-                        <th class="pb-3">Сумма</th>
-                        <th></th>
-                    </tr>
-                    </thead>
 
                     <tbody>
                     @foreach($items as $item)
-                        <tr class="border-b">
+                        <tr class="border-t border-dashed border-gray-300">
                             <td class="py-4 flex items-center gap-4">
                                 <img src="{{ $item->variant->mainImage() }}" alt="{{ $item->variant->title }}"
                                      class="w-20 h-20 object-cover rounded">

@@ -10,6 +10,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CatalogFilterService
 {
@@ -672,6 +673,275 @@ class CatalogFilterService
             // 'popular' и всё остальное — по полю position (порядок в админке)
             default            => $query->orderBy('position'),
         };
+    }
+
+    /**
+     * Формирует набор тегов для блока быстрых фильтров над списком товаров.
+     * Возвращает Collection объектов с полями:
+     *   label  — текст плитки («Apple», «128 ГБ», «Недорогие»)
+     *   url    — URL клика (применяет соответствующий фильтр)
+     *   type   — 'brand' | 'lineup' | 'property' | 'sort' | 'price'
+     */
+    public function getSubcategoryTags(
+        Category $subcategory,
+        array $routeParams,
+        array $filters = [],  // текущие активные фильтры
+        int $limit = 20
+    ): \Illuminate\Support\Collection {
+        $tags    = collect();
+        $baseUrl = route('catalog.subcategory', $routeParams);
+
+        $activeBrand  = $filters['brand'][0] ?? null;  // первый выбранный бренд
+        $activeLineup = $filters['f']['lineup'][0] ?? null; // первая выбранная линейка
+
+        // ── Если выбран бренд через тег — показываем линейки этого бренда ──
+        if ($activeBrand && !$activeLineup) {
+            // Находим brand_id
+            $brandId = DB::table('brands')->where('slug', $activeBrand)->value('id');
+
+            if ($brandId) {
+                $lineupProperty = DB::table('properties')
+                    ->where('slug', 'lineup')->value('id');
+
+                if ($lineupProperty) {
+                    // Линейки только этого бренда
+                    $lineups = DB::table('product_filter_index')
+                        ->where('product_filter_index.category_id', $subcategory->id)
+                        ->where('product_filter_index.property_id', $lineupProperty)
+                        ->join('products', 'products.id', '=', 'product_filter_index.product_id')
+                        ->where('products.brand_id', $brandId)
+                        ->join('property_options', function ($join) use ($lineupProperty) {
+                            $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+                                ->where('property_options.property_id', '=', $lineupProperty);
+                        })
+                        ->select('property_options.value', 'product_filter_index.value_slug')
+                        ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+                        ->whereNull('products.deleted_at')
+                        ->groupBy('property_options.value', 'product_filter_index.value_slug')
+                        ->orderByDesc('cnt')
+                        ->limit($limit)
+                        ->get();
+
+                    foreach ($lineups as $lineup) {
+                        // URL: сбрасываем всё, ставим только бренд + линейку
+                        $tags->push([
+                            'label'    => $lineup->value,
+                            'url'      => route('catalog.subcategory.brand', [
+                                ...$routeParams,
+                                $activeBrand,
+                            ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
+                            'type'     => 'lineup',
+                            'active'   => $activeLineup === $lineup->value_slug,
+                            // URL для сброса этого тега (только бренд без линейки)
+                            'reset_url' => route('catalog.subcategory.brand', [
+                                ...$routeParams,
+                                $activeBrand,
+                            ]),
+                        ]);
+                    }
+                }
+            }
+
+            return $tags->take($limit);
+        }
+
+        // ── Если выбрана линейка — показываем теги этой же линейки (или сброс) ──
+        if ($activeLineup) {
+            // Просто возвращаем пустую коллекцию — блок скрывается
+            // или можно показать кнопку «Показать все» — на твоё усмотрение
+            return collect();
+        }
+
+        // ── Исходное состояние — стандартный набор тегов ─────────────
+        // Статичные сортировки
+        $tags->push(['label' => 'Популярные', 'url' => $baseUrl . '?sort=popular',    'type' => 'sort',  'active' => false]);
+        $tags->push(['label' => 'Недорогие',  'url' => $baseUrl . '?sort=price_asc',  'type' => 'sort',  'active' => false]);
+
+        // Бренды
+        $brandCounts = DB::table('product_filter_index')
+            ->where('product_filter_index.category_id', $subcategory->id)
+            ->join('products', 'products.id', '=', 'product_filter_index.product_id')
+            ->join('brands',   'brands.id',   '=', 'products.brand_id')
+            ->select('brands.id', 'brands.title', 'brands.slug')
+            ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+            ->whereNull('products.deleted_at')
+            ->groupBy('brands.id', 'brands.title', 'brands.slug')
+            ->orderByDesc('cnt')
+            ->limit(5)
+            ->get();
+
+        foreach ($brandCounts as $brand) {
+            $brandUrl = route('catalog.subcategory.brand', [...$routeParams, $brand->slug]);
+            $tags->push([
+                'label'  => $brand->title,
+                'url'    => $brandUrl,
+                'type'   => 'brand',
+                'active' => false,
+            ]);
+        }
+
+        // Линейки топ
+        $lineupProperty = DB::table('properties')->where('slug', 'lineup')->value('id');
+        if ($lineupProperty) {
+            $lineups = DB::table('product_filter_index')
+                ->where('product_filter_index.category_id', $subcategory->id)
+                ->where('product_filter_index.property_id', $lineupProperty)
+                ->join('property_options', function ($join) use ($lineupProperty) {
+                    $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+                        ->where('property_options.property_id', '=', $lineupProperty);
+                })
+                ->select('property_options.value', 'product_filter_index.value_slug')
+                ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+                ->groupBy('property_options.value', 'product_filter_index.value_slug')
+                ->orderByDesc('cnt')
+                ->limit(8)
+                ->get();
+
+            foreach ($lineups as $lineup) {
+                $tags->push([
+                    'label'  => $lineup->value,
+                    'url'    => $baseUrl . '?' . http_build_query([
+                        'f' => ['lineup' => [$lineup->value_slug]]
+                    ]),
+                    'type'   => 'lineup',
+                    'active' => false,
+                ]);
+            }
+        }
+
+        // Популярные опции свойств
+        $featuredSlugs = ['built_in_memory', 'ram'];
+        $featuredProps = DB::table('properties')
+            ->whereIn('slug', $featuredSlugs)
+            ->where('used_for_filters', true)
+            ->get()->keyBy('slug');
+
+        foreach ($featuredSlugs as $propSlug) {
+            $prop = $featuredProps->get($propSlug);
+            if (!$prop) continue;
+
+            $topOptions = DB::table('product_filter_index')
+                ->where('product_filter_index.category_id', $subcategory->id)
+                ->where('product_filter_index.property_id', $prop->id)
+                ->join('property_options', function ($join) use ($prop) {
+                    $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+                        ->where('property_options.property_id', '=', $prop->id);
+                })
+                ->select('property_options.value', 'product_filter_index.value_slug')
+                ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+                ->groupBy('property_options.value', 'product_filter_index.value_slug')
+                ->orderByDesc('cnt')
+                ->limit(3)
+                ->get();
+
+            foreach ($topOptions as $option) {
+                $tags->push([
+                    'label'  => $option->value,
+                    'url'    => $baseUrl . '?' . http_build_query([
+                        'f' => [$propSlug => [$option->value_slug]]
+                    ]),
+                    'type'   => 'property',
+                    'active' => false,
+                ]);
+            }
+        }
+
+        // ── Range-свойства — топ-значения диагонали и батареи ────────
+        $rangeSlugs = ['screen_size', 'battery_capacity'];
+        $rangeProps = DB::table('properties')
+            ->whereIn('slug', $rangeSlugs)
+            // ->where('used_for_filters', true)
+            ->where('used_for_filters', 1)
+            ->get()->keyBy('slug');
+
+        Log::info('rangeProps keys', $rangeProps->keys()->toArray());
+
+        foreach ($rangeSlugs as $propSlug) {
+            $prop = $rangeProps->get($propSlug);
+            if (!$prop) continue;
+
+            // Берём топ-5 числовых значения по популярности
+            $topValues = DB::table('product_filter_index')
+                ->where('product_filter_index.category_id', $subcategory->id)
+                ->where('product_filter_index.property_id', $prop->id)
+                ->whereNotNull('product_filter_index.numeric_value')
+                ->join('property_options', function ($join) use ($prop) {
+                    $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+                        ->where('property_options.property_id', '=', $prop->id);
+                })
+                ->select('property_options.value', 'product_filter_index.value_slug',
+                        'product_filter_index.numeric_value')
+                ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+                ->groupBy('property_options.value', 'product_filter_index.value_slug',
+                        'product_filter_index.numeric_value')
+                ->orderByDesc('cnt')
+                ->limit(5)
+                ->get();
+
+            $activeRangeMin = $filters['f_' . $propSlug . '_min'] ?? null;
+            $activeRangeMax = $filters['f_' . $propSlug . '_max'] ?? null;
+
+            foreach ($topValues as $val) {
+                $tags->push([
+                    'label'  => $val->value,
+                    'url'    => $baseUrl . '?' . http_build_query([
+                        'f_' . $propSlug . '_min' => $val->numeric_value,
+                        'f_' . $propSlug . '_max' => $val->numeric_value,
+                    ]),
+                    'type'   => 'range_prop',
+                    'active' => $activeRangeMin == $val->numeric_value
+                            && $activeRangeMax == $val->numeric_value,
+                ]);
+            }
+        }
+
+        // ── Toggle-свойства — NFC и беспроводная зарядка ──────────────
+        $toggleSlugs = ['nfc', 'w_charg_sup'];
+        $toggleProps = DB::table('properties')
+            ->whereIn('slug', $toggleSlugs)
+            ->where('used_for_filters', 1)
+            // ->where('used_for_filters', true)
+            ->get()->keyBy('slug');
+
+        foreach ($toggleSlugs as $propSlug) {
+            $prop = $toggleProps->get($propSlug);
+            Log::info('toggle prop', ['slug' => $propSlug, 'found' => $prop ? 'yes' : 'null']);
+            if (!$prop) continue;
+
+            // Проверяем что такие варианты вообще есть в категории
+            $hasVariants = DB::table('product_filter_index')
+                ->where('product_filter_index.category_id', $subcategory->id)
+                ->where('product_filter_index.property_id', $prop->id)
+                ->where('product_filter_index.value_slug', 'yes')
+                ->exists();
+
+            if (!$hasVariants) continue;
+
+            $isActive = in_array('yes', (array)($filters['f'][$propSlug] ?? []));
+
+            $tags->push([
+                'label'  => $prop->title, // «NFC», «Поддержка беспроводной зарядки»
+                'url'    => $baseUrl . '?' . http_build_query([
+                    'f' => [$propSlug => ['yes']]
+                ]),
+                'type'   => 'toggle',
+                'active' => $isActive,
+            ]);
+        }
+
+        // Ценовой сегмент
+        // $priceRange = $this->getPriceRange($subcategory, []);
+        // if ($priceRange['min'] < $priceRange['max']) {
+        //     $mid = round(($priceRange['min'] + $priceRange['max']) / 2);
+        //     $tags->push([
+        //         'label'  => 'До ' . number_format($mid, 0, '.', ' ') . ' ₸',
+        //         'url'    => $baseUrl . '?price_max=' . $mid . '&sort=price_asc',
+        //         'type'   => 'price',
+        //         'active' => false,
+        //     ]);
+        // }
+
+        return $tags->take($limit);
     }
 
 }

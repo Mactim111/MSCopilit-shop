@@ -58,7 +58,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block font-medium mb-1">Имя</label>
-                        <input type="text" name="name" value="{{ old('name', auth()->user()->name) }}"
+                        <input type="text" name="name" value="{{ old('name', auth()->user()?->name) }}"
                                class="w-full border-gray-300 rounded-lg border @error('name') border-red-500 @enderror px-3">
                         @error('name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -67,7 +67,7 @@
 
                     <div>
                         <label class="block font-medium mb-1">Email</label>
-                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
+                        <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}"
                                class="w-full border-gray-300 rounded-lg border @error('email') border-red-500 @enderror px-3">
                         @error('email')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -76,7 +76,7 @@
 
                     <div>
                         <label class="block font-medium mb-1">Телефон</label>
-                        <input type="text" name="phone" value="{{ old('phone') }}"
+                        <input type="text" name="phone" value="{{ old('phone', auth()->user()?->phone) }}"
                                class="w-full border-gray-300 rounded-lg border @error('phone') border-red-500 @enderror px-3">
                         @error('phone')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>

@@ -2,6 +2,10 @@
 
 @php
     $product = $variant->product;
+    use App\Models\CartItem;
+    use Illuminate\Support\Facades\Auth;
+    // Внедряем сервис корзины прямо в шаблон
+    $cartService = app(App\Services\CartService::class);
 @endphp
 
 <div class="w-full bg-white border border-gray-100 rounded-lg
@@ -107,23 +111,19 @@
 
             <div class="col-span-4">
                 @php
-                    use App\Models\CartItem;
-                    use Illuminate\Support\Facades\Auth;
-
-                    $inCart = CartItem::where('user_id', Auth::id())
-                        ->where('product_variant_id', $variant->id)
-                        ->exists();
+                    // Теперь проверка работает универсально для всех (залогиненных и гостей) через сервис корзины
+                    $inCart = $cartService->has($variant->id);
                 @endphp
 
                 @if($inCart)
                     <a href="{{ route('cart.index') }}"
-                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-sm">
+                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer">
                         В корзине
                     </a>
                 @else
                     <form action="{{ route('cart.add', $variant) }}" method="POST">
                         @csrf
-                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm">
+                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-[15px] cursor-pointer">
                             В корзину
                         </button>
                     </form>

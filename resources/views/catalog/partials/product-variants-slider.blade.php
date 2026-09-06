@@ -1,7 +1,8 @@
 @php
     use App\Models\CartItem;
     use Illuminate\Support\Facades\Auth;
-    
+    // Внедряем сервис корзины прямо в шаблон
+    $cartService = app(App\Services\CartService::class);
 @endphp
 
 @if($product_variants_slider->count() >= 5)
@@ -107,9 +108,8 @@
                                 </div>
 
                                 @php
-                                $inCart = CartItem::where('user_id', Auth::id())
-                                ->where('product_variant_id', $variant->id)
-                                ->exists();
+                                    // Теперь проверка работает универсально для всех (залогиненных и гостей) через сервис корзины
+                                    $inCart = $cartService->has($variant->id);
                                 @endphp
 
                                 @if($inCart)

@@ -12,7 +12,8 @@ class OrderItem extends Model
 
     public function variant()
     {
-        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+        // Это позволит заказу "видеть" даже удаленный через SoftDelete вариант
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id')->withTrashed();
     }
 
     // связь на Order

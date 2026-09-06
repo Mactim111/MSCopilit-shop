@@ -25,17 +25,17 @@ class CartController extends Controller
         return back()->with(['success'=> 'Товар добавлен в корзину', 'added' => true]);
     }
 
-    public function update(Request $request, CartItem $item)
+    public function update(Request $request, $id) // Убрали тип CartItem
     {
         $request->validate(['quantity' => 'required|integer|min:1']);
-        $this->cart->update($item->id, $request->quantity);
+        $this->cart->update($id, $request->quantity);
 
         return back()->with('success', 'Количество обновлено');
     }
 
-    public function remove(CartItem $item)
+    public function remove($id) // Убрали тип CartItem
     {
-        $this->cart->remove($item->id);
+        $this->cart->remove($id);
         return back()->with('success', 'Товар удалён');
     }
 }

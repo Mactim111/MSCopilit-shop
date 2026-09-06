@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderClient;
+use App\Mail\OrderManager;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -9,6 +11,8 @@ use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -27,10 +31,10 @@ class OrderController extends Controller
 
         $user = Auth::user();
 
-        // Все адреса пользователя (последний — первый)
-        $addresses = $user->addresses()->latest()->get();
+        // Безопасное получение адресов: если гость — возвращаем пустую коллекцию
+        $addresses = $user ? $user->addresses()->latest()->get() : collect();
 
-        // По умолчанию выбираем последний сохранённый адрес
+        // По умолчанию выбираем последний сохранённый адрес (только для юзеров)
         $defaultAddressId = $addresses->first()->id ?? null;
 
         return view('orders.checkout', [
@@ -63,46 +67,49 @@ class OrderController extends Controller
             'email'      => 'required|email',
             'phone'      => 'required|string|max:50',
         ]);
-//        dd($data);
+        // dd($data);
 
         $order = DB::transaction(function () use ($items, $data) {
-
             $user = Auth::user();
-            $addressId = $data['address_id'] ?? null;
+            $addressText = $data['address']; // Текст из textarea
 
-            /**
-             * Если выбран существующий адрес
-             */
-            if ($addressId) {
-                $address = $user->addresses()->findOrFail($addressId);
+            // Если это юзер и он выбрал адрес из списка (радиокнопка)
+            if ($user && !empty($data['address_id'])) {
+                $address = $user->addresses()->findOrFail($data['address_id']);
+                $addressText = $address->address_line; 
+            } 
+            // if ($addressId) {
+            //     $address = $user->addresses()->findOrFail($addressId);
 
-                $addressText = "{$address->address_line}, {$address->city}, {$address->state} {$address->zip}, {$address->country}";
-            }
+            //     $addressText = "{$address->address_line}, {$address->city}, {$address->state} {$address->zip}, {$address->country}";
+            // }
 
             /**
              * Если выбран новый адрес
              */
-            else {
-                $addressText = $data['address'];
+            // else {
+            //     $addressText = $data['address'];
 
-                $new = $user->addresses()->create([
-                    'label'        => 'Новый адрес',
-                    'address_line' => $addressText,
-                    'city'         => '—',
-                    'state'        => null,
-                    'zip'          => null,
-                    'country'      => '—',
-                ]);
+            //     $new = $user->addresses()->create([
+            //         'label'        => 'Новый адрес',
+            //         'address_line' => $addressText,
+            //         'city'         => '—',
+            //         'state'        => null,
+            //         'zip'          => null,
+            //         'country'      => '—',
+            //     ]);
 
-                $addressId = $new->id;
-            }
+            //     $addressId = $new->id;
+            // }
 
             /**
              * Создание заказа
              */
             $order = Order::create([
-                'user_id'    => $user->id,
-                'address_id' => $addressId,
+                // 'user_id'    => $user->id,
+                // 'address_id' => $addressId,
+                'user_id'    => $user?->id, // Запишет ID или NULL
+                'address_id' => $data['address_id'] ?? null,
                 'name'       => $data['name'],
                 'email'      => $data['email'],
                 'phone'      => $data['phone'],
@@ -130,6 +137,34 @@ class OrderController extends Controller
             return $order;
         });
 
+        // --- ПОДГОТОВКА ДАННЫХ ДЛЯ ПИСЬМА ---
+        // Мы создаем плоский массив, который точно соответствует шаблону mail.order-client
+        $cartForMail = $order->items->map(function($item) {
+            return [
+                'title'    => $item->title,
+                'price'    => $item->price,
+                'quantity' => $item->quantity,
+            ];
+        })->toArray();
+
+        try {
+            // Отправка клиенту
+            Mail::to($order->email)->send(new OrderClient(
+                $cartForMail, 
+                $order->total, 
+                $order->id
+            ));
+
+            // Отправка менеджеру (передаем ID заказа и адрес)
+            Mail::to(config('mail.from.address'))->send(new OrderManager(
+                $order->id,
+                $order->address
+            ));
+        } catch (\Exception $e) {
+            // Если почта не ушла, заказ все равно создан, просто логируем ошибку
+            Log::error("Ошибка отправки почты: " . $e->getMessage());
+        }
+        
         return redirect()->route('orders.thanks', ['order' => $order->id]);
     }
 
