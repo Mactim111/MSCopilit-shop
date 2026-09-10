@@ -686,76 +686,85 @@ class CatalogFilterService
         Category $subcategory,
         array $routeParams,
         array $filters = [],  // текущие активные фильтры
-        int $limit = 20
+        int $limit = 30 // максимальное количество ПЛИТОК тегов в блоке
     ): \Illuminate\Support\Collection {
+
+        $activeBrandSlug  = $filters['brand'][0] ?? null;
+        $activeLineupSlug = $filters['f']['lineup'][0] ?? null;
+        $activeSortValue  = $filters['sort'] ?? null;
+
         $tags    = collect();
         $baseUrl = route('catalog.subcategory', $routeParams);
 
-        $activeBrand  = $filters['brand'][0] ?? null;  // первый выбранный бренд
-        $activeLineup = $filters['f']['lineup'][0] ?? null; // первая выбранная линейка
+        // Ниже закомментированная логика, которая показывала в блоке тегов ВСЕ!!! ЛИНЕНЙКИ БРЕНДА при выборе ЕГО в БЛОКЕ ТЕГОВ.
+        // Без фильтров — стандартный набор (бренды, линейки, память, сортировки). Выбрал бренд через тег — показываем ВСЕ ЛИНЕЙКИ этого бренда, каждая линейка ведёт на страницу 
+        // с этим брендом + линейкой ТИПА на "brand=xiaomi?f[lineup][]=...."  --- А ЕСЛИ Выбрал после этого ЛИНЕЙКУ в БЛОКЕ ТЕГОВ - и ОН! ПОЛНОСТЬЮ! СКРЫВАЕТСЯ!!! 
+        // (или можно например показать «вернуться к брендам»). 
+        // $activeBrand  = $filters['brand'][0] ?? null;  // первый выбранный бренд
+        // $activeLineup = $filters['f']['lineup'][0] ?? null; // первая выбранная линейка
 
         // ── Если выбран бренд через тег — показываем линейки этого бренда ──
-        if ($activeBrand && !$activeLineup) {
-            // Находим brand_id
-            $brandId = DB::table('brands')->where('slug', $activeBrand)->value('id');
+        // if ($activeBrand && !$activeLineup) {
+        //     // Находим brand_id
+        //     $brandId = DB::table('brands')->where('slug', $activeBrand)->value('id');
 
-            if ($brandId) {
-                $lineupProperty = DB::table('properties')
-                    ->where('slug', 'lineup')->value('id');
+        //     if ($brandId) {
+        //         $lineupProperty = DB::table('properties')
+        //             ->where('slug', 'lineup')->value('id');
 
-                if ($lineupProperty) {
-                    // Линейки только этого бренда
-                    $lineups = DB::table('product_filter_index')
-                        ->where('product_filter_index.category_id', $subcategory->id)
-                        ->where('product_filter_index.property_id', $lineupProperty)
-                        ->join('products', 'products.id', '=', 'product_filter_index.product_id')
-                        ->where('products.brand_id', $brandId)
-                        ->join('property_options', function ($join) use ($lineupProperty) {
-                            $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
-                                ->where('property_options.property_id', '=', $lineupProperty);
-                        })
-                        ->select('property_options.value', 'product_filter_index.value_slug')
-                        ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
-                        ->whereNull('products.deleted_at')
-                        ->groupBy('property_options.value', 'product_filter_index.value_slug')
-                        ->orderByDesc('cnt')
-                        ->limit($limit)
-                        ->get();
+        //         if ($lineupProperty) {
+        //             // Линейки только этого бренда
+        //             $lineups = DB::table('product_filter_index')
+        //                 ->where('product_filter_index.category_id', $subcategory->id)
+        //                 ->where('product_filter_index.property_id', $lineupProperty)
+        //                 ->join('products', 'products.id', '=', 'product_filter_index.product_id')
+        //                 ->where('products.brand_id', $brandId)
+        //                 ->join('property_options', function ($join) use ($lineupProperty) {
+        //                     $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+        //                         ->where('property_options.property_id', '=', $lineupProperty);
+        //                 })
+        //                 ->select('property_options.value', 'product_filter_index.value_slug')
+        //                 ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+        //                 ->whereNull('products.deleted_at')
+        //                 ->groupBy('property_options.value', 'product_filter_index.value_slug')
+        //                 ->orderByDesc('cnt')
+        //                 ->limit($limit)
+        //                 ->get();
 
-                    foreach ($lineups as $lineup) {
-                        // URL: сбрасываем всё, ставим только бренд + линейку
-                        $tags->push([
-                            'label'    => $lineup->value,
-                            'url'      => route('catalog.subcategory.brand', [
-                                ...$routeParams,
-                                $activeBrand,
-                            ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
-                            'type'     => 'lineup',
-                            'active'   => $activeLineup === $lineup->value_slug,
-                            // URL для сброса этого тега (только бренд без линейки)
-                            'reset_url' => route('catalog.subcategory.brand', [
-                                ...$routeParams,
-                                $activeBrand,
-                            ]),
-                        ]);
-                    }
-                }
-            }
+        //             foreach ($lineups as $lineup) {
+        //                 // URL: сбрасываем всё, ставим только бренд + линейку
+        //                 $tags->push([
+        //                     'label'    => $lineup->value,
+        //                     'url'      => route('catalog.subcategory.brand', [
+        //                         ...$routeParams,
+        //                         $activeBrand,
+        //                     ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
+        //                     'type'     => 'lineup',
+        //                     'active'   => $activeLineup === $lineup->value_slug,
+        //                     // URL для сброса этого тега (только бренд без линейки)
+        //                     'reset_url' => route('catalog.subcategory.brand', [
+        //                         ...$routeParams,
+        //                         $activeBrand,
+        //                     ]),
+        //                 ]);
+        //             }
+        //         }
+        //     }
 
-            return $tags->take($limit);
-        }
+        //     return $tags->take($limit);
+        // }
 
-        // ── Если выбрана линейка — показываем теги этой же линейки (или сброс) ──
-        if ($activeLineup) {
-            // Просто возвращаем пустую коллекцию — блок скрывается
-            // или можно показать кнопку «Показать все» — на твоё усмотрение
-            return collect();
-        }
+        // // ── Если выбрана линейка — показываем теги этой же линейки (или сброс) ──
+        // if ($activeLineup) {
+        //     // Просто возвращаем пустую коллекцию — блок скрывается
+        //     // или можно показать кнопку «Показать все» — на твоё усмотрение
+        //     return collect();
+        // }
 
         // ── Исходное состояние — стандартный набор тегов ─────────────
         // Статичные сортировки
-        $tags->push(['label' => 'Популярные', 'url' => $baseUrl . '?sort=popular',    'type' => 'sort',  'active' => false]);
-        $tags->push(['label' => 'Недорогие',  'url' => $baseUrl . '?sort=price_asc',  'type' => 'sort',  'active' => false]);
+        $tags->push(['label' => 'Популярные', 'url' => $baseUrl . '?sort=popular',    'type' => 'sort',  'active' => $activeSortValue === 'popular']);
+        $tags->push(['label' => 'Недорогие',  'url' => $baseUrl . '?sort=price_asc',  'type' => 'sort',  'active' => $activeSortValue === 'price_asc']);
 
         // Бренды
         $brandCounts = DB::table('product_filter_index')
@@ -776,7 +785,7 @@ class CatalogFilterService
                 'label'  => $brand->title,
                 'url'    => $brandUrl,
                 'type'   => 'brand',
-                'active' => false,
+                'active' => $activeBrandSlug === $brand->slug,
             ]);
         }
 
@@ -804,7 +813,7 @@ class CatalogFilterService
                         'f' => ['lineup' => [$lineup->value_slug]]
                     ]),
                     'type'   => 'lineup',
-                    'active' => false,
+                    'active' => $activeLineupSlug === $lineup->value_slug,
                 ]);
             }
         }
@@ -841,7 +850,7 @@ class CatalogFilterService
                         'f' => [$propSlug => [$option->value_slug]]
                     ]),
                     'type'   => 'property',
-                    'active' => false,
+                    'active' => in_array($option->value_slug, (array)($filters['f'][$propSlug] ?? [])),
                 ]);
             }
         }
@@ -877,6 +886,8 @@ class CatalogFilterService
                 ->orderByDesc('cnt')
                 ->limit(5)
                 ->get();
+
+            Log::info('range values for ' . $propSlug, $topValues->toArray());
 
             $activeRangeMin = $filters['f_' . $propSlug . '_min'] ?? null;
             $activeRangeMax = $filters['f_' . $propSlug . '_max'] ?? null;
@@ -914,6 +925,8 @@ class CatalogFilterService
                 ->where('product_filter_index.property_id', $prop->id)
                 ->where('product_filter_index.value_slug', 'yes')
                 ->exists();
+
+            Log::info('toggle hasVariants ' . $propSlug, ['exists' => $hasVariants]);
 
             if (!$hasVariants) continue;
 
