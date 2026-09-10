@@ -46,17 +46,56 @@ class CartService
     public function add($variantId, $quantity = 1)
     {
         if (Auth::check()) {
-            $item = CartItem::firstOrCreate([
+            // Ищем существующий или создаем новый объект в памяти
+            $item = CartItem::firstOrNew([
                 'user_id' => Auth::id(),
                 'product_variant_id' => $variantId,
             ]);
-            $item->increment('quantity', $quantity);
+
+            // Если запись новая, то $item->quantity будет null (или 0),
+            // если старая — будет текущее значение.
+            // Мы просто присваиваем новое значение.
+            $item->quantity = ($item->quantity ?? 0) + $quantity;
+            
+            $item->save();
         } else {
             $cart = session()->get('cart', []);
             $cart[$variantId] = ($cart[$variantId] ?? 0) + $quantity;
             session()->put('cart', $cart);
         }
     }
+
+    // ниже другая версия метода update() - в ней «явный» (explicit) подход. Он чуть быстрее, так как выполняет либо update (через increment), либо create. 
+    // Это меньше работы для Eloquent (меньше проверок свойств модели). Мы явно разделяем: «есть товар — увеличиваем, нет — создаем».
+    // public function add($variantId, $quantity = 1)
+    // {
+    //     if (Auth::check()) {
+    //         $item = CartItem::where('user_id', Auth::id())
+    //                         ->where('product_variant_id', $variantId)
+    //                         ->first();
+
+    //         if ($item) {
+    //             // Если товар уже есть — просто прибавляем количество
+    //             $item->increment('quantity', $quantity);
+    //         } else {
+    //             // Если товара нет — создаем новую запись.
+    //             // При создании запись получит quantity=1 из БД (по дефолту), 
+    //             // поэтому если пришло $quantity=1, мы ничего больше не делаем.
+    //             // А если $quantity > 1 (например, кнопка с выбором кол-ва), правим сразу.
+    //             $item = CartItem::create([
+    //                 'user_id' => Auth::id(),
+    //                 'product_variant_id' => $variantId,
+    //                 'quantity' => $quantity // Запишем переданное количество (или 1)
+    //             ]);
+    //         }
+    //     } else {
+    //         // Логика для сессии
+    //         $cart = session()->get('cart', []);
+    //         $cart[$variantId] = ($cart[$variantId] ?? 0) + $quantity;
+    //         session()->put('cart', $cart);
+    //     }
+    // }
+
 
     public function update($itemId, $quantity)
     {
@@ -145,5 +184,14 @@ class CartService
         // Для гостей проверяем массив в сессии
         $cart = session()->get('cart', []);
         return isset($cart[$variantId]);
+    }
+
+    /**
+     * Возвращает количество товаров в корзине (сумма quantity всех товаров) длля отображения около ссылки-иконки КОРЗИНА в шапке сайта.
+     */
+    public function count(): int
+    {
+        // Используем наш метод items(), который уже умеет работать и с БД, и с сессией
+        return $this->items()->sum('quantity');
     }
 }

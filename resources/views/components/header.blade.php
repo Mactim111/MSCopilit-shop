@@ -110,10 +110,27 @@
             @endauth
 
             {{-- Корзина --}}
-            <a href="/cart" class="hover:text-red-600 flex items-center  flex-col">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart3 text-xl font-semibold" viewBox="0 0 16 16">
-                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                </svg>
+            @php
+                // Внедряем сервис, чтобы узнать количество (так как это Header, он должен быть доступен везде)
+                $cartCount = app(App\Services\CartService::class)->count();
+            @endphp
+
+            <a href="{{ route('cart.index') }}" class="hover:text-red-600 flex items-center flex-col relative">
+                {{-- Обертка для иконки, чтобы позиционировать цифру --}}
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart3 text-xl font-semibold" viewBox="0 0 16 16">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                    </svg>
+
+                    {{-- Кружок с цифрой (появляется только если товаров > 0) --}}
+                    @if($cartCount > 0)
+                        <span class="absolute top-[-2px] -right-2 flex items-center justify-center 
+                                    min-w-[18px] h-[18px] bg-[#DC092E] text-white text-[9px] 
+                                    font-bold rounded-full leading-none z-10">
+                            {{ $cartCount > 99 ? '99+' : $cartCount }}
+                        </span>
+                    @endif
+                </div>
                 <span class="text-[10px]">Корзина</span>
             </a>
 

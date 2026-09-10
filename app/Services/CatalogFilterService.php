@@ -863,7 +863,7 @@ class CatalogFilterService
             ->where('used_for_filters', 1)
             ->get()->keyBy('slug');
 
-        Log::info('rangeProps keys', $rangeProps->keys()->toArray());
+        // Log::info('rangeProps keys', $rangeProps->keys()->toArray());
 
         foreach ($rangeSlugs as $propSlug) {
             $prop = $rangeProps->get($propSlug);
@@ -887,7 +887,7 @@ class CatalogFilterService
                 ->limit(5)
                 ->get();
 
-            Log::info('range values for ' . $propSlug, $topValues->toArray());
+            // Log::info('range values for ' . $propSlug, $topValues->toArray());
 
             $activeRangeMin = $filters['f_' . $propSlug . '_min'] ?? null;
             $activeRangeMax = $filters['f_' . $propSlug . '_max'] ?? null;
@@ -916,7 +916,7 @@ class CatalogFilterService
 
         foreach ($toggleSlugs as $propSlug) {
             $prop = $toggleProps->get($propSlug);
-            Log::info('toggle prop', ['slug' => $propSlug, 'found' => $prop ? 'yes' : 'null']);
+            // Log::info('toggle prop', ['slug' => $propSlug, 'found' => $prop ? 'yes' : 'null']);
             if (!$prop) continue;
 
             // Проверяем что такие варианты вообще есть в категории
@@ -926,7 +926,7 @@ class CatalogFilterService
                 ->where('product_filter_index.value_slug', 'yes')
                 ->exists();
 
-            Log::info('toggle hasVariants ' . $propSlug, ['exists' => $hasVariants]);
+            // Log::info('toggle hasVariants ' . $propSlug, ['exists' => $hasVariants]);
 
             if (!$hasVariants) continue;
 
