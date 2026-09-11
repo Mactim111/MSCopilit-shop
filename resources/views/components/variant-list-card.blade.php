@@ -117,7 +117,8 @@
 
                 @if($inCart)
                     <a href="{{ route('cart.index') }}"
-                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer">
+                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer
+                       hover:bg-red-500 hover:text-white">
                         В корзине
                     </a>
                 @else

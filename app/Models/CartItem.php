@@ -9,10 +9,12 @@ class CartItem extends Model
 
     protected $fillable = ['user_id', 'product_variant_id', 'quantity'];
 
+    // связь с ProductVariant
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
+    
     // public function getSubtotalAttribute()
     // {
     //     return $this->variant->price * $this->quantity;

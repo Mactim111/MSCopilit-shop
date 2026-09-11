@@ -47,7 +47,7 @@ class PageSectionSeeder extends Seeder
                 'show_tags'   => true,
                 'order'       => 30,
             ],
-            // 4. Двойной баннер под Хитами
+            // 4. Двойной баннер под Хитами продаж
             [
                 'page_name'   => 'home',
                 'title'       => null,
@@ -67,7 +67,7 @@ class PageSectionSeeder extends Seeder
                 'show_tags'   => true,
                 'order'       => 50,
             ],
-            // 6. Баннер новинок
+            // 6. Двойной Баннер новинок
             [
                 'page_name'   => 'home',
                 'title'       => null,

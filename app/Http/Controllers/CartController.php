@@ -13,7 +13,7 @@ class CartController extends Controller
 
     public function index()
     {   
-    return view('cart.index', [
+        return view('cart.index', [
             'items' => $this->cart->items(),
             'formattedTotal' => $this->cart->formattedTotal(28, 28),
         ]);
@@ -21,19 +21,35 @@ class CartController extends Controller
 
     public function add(ProductVariant $variant)
     {
+        // Добавляем товар через сервис.
+        // Сервис внутри себя сам проверит наличие (stock - reserved)
         $this->cart->add($variant->id);
-        return back()->with(['success'=> 'Товар добавлен в корзину', 'added' => true]);
+        
+        return back()->with(['success' => 'Товар добавлен в корзину', 'added' => true]);
     }
 
-    public function update(Request $request, $id) // Убрали тип CartItem
+    public function update(Request $request, $id)
     {
         $request->validate(['quantity' => 'required|integer|min:1']);
-        $this->cart->update($id, $request->quantity);
 
+        /**
+         * КЛЮЧЕВОЙ МОМЕНТ:
+         * Вызываем update из сервиса.
+         * Если сервис вернет объект RedirectResponse (значит была ошибка лимита),
+         * то мы возвращаем его пользователю.
+         */
+        $result = $this->cart->update($id, $request->quantity);
+
+        // Если сервис вернул редирект (с ошибкой "Недоступно"), отдаем его пользователю
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+
+        // Если все прошло успешно — стандартное сообщение
         return back()->with('success', 'Количество обновлено');
     }
 
-    public function remove($id) // Убрали тип CartItem
+    public function remove($id)
     {
         $this->cart->remove($id);
         return back()->with('success', 'Товар удалён');

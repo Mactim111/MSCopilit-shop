@@ -78,29 +78,6 @@ class OrderController extends Controller
                 $address = $user->addresses()->findOrFail($data['address_id']);
                 $addressText = $address->address_line; 
             } 
-            // if ($addressId) {
-            //     $address = $user->addresses()->findOrFail($addressId);
-
-            //     $addressText = "{$address->address_line}, {$address->city}, {$address->state} {$address->zip}, {$address->country}";
-            // }
-
-            /**
-             * Если выбран новый адрес
-             */
-            // else {
-            //     $addressText = $data['address'];
-
-            //     $new = $user->addresses()->create([
-            //         'label'        => 'Новый адрес',
-            //         'address_line' => $addressText,
-            //         'city'         => '—',
-            //         'state'        => null,
-            //         'zip'          => null,
-            //         'country'      => '—',
-            //     ]);
-
-            //     $addressId = $new->id;
-            // }
 
             /**
              * Создание заказа
@@ -122,6 +99,9 @@ class OrderController extends Controller
              * Создание позиций заказа
              */
             foreach ($items as $item) {
+                // КЛЮЧЕВОЙ МОМЕНТ: Резервируем товар
+                $item->variant->increment('reserved', $item->quantity);
+                
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_variant_id' => $item->product_variant_id,

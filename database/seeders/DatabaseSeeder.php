@@ -31,12 +31,48 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true, 
         ]);
 
-        // Создаем Юзера
+        // Создаем Юзера 1
         User::factory()->create([
             'name' => 'Ivan',
             'email' => 'ivan@mail.ru',
             'email_verified_at' => now(),
-            'password' => Hash::make('00000000'),
+            'password' => Hash::make('11111111'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false, 
+        ]);
+        // Создаем Юзера 2
+        User::factory()->create([
+            'name' => 'Peter',
+            'email' => 'peter@mail.ru',
+            'email_verified_at' => now(),
+            'password' => Hash::make('11111111'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false, 
+        ]);
+        // Создаем Юзера 3
+        User::factory()->create([
+            'name' => 'Sidor',
+            'email' => 'sidor@mail.ru',
+            'email_verified_at' => now(),
+            'password' => Hash::make('11111111'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false, 
+        ]);
+        // Создаем Юзера 4
+        User::factory()->create([
+            'name' => 'Gleb',
+            'email' => 'gleb@mail.ru',
+            'email_verified_at' => now(),
+            'password' => Hash::make('11111111'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false, 
+        ]);
+        // Создаем Юзера 5
+        User::factory()->create([
+            'name' => 'Igor',
+            'email' => 'igor@mail.ru',
+            'email_verified_at' => now(),
+            'password' => Hash::make('11111111'),
             'remember_token' => Str::random(10),
             'is_admin' => false, 
         ]);
@@ -56,6 +92,7 @@ class DatabaseSeeder extends Seeder
             ProductVariantPropertyOptionsSeeder::class,
             FrontendImagesSeeder::class,
             PageSectionSeeder::class,
+            AdressSeeder::class,
         ]);
     }
 }

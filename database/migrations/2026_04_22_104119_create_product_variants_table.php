@@ -20,8 +20,9 @@ return new class extends Migration
             $table->text('excerpt')->nullable();
             $table->text('description')->nullable();           
             $table->decimal('price', 8, 2);
-            $table->decimal('old_price', 8, 2)->default(0);
-            $table->integer('stock')->default(0);
+            $table->decimal('old_price', 8, 2)->default(0); // cтарая цена (для отображения скидки)
+            $table->integer('stock')->default(0); // количество на складе
+            $table->integer('reserved')->default(0); // Зарезервировано в новых/оплаченных заказах
             // ниже поле для обозначения позиции ВАРИАНТА ТОВАРА при выводе ВСЕХ! ВАРИАНТОВ ТОВАРОВ (ПОРЯДКА ИХ ВЫВОДА НА СТРАНИЦЕ)
             // по аналогии с полем 'position' в таблице ГАЛЕРЕИ ИЗОБРАЖЕНИЙ для определения Порядка Вывода картинок в Галерее на странице ВАРИАНТА ТОВАРА
             $table->integer('position')->default(0);
