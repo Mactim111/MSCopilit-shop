@@ -54,4 +54,44 @@ class CartController extends Controller
         $this->cart->remove($id);
         return back()->with('success', 'Товар удалён');
     }
+
+    public function batchActions(Request $request)
+    {
+        $action = $request->input('action'); 
+        $ids = $request->input('items', []);
+
+        // ЕСЛИ ACTION ПУСТ, но пришли количества — значит это обновление
+        if (empty($action) && $request->has('quantities')) {
+            $action = 'update';
+        }
+
+        // 1. Массовое удаление
+        if ($action === 'delete') {
+            foreach($ids as $id) { $this->cart->remove($id); }
+            return back()->with('success', 'Выбранные товары удалены');
+        }
+
+        // 2. Удаление одного товара
+        if (str_starts_with($action, 'remove_')) {
+            $itemId = str_replace('remove_', '', $action);
+            $this->cart->remove($itemId);
+            return back()->with('success', 'Товар удалён');
+        }
+
+        // 3. Обновление количества
+        if ($action === 'update') {
+            foreach ($request->input('quantities', []) as $id => $quantity) {
+                $this->cart->update($id, $quantity);
+            }
+            return back()->with('success', 'Количество обновлено');
+        }
+
+        // 4. Оформление
+        if ($action === 'checkout') {
+            return redirect()->route('orders.checkout', ['items' => $ids]);
+        }
+
+        return back();
+    }
+
 }

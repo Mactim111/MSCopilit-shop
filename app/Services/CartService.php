@@ -14,10 +14,10 @@ class CartService
      * Мы "приводим" данные из сессии к виду модели CartItem для совместимости.
      */
 
-    public function items(): \Illuminate\Support\Collection
+    public function items(): Collection
     {
         if (Auth::check()) {
-            return \App\Models\CartItem::where('user_id', Auth::id())->with('variant')->get();
+            return CartItem::where('user_id', Auth::id())->with('variant')->get();
         }
 
         // Логика для гостей
@@ -25,10 +25,10 @@ class CartService
         $items = collect();
 
         foreach ($sessionCart as $variantId => $quantity) {
-            $variant = \App\Models\ProductVariant::find($variantId);
+            $variant = ProductVariant::find($variantId);
             if ($variant) {
                 // 1. Создаем объект модели
-                $item = new \App\Models\CartItem([
+                $item = new CartItem([
                     'product_variant_id' => $variantId,
                     'quantity' => $quantity,
                 ]);
@@ -45,6 +45,8 @@ class CartService
 
 
     // для логики действия кнопок «В корзину»
+    // внутри add мы тоже используем min($quantity, $available), чтобы даже при быстром клике по кнопке "Добавить" в карточке нельзя было добавить больше, 
+    // чем есть на складе
     public function add($variantId, $quantity = 1)
     {
         $variant = ProductVariant::findOrFail($variantId);
@@ -82,6 +84,7 @@ class CartService
     }
 
     // для заполнения покупателем полей ввода для количества вариантов товара в корзине
+    // метод возвращает после ввода количества в поле либо redirect, либо null, что позволяет CartController принять решение:  показать ошибку или успех
     public function update($itemId, $quantity)
     {
         // Определяем variant и текущий item
@@ -105,6 +108,7 @@ class CartService
                 $cart[$variant->id] = $finalQuantity;
                 session()->put('cart', $cart);
             }
+            // ВОЗВРАЩАЕМ РЕДИРЕКТ, чтобы контроллер мог его пробросить
             return redirect()->back()->with('error', "Доступно только: {$available} шт.");
         }
 
@@ -116,6 +120,9 @@ class CartService
             $cart[$variant->id] = $quantity;
             session()->put('cart', $cart);
         }
+
+        return null; // Успешное выполнение
+
     }
 
     public function remove($itemId)

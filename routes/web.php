@@ -46,6 +46,8 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{variant}', [CartController::class, 'add'])->name('cart.add');
 Route::put('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update'); // Заменили {item} на {id}
 Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove'); // Заменили {item} на {id}
+// «умный» маршрут для JS-ЛОГИКИ на странице корзины (установка чебоксов в карточках,массовое удаление выбранных товаров и т.д.)
+Route::post('/cart/batch-actions', [CartController::class, 'batchActions'])->name('cart.batch-actions');
 
 // --- ЗАКАЗЫ (вынесли из группы auth, чтобы гости могли покупать) ---
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');

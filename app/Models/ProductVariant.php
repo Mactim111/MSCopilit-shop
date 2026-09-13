@@ -234,14 +234,10 @@ class ProductVariant extends Model
      |  УДОБНЫЕ АТРИБУТЫ
      |------------------------------------------*/
 
-    public function inStock(): bool
+    // получить доступное для ЗАКАЗА количество нужного варианта товара на складе с учетом УЖЕ зарезервированного в других незавершенных заказах (reserved)
+    public function getAvailableStockAttribute(): int
     {
-        return $this->stock > 0;
-    }
-
-    public function isAvailable(): bool
-    {
-        return $this->stock > 0;
+        return max(0, $this->stock - $this->reserved);
     }
 
     // НОВЫЕ ВАРИАНТЫ МЕТОДОВ - НА БУДУЩЕЕ, ВОЗМОЖНО ПРИГОДЯТСЯ
