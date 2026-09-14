@@ -86,7 +86,7 @@
                             </a>
 
                             {{-- Цена + кнопка --}}
-                            <div class="grid grid-cols-2 gap-4 items-start">
+                            <div class="grid grid-cols-2 gap-2 items-start">
 
                                 <div class="min-h-[50px] flex flex-col justify-start">
                                     <div class="text-[30px] font-bold text-gray-900">
@@ -94,7 +94,7 @@
                                     </div>
 
                                     @if($variant->old_price > 0)
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-1">
                                         <span class="text-gray-400 text-[15px] line-through decoration-gray-500 font-semibold">
                                             {!! $variant->formattedOldPrice(15, 15) !!}
                                         </span>

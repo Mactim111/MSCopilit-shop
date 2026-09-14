@@ -188,7 +188,7 @@ class ProductVariant extends Model
     }
 
     /**
-     * Форматированная цена с управляемыми размерами шрифта для целой и дробной части.
+     * Форматированные цены - СТАРАЯ и НОВАЯ - с управляемыми размерами шрифта для целой и дробной части.
      * 
      * @param int $wholeFontSize Размер шрифта целой части (в px), по умолчанию 30
      * @param int $fractionFontSize Размер шрифта дробной части (в px), по умолчанию 19
@@ -204,7 +204,7 @@ class ProductVariant extends Model
         $price = number_format($this->price, 2, '.', ' ');
         [$whole, $fraction] = explode('.', $price);
 
-        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
+        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span><i class=\"nbrb-icon\">BYN</i>";
     }
 
     /**
@@ -227,8 +227,28 @@ class ProductVariant extends Model
         $price = number_format($this->old_price, 2, '.', ' ');
         [$whole, $fraction] = explode('.', $price);
 
-        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
+        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span><i class=\"nbrb-icon\">BYN</i>";
     }
+
+    // Ниже рефакторинг методов выше - отделили форматирование ЦЕН от самого получения цен!
+    // public function formattedPrice(int $wholeFontSize = 30, int $fractionFontSize = 19): string
+    // {
+    //     return $this->formatPriceDisplay($this->price, $wholeFontSize, $fractionFontSize);
+    // }
+
+    // public function formattedOldPrice(int $wholeFontSize = 30, int $fractionFontSize = 19): string
+    // {
+    //     if (!$this->old_price || $this->old_price <= 0) return '';
+    //     return $this->formatPriceDisplay($this->old_price, $wholeFontSize, $fractionFontSize);
+    // }
+
+    // Тот самый "движок", который один раз описан и работает для всех
+    // private function formatPriceDisplay(float $value, int $w, int $f): string
+    // {
+    //     $formatted = number_format($value, 2, '.', ' ');
+    //     [$whole, $fraction] = explode('.', $formatted);
+    //     return "<span style=\"font-size: {$w}px;\">{$whole}</span><span style=\"font-size: {$f}px;\">.</span><span style=\"font-size: {$f}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
+    // }
 
     /* -----------------------------------------
      |  УДОБНЫЕ АТРИБУТЫ

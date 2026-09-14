@@ -43,13 +43,17 @@ $isAvailable = $available > 0;
             value="{{ $item->quantity }}"
             form="cart-form" 
             onchange="document.getElementById('cart-action').value='update'; this.form.submit()"
-            class="w-[80px] h-[40px] border border-gray-300 rounded-lg text-center {{ !$isAvailable ? 'opacity-50' : '' }}"
+            class="w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center {{ !$isAvailable ? 'opacity-50' : '' }}"
             {{ !$isAvailable ? 'disabled' : '' }}>
     </div>
 
     <!-- Стоимость -->
     <div class="w-[150px] flex justify-end">
-        <!-- Обертка, которая держит обе строки вместе и прижимает их вправо -->
+        <!-- 
+            Обертка flex-col items-start: 
+            Прижимает начало обеих строк к одной вертикальной линии (к левой стороне этой обертки).
+            flex justify-end (выше): Прижимает всю эту "пачку" к правому краю ячейки.
+        -->
         <div class="flex flex-col items-start">
             
             <!-- Верхняя строка (Цена) -->
@@ -61,7 +65,7 @@ $isAvailable = $available > 0;
             @if($item->variant->old_price > $item->variant->price)
                 <div class="flex items-center gap-2 mt-[2px]">
                     <span class="text-gray-400 text-[14px] line-through decoration-gray-400 font-semibold">
-                        {!! $item->variant->formattedOldPrice(14, 14) !!}
+                        {!! $item->formattedOldSubtotal(14, 14) !!}
                     </span>
                     @if($item->variant->discount_percent)
                         <span class="text-red-600 text-[14px] font-bold">
