@@ -18,7 +18,7 @@
 
         <span class="text-[14px] text-[#231F20] mr-[8px]">Сортировка:</span>
 
-        <span id="sort-current" class="text-[14px] text-[#007EFF]">
+        <span id="sort-current" class="text-[14px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer">
             {{ $sortOptions[$sort] }}
         </span>
 

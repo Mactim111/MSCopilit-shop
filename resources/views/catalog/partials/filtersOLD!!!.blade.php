@@ -66,7 +66,7 @@
 <hr class="border-t border-dashed border-gray-300 w-[316px]">
 
 <div class="w-[316px] h-[44px] pt-[12px] pb-[14px]">
-    <a href="#" class="flex text-[15px] text-[#007EFF]">Посмотреть все
+    <a href="#" class="flex text-[15px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer">Посмотреть все
         <span class="w-[13px] h-[13px] pt-[5px]">@include('products.icons.chevron-down')</span>
     </a>
 </div>

@@ -8,7 +8,7 @@
     {{-- вместо ID , который может дублироваться при AJAX‑замене HTML, при этом может быть так, что обработчики на ID теряются и 
     ID ломает делегирование событий, для кнопки устанавливаем атрибут, работающий как «маркер», чтобы найти кнопку через closest() --}}
     <button data-show-more
-            class="text-[15px] text-[#007EFF] cursor-pointer">
+            class="text-[15px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer">
         Показать ещё
     </button>
 

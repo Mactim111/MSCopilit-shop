@@ -6,7 +6,6 @@
 
     @if($items->isEmpty())
         {{-- ЗАГЛУШКА ПУСТОЙ КОРЗИНЫ --}}
-        {{-- ВАРИАНТ ПУСТОЙ КОРЗИНЫ --}}
         <div class="flex flex-col">
             <p class="text-[28px] text-[#231f20] mb-5 font-bold">В корзине еще нет товаров</p>
             <a href="{{ route('catalog.index') }}"
@@ -36,13 +35,13 @@
                             <label for="select-all" class="ml-[10px] text-[15px] font-medium text-[#231f20] cursor-pointer">Выбрать все</label>
                         </div>
                         <button type="submit" name="action" value="delete" 
-                                class="text-[15px] text-[#007eff] hover:underline">
+                                class="text-[15px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200">
                             Удалить выбранное
                         </button>
                     </div>
-                    <div class="border-t border-dashed border-gray-300 w-full mb-4"></div>
+                    <div class="border-t border-dashed border-gray-300 w-full"></div>
 
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                    <div>
                         @foreach($items as $item)
                             <x-cart-item :item="$item" />
                         @endforeach
@@ -55,7 +54,7 @@
                 <div class="sticky top-20 border border-gray-200 rounded-xl px-[24px] py-[16px] bg-white shadow-sm">
                     <div class="flex justify-between items-center mb-4 pb-4 border-b border-dashed border-gray-200">
                         <span class="text-[15px]">Товары ({{ $items->sum('quantity') }})</span>
-                        <span class="font-bold text-[15px]">{!! $formattedTotal !!}</span>
+                        <span class="font-bold text-3xl">{!! $formattedTotal !!}</span>
                     </div>
                     <div class="flex justify-between text-[28px] font-bold mb-6">
                         <span>Итого:</span> 

@@ -204,7 +204,7 @@ class ProductVariant extends Model
         $price = number_format($this->price, 2, '.', ' ');
         [$whole, $fraction] = explode('.', $price);
 
-        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span><i class=\"nbrb-icon\">BYN</i>";
+        return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
     }
 
     /**
@@ -233,8 +233,14 @@ class ProductVariant extends Model
     /* -----------------------------------------
      |  УДОБНЫЕ АТРИБУТЫ
      |------------------------------------------*/
-
-    // получить доступное для ЗАКАЗА количество нужного варианта товара на складе с учетом УЖЕ зарезервированного в других незавершенных заказах (reserved)
+    // Проверяем доступность варианта товара для заказа
+    public function scopeAvailable($query)
+    {
+        // Используем raw-выражение для производительности БД
+        return $query->whereRaw('(stock - reserved) > 0');
+    }
+    
+     // получить доступное для ЗАКАЗА количество нужного варианта товара на складе с учетом УЖЕ зарезервированного в других незавершенных заказах (reserved)
     public function getAvailableStockAttribute(): int
     {
         return max(0, $this->stock - $this->reserved);

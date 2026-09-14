@@ -138,7 +138,7 @@
     @if($hasActiveFilters)
         <button id="clear-filters-top"
                 type="button"
-                class="text-[14px] text-[#007EFF] pt-[2px]">
+                class="text-[14px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer pt-[2px]">
             Очистить фильтры
         </button>
     @endif

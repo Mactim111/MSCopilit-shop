@@ -96,7 +96,7 @@
             <button
                 type="button"
                 x-show="open"
-                class="flex items-center gap-[4px] text-[14px] text-[#007EFF] mt-[4px]"
+                class="flex items-center gap-[4px] text-[14px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer mt-[4px]"
                 x-data="{ expanded: false }"
                 @click="
                     expanded = !expanded;

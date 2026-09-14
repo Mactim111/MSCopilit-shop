@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Models\CartItem;
 use App\Models\ProductVariant;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class CartService
 {
@@ -49,38 +50,46 @@ class CartService
     // чем есть на складе
     public function add($variantId, $quantity = 1)
     {
-        $variant = ProductVariant::findOrFail($variantId);
-        $available = $variant->stock - $variant->reserved;
+        // Используем транзакцию, чтобы заблокировать строку товара в БД
+        return DB::transaction(function () use ($variantId, $quantity) {
+            
+            // Блокируем строку товара для обновления (lockForUpdate)
+            // Это предотвратит одновременную покупку одного и того же товара разными юзерами
+            $variant = ProductVariant::where('id', $variantId)->lockForUpdate()->firstOrFail();
+            
+            $available = $variant->stock - $variant->reserved;
 
-        if (Auth::check()) {
-            $item = CartItem::where('user_id', Auth::id())
-                            ->where('product_variant_id', $variantId)
-                            ->first();
+            // 1. ЖЕСТКАЯ ПРОВЕРКА: Если товара нет — выбрасываем исключение или просто выходим
+            if ($available <= 0) {
+                return; 
+            }
 
-            if ($item) {
-                // Проверяем, не превысим ли лимит при добавлении
-                $newQuantity = $item->quantity + $quantity;
-                if ($newQuantity > $available) {
-                    // Если нельзя добавить — ставим максимум (доступный остаток)
-                    $item->update(['quantity' => $available > 0 ? $available : $item->quantity]);
+            if (Auth::check()) {
+                $item = CartItem::where('user_id', Auth::id())
+                                ->where('product_variant_id', $variantId)
+                                ->first();
+
+                if ($item) {
+                    // Вычисляем новое количество, но не больше доступного
+                    $newQuantity = min($item->quantity + $quantity, $available);
+                    $item->update(['quantity' => $newQuantity]);
                 } else {
-                    $item->increment('quantity', $quantity);
+                    // Создаем с учетом доступности (min(запрос, доступное))
+                    CartItem::create([
+                        'user_id' => Auth::id(),
+                        'product_variant_id' => $variantId,
+                        'quantity' => min($quantity, $available)
+                    ]);
                 }
             } else {
-                // Если товара нет — создаем с учетом доступности
-                CartItem::create([
-                    'user_id' => Auth::id(),
-                    'product_variant_id' => $variantId,
-                    'quantity' => min($quantity, $available > 0 ? $available : 1)
-                ]);
+                // Логика для сессии (тут сложнее залочить базу, 
+                // поэтому полагаемся на актуальный $available, полученный выше)
+                $cart = session()->get('cart', []);
+                $currentQty = $cart[$variantId] ?? 0;
+                $cart[$variantId] = min($currentQty + $quantity, $available);
+                session()->put('cart', $cart);
             }
-        } else {
-            // Логика для сессии
-            $cart = session()->get('cart', []);
-            $currentQty = $cart[$variantId] ?? 0;
-            $cart[$variantId] = min($currentQty + $quantity, $available > 0 ? $available : 1);
-            session()->put('cart', $cart);
-        }
+        });
     }
 
     // для заполнения покупателем полей ввода для количества вариантов товара в корзине

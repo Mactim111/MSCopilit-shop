@@ -48,8 +48,30 @@ $isAvailable = $available > 0;
     </div>
 
     <!-- Стоимость -->
-    <div class="w-[150px] text-right font-bold text-[24px]">
-        {!! $item->formattedSubtotal(24, 24) !!}
+    <div class="w-[150px] flex justify-end">
+        <!-- Обертка, которая держит обе строки вместе и прижимает их вправо -->
+        <div class="flex flex-col items-start">
+            
+            <!-- Верхняя строка (Цена) -->
+            <div class="font-bold text-[24px]">
+                {!! $item->formattedSubtotal(24, 24) !!}
+            </div>
+
+            <!-- Нижняя строка (Скидка) -->
+            @if($item->variant->old_price > $item->variant->price)
+                <div class="flex items-center gap-2 mt-[2px]">
+                    <span class="text-gray-400 text-[14px] line-through decoration-gray-400 font-semibold">
+                        {!! $item->variant->formattedOldPrice(14, 14) !!}
+                    </span>
+                    @if($item->variant->discount_percent)
+                        <span class="text-red-600 text-[14px] font-bold">
+                            -{{ $item->variant->discount_percent }}%
+                        </span>
+                    @endif
+                </div>
+            @endif
+        </div>
     </div>
+    
 </div>
 

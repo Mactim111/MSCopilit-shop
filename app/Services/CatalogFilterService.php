@@ -505,9 +505,11 @@ class CatalogFilterService
     private function getFilteredVariantIds(Category $subcategory, array $filters): array
     {
         // Стартуем с вариантов подкатегории.
-        $query = ProductVariant::whereHas('product', fn($q) =>
-            $q->where('category_id', $subcategory->id)
-            ->where('is_active', true)
+        // Добавляем ->available(), чтобы фильтровать только доступные для заказа варианты.
+        $query = ProductVariant::available()
+            ->whereHas('product', fn($q) =>
+                $q->where('category_id', $subcategory->id)
+                ->where('is_active', true)
         );
 
         // --- ФИЛЬТР ПО БРЕНДУ ---
@@ -560,28 +562,7 @@ class CatalogFilterService
         }
 
         // Применяем диапазоны
-
-        // !!!ниже код, предложенный Copilot!!! где загрузка $rangeProperties внутри цикла foreach - Это правильно — lazy loading, один запрос на все range-свойства. 
-        // Но можно вынести загрузку $rangeProperties перед циклом для чистоты, как предложил Claude - что мы потом и сделали
-        // $rangeProperties = null;
-
-        // foreach ($rangeFilters as $slug => $bounds) {
-        //     $min = $bounds['min'];
-        //     $max = $bounds['max'];
-
-        //     if ($rangeProperties === null) {
-        //         $rangeProperties = Property::where('type', 'range')
-        //             ->get()->keyBy('slug');
-        //     }
-
-        //     $property = $rangeProperties->get($slug);
-        //     if (!$property) continue;
-
-        //     // ВАЖНО: здесь applyVariantRangeFilter работает по variant_id
-        //     $this->applyVariantRangeFilter($query, $subcategory, $property->id, $min, $max);
-        // }
-
-        // Мы же использовали код от Claude, где он предложил вынести загрузку $rangeProperties перед циклом для чистоты
+        // Вынесли загрузку $rangeProperties перед циклом для чистоты
         // То есть убираем $rangeProperties = null и проверку === null внутри цикла, заменяем на одну проверку !empty($rangeFilters) снаружи. 
         // Запрос к БД выполняется один раз до цикла, а не лениво внутри.
         if (!empty($rangeFilters)) {
@@ -700,70 +681,70 @@ class CatalogFilterService
         // Без фильтров — стандартный набор (бренды, линейки, память, сортировки). Выбрал бренд через тег — показываем ВСЕ ЛИНЕЙКИ этого бренда, каждая линейка ведёт на страницу 
         // с этим брендом + линейкой ТИПА на "brand=xiaomi?f[lineup][]=...."  --- А ЕСЛИ Выбрал после этого ЛИНЕЙКУ в БЛОКЕ ТЕГОВ - и ОН! ПОЛНОСТЬЮ! СКРЫВАЕТСЯ!!! 
         // (или можно например показать «вернуться к брендам»). 
-        // $activeBrand  = $filters['brand'][0] ?? null;  // первый выбранный бренд
-        // $activeLineup = $filters['f']['lineup'][0] ?? null; // первая выбранная линейка
+        $activeBrand  = $filters['brand'][0] ?? null;  // первый выбранный бренд
+        $activeLineup = $filters['f']['lineup'][0] ?? null; // первая выбранная линейка
 
         // ── Если выбран бренд через тег — показываем линейки этого бренда ──
-        // if ($activeBrand && !$activeLineup) {
-        //     // Находим brand_id
-        //     $brandId = DB::table('brands')->where('slug', $activeBrand)->value('id');
+        if ($activeBrand && !$activeLineup) {
+            // Находим brand_id
+            $brandId = DB::table('brands')->where('slug', $activeBrand)->value('id');
 
-        //     if ($brandId) {
-        //         $lineupProperty = DB::table('properties')
-        //             ->where('slug', 'lineup')->value('id');
+            if ($brandId) {
+                $lineupProperty = DB::table('properties')
+                    ->where('slug', 'lineup')->value('id');
 
-        //         if ($lineupProperty) {
-        //             // Линейки только этого бренда
-        //             $lineups = DB::table('product_filter_index')
-        //                 ->where('product_filter_index.category_id', $subcategory->id)
-        //                 ->where('product_filter_index.property_id', $lineupProperty)
-        //                 ->join('products', 'products.id', '=', 'product_filter_index.product_id')
-        //                 ->where('products.brand_id', $brandId)
-        //                 ->join('property_options', function ($join) use ($lineupProperty) {
-        //                     $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
-        //                         ->where('property_options.property_id', '=', $lineupProperty);
-        //                 })
-        //                 ->select('property_options.value', 'product_filter_index.value_slug')
-        //                 ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
-        //                 ->whereNull('products.deleted_at')
-        //                 ->groupBy('property_options.value', 'product_filter_index.value_slug')
-        //                 ->orderByDesc('cnt')
-        //                 ->limit($limit)
-        //                 ->get();
+                if ($lineupProperty) {
+                    // Линейки только этого бренда
+                    $lineups = DB::table('product_filter_index')
+                        ->where('product_filter_index.category_id', $subcategory->id)
+                        ->where('product_filter_index.property_id', $lineupProperty)
+                        ->join('products', 'products.id', '=', 'product_filter_index.product_id')
+                        ->where('products.brand_id', $brandId)
+                        ->join('property_options', function ($join) use ($lineupProperty) {
+                            $join->on('property_options.slug', '=', 'product_filter_index.value_slug')
+                                ->where('property_options.property_id', '=', $lineupProperty);
+                        })
+                        ->select('property_options.value', 'product_filter_index.value_slug')
+                        ->selectRaw('COUNT(DISTINCT product_filter_index.product_variant_id) as cnt')
+                        ->whereNull('products.deleted_at')
+                        ->groupBy('property_options.value', 'product_filter_index.value_slug')
+                        ->orderByDesc('cnt')
+                        ->limit($limit)
+                        ->get();
 
-        //             foreach ($lineups as $lineup) {
-        //                 // URL: сбрасываем всё, ставим только бренд + линейку
-        //                 $tags->push([
-        //                     'label'    => $lineup->value,
-        //                     'url'      => route('catalog.subcategory.brand', [
-        //                         ...$routeParams,
-        //                         $activeBrand,
-        //                     ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
-        //                     'type'     => 'lineup',
-        //                     'active'   => $activeLineup === $lineup->value_slug,
-        //                     // URL для сброса этого тега (только бренд без линейки)
-        //                     'reset_url' => route('catalog.subcategory.brand', [
-        //                         ...$routeParams,
-        //                         $activeBrand,
-        //                     ]),
-        //                 ]);
-        //             }
-        //         }
-        //     }
+                    foreach ($lineups as $lineup) {
+                        // URL: сбрасываем всё, ставим только бренд + линейку
+                        $tags->push([
+                            'label'    => $lineup->value,
+                            'url'      => route('catalog.subcategory.brand', [
+                                ...$routeParams,
+                                $activeBrand,
+                            ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
+                            'type'     => 'lineup',
+                            'active'   => $activeLineup === $lineup->value_slug,
+                            // URL для сброса этого тега (только бренд без линейки)
+                            'reset_url' => route('catalog.subcategory.brand', [
+                                ...$routeParams,
+                                $activeBrand,
+                            ]),
+                        ]);
+                    }
+                }
+            }
 
-        //     return $tags->take($limit);
-        // }
+            return $tags->take($limit);
+        }
 
-        // // ── Если выбрана линейка — показываем теги этой же линейки (или сброс) ──
-        // if ($activeLineup) {
-        //     // Просто возвращаем пустую коллекцию — блок скрывается
-        //     // или можно показать кнопку «Показать все» — на твоё усмотрение
-        //     return collect();
-        // }
+        // ── Если выбрана линейка — показываем теги этой же линейки (или сброс) ──
+        if ($activeLineup) {
+            // Просто возвращаем пустую коллекцию — блок скрывается
+            // или можно показать кнопку «Показать все» — на твоё усмотрение
+            return collect();
+        }
 
         // ── Исходное состояние — стандартный набор тегов ─────────────
         // Статичные сортировки
-        $tags->push(['label' => 'Популярные', 'url' => $baseUrl . '?sort=popular',    'type' => 'sort',  'active' => $activeSortValue === 'popular']);
+        // $tags->push(['label' => 'Популярные', 'url' => $baseUrl . '?sort=popular',    'type' => 'sort',  'active' => $activeSortValue === 'popular']);
         $tags->push(['label' => 'Недорогие',  'url' => $baseUrl . '?sort=price_asc',  'type' => 'sort',  'active' => $activeSortValue === 'price_asc']);
 
         // Бренды
