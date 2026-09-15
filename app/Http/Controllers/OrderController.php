@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Models\CartItem;
 
 class OrderController extends Controller
 {
@@ -21,45 +22,57 @@ class OrderController extends Controller
     /**
      * Страница оформления заказа
      */
-    public function checkout()
+    public function checkout(Request $request)
     {
-        $items = $this->cart->items();
+        // Получаем массив ID из GET-параметров (например, ?items[]=6&items[]=7)
+        $selectedIds = $request->query('items', []); 
+        
+        // Получаем товары из сервиса
+        $allCartItems = $this->cart->items();
+
+        // Фильтруем коллекцию
+        $items = count($selectedIds) > 0 
+            ? $allCartItems->whereIn('id', $selectedIds) 
+            : $allCartItems;
 
         if ($items->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Корзина пуста');
+            return redirect()->route('cart.index')->with('error', 'Корзина пуста или товары не выбраны');
         }
 
-        $user = Auth::user();
-
-        // Безопасное получение адресов: если гость — возвращаем пустую коллекцию
-        $addresses = $user ? $user->addresses()->latest()->get() : collect();
-
-        // По умолчанию выбираем последний сохранённый адрес (только для юзеров)
-        $defaultAddressId = $addresses->first()->id ?? null;
+        // Считаем сумму ТОЛЬКО для выбранных товаров
+        $total = $items->sum(fn($i) => $i->variant->price * $i->quantity);
 
         return view('orders.checkout', [
             'items'            => $items,
-            'total'            => $this->cart->total(),
-            'addresses'        => $addresses,
-            'defaultAddressId' => $defaultAddressId,
+            'selectedIds'      => $selectedIds, // ПЕРЕДАЕМ ID В ШАБЛОН!
+            'total'            => $total,
+            'addresses'        => Auth::user()?->addresses()->latest()->get() ?? collect(),
+            'defaultAddressId' => Auth::user()?->addresses()->latest()->first()->id ?? null,
         ]);
     }
+
 
     /**
      * Создание заказа
      */
     public function store(Request $request)
     {
-        $items = $this->cart->items();
+        // 1. Получаем ID из формы
+        $selectedIds = $request->input('items', []);
+        $allCartItems = $this->cart->items();
+
+        // Фильтруем товары для заказа
+        $items = count($selectedIds) > 0 
+            ? $allCartItems->whereIn('id', $selectedIds) 
+            : $allCartItems;
+
         if ($items->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Корзина пуста');
+            return redirect()->route('cart.index')->with('error', 'Корзина пуста или товары не выбраны!');
         }
 
-        /**
-         * Валидация:
-         * - address обязателен, если НЕ выбран address_id
-         * - address_id должен существовать в таблице addresses
-         */
+        // ВАЖНО: Получаем ID тех записей, которые мы реально собираемся удалить
+        $idsToDelete = $items->pluck('id')->toArray();
+
         $data = $request->validate([
             'address_id' => 'nullable|exists:addresses,id',
             'address'    => 'nullable|required_without:address_id|string|max:500',
@@ -67,39 +80,30 @@ class OrderController extends Controller
             'email'      => 'required|email',
             'phone'      => 'required|string|max:50',
         ]);
-        // dd($data);
 
-        $order = DB::transaction(function () use ($items, $data) {
+        $order = DB::transaction(function () use ($items, $data, $idsToDelete) {
             $user = Auth::user();
-            $addressText = $data['address']; // Текст из textarea
+            $addressText = $data['address'];
 
-            // Если это юзер и он выбрал адрес из списка (радиокнопка)
             if ($user && !empty($data['address_id'])) {
                 $address = $user->addresses()->findOrFail($data['address_id']);
                 $addressText = $address->address_line; 
             } 
 
-            /**
-             * Создание заказа
-             */
             $order = Order::create([
-                // 'user_id'    => $user->id,
-                // 'address_id' => $addressId,
-                'user_id'    => $user?->id, // Запишет ID или NULL
+                'user_id'    => $user?->id,
                 'address_id' => $data['address_id'] ?? null,
                 'name'       => $data['name'],
                 'email'      => $data['email'],
                 'phone'      => $data['phone'],
                 'address'    => $addressText,
-                'total'      => $this->cart->total(),
+                'total'      => $this->cart->total(), // ВНИМАНИЕ: тут $this->cart->total() посчитает ВСЮ корзину!
+                // Лучше считать сумму из $items:
+                'total'      => $items->sum(fn($i) => $i->variant->price * $i->quantity),
                 'status'     => 'new',
             ]);
 
-            /**
-             * Создание позиций заказа
-             */
             foreach ($items as $item) {
-                // КЛЮЧЕВОЙ МОМЕНТ: Резервируем товар
                 $item->variant->increment('reserved', $item->quantity);
                 
                 OrderItem::create([
@@ -112,7 +116,8 @@ class OrderController extends Controller
                 ]);
             }
 
-            $this->cart->clear();
+            // УДАЛЯЕМ ТОЛЬКО ВЫБРАННОЕ
+            $this->cart->removeMany($idsToDelete);
 
             return $order;
         });
@@ -147,6 +152,8 @@ class OrderController extends Controller
         
         return redirect()->route('orders.thanks', ['order' => $order->id]);
     }
+
+    
 
     /**
      * Страница "Спасибо за заказ"

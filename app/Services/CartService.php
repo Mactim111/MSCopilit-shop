@@ -145,6 +145,20 @@ class CartService
         }
     }
 
+    //  метод, который удаляет товары по массиву ID
+    public function removeMany(array $ids)
+    {
+        if (Auth::check()) {
+            CartItem::where('user_id', Auth::id())->whereIn('id', $ids)->delete();
+        } else {
+            $cart = session()->get('cart', []);
+            foreach ($ids as $id) {
+                unset($cart[$id]);
+            }
+            session()->put('cart', $cart);
+        }
+    }
+
     public function clear()
     {
         Auth::check() 

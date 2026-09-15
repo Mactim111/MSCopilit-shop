@@ -6,7 +6,7 @@ $isAvailable = $available > 0;
 @endphp
 
 <div class="flex items-center w-full h-[112px] py-[16px] border-b border-dashed border-gray-200">
-    <!-- Чекбокс привязан к форме cart-form по ID -->
+    <!-- Чекбокс -->
     <div class="w-[30px]">
         <input type="checkbox" name="items[]" value="{{ $item->id }}" form="cart-form"
                {{ !$isAvailable ? 'disabled' : 'checked' }}
@@ -28,8 +28,8 @@ $isAvailable = $available > 0;
             <div class="text-[13px] text-red-600 font-semibold mt-1">Закончился</div>
         @endif
         
-        {{-- Кнопка удаления отдельного товара из корзины --}}
         <button type="submit" 
+                form="cart-form"
                 name="action" 
                 value="remove_{{ $item->id }}"
                 class="text-[13px] text-red-600 hover:underline mt-1 w-fit">
@@ -43,7 +43,7 @@ $isAvailable = $available > 0;
             value="{{ $item->quantity }}"
             form="cart-form" 
             onchange="document.getElementById('cart-action').value='update'; this.form.submit()"
-            class="w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center {{ !$isAvailable ? 'opacity-50' : '' }}"
+            class="w-[80px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center {{ !$isAvailable ? 'opacity-50' : '' }}"
             {{ !$isAvailable ? 'disabled' : '' }}>
     </div>
 

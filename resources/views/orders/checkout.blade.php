@@ -9,6 +9,10 @@
 
         <form action="{{ route('orders.store') }}" method="POST" class="space-y-10">
             @csrf
+            {{-- ПЕРЕДАЕМ ВЫБРАННЫЕ ID В СТОРИ --}}
+            @foreach($selectedIds as $id)
+                <input type="hidden" name="items[]" value="{{ $id }}">
+            @endforeach
 
             {{-- Блок выбора адреса --}}
             <div class="bg-white shadow rounded-xl p-6">

@@ -24,6 +24,7 @@
                     <span class="text-[20px] text-[#8c8c8c]">{{ $items->sum('quantity') }}</span>
                 </div>
 
+                <!-- Форма только для МАССОВЫХ действий (удаление выбранного и переход к заказу) -->
                 <form id="cart-form" action="{{ route('cart.batch-actions') }}" method="POST">
                     @csrf
                     <input type="hidden" name="action" id="cart-action" value="">
@@ -73,13 +74,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const cartForm = document.getElementById('cart-form');
-    if (!cartForm) return; // Если корзина пуста — ничего не делаем
-
     const selectAll = document.getElementById('select-all');
     const checkboxes = document.querySelectorAll('.js-item-checkbox');
-    const cartAction = document.getElementById('cart-action');
-
+    const cartForm = document.getElementById('cart-form');
+    
     // --- Логика "Выбрать все" ---
     if (selectAll) {
         selectAll.addEventListener('change', (e) => {
@@ -89,14 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Логика отправки действий ---
-    cartForm.addEventListener('click', (e) => {
-        // Ищем кнопку, по которой кликнули
-        const btn = e.target.closest('button[type="submit"]');
-        if (!btn || !cartAction) return;
-
-        // Устанавливаем action в скрытое поле
-        cartAction.value = btn.value;
-    });
+    // --- Логика действий ---
+    // Нам больше не нужно искать клик по кнопке, так как кнопка сама 
+    // передает name="action" и value="delete/checkout" при submit формы.
+    // Это стандартное поведение HTML-форм!
 });
 </script>

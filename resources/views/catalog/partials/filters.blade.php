@@ -913,6 +913,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // Добавили новую глобальную функцию из-за проблем в фильтрах типа Checkbox
 // ========================================================================
 function filterCheckboxChange(propertySlug) {
+    // Добавь временно в начало функции:
+    // console.log('keys in url:', [...url.searchParams.keys()]);
+    // console.log('looking for:', 'f[' + propertySlug + '][]');
+
     var checked = [];
     document.querySelectorAll('input[name="f[' + propertySlug + '][]"]')
         .forEach(function(input) {
