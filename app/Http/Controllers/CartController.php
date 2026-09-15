@@ -58,28 +58,15 @@ class CartController extends Controller
     public function batchActions(Request $request)
     {
         $action = $request->input('action'); 
-        $ids = $request->input('items', []); // Это массив ID отмеченных товаров
+        $ids = $request->input('items', []);
 
-        // 1. Обновление (Enter в поле ввода)
-        if ($action === 'update') {
-            foreach ($request->input('quantities', []) as $id => $quantity) {
-                $this->cart->update($id, $quantity);
-            }
-            return back()->with('success', 'Количество обновлено');
-        }
-
-        // 2. Удаление выбранных
         if ($action === 'delete') {
             foreach($ids as $id) { $this->cart->remove($id); }
             return back()->with('success', 'Выбранные товары удалены');
         }
 
-        // 3. Оформление заказа (Берем ТОЛЬКО отмеченные ID)
         if ($action === 'checkout') {
-            if (empty($ids)) {
-                return back()->with('error', 'Выберите товары для оформления');
-            }
-            // Передаем массив ID в чекаут
+            if (empty($ids)) return back()->with('error', 'Выберите товары');
             return redirect()->route('orders.checkout', ['items' => $ids]);
         }
 
