@@ -14,14 +14,16 @@
 
     <!-- Фото -->
     <div class="w-[80px] h-[80px] p-[4px]">
-        <img src="{{ $item->variant->mainImage() }}" alt="{{ $item->variant->title }}"
-            class="w-full h-full object-contain rounded {{ !$isAvailable ? 'grayscale' : '' }}">
+        <a href="{{ route('catalog.variant', $item->variant->slug) }}">
+            <img src="{{ $item->variant->mainImage() }}" alt="{{ $item->variant->title }}"
+                class="w-full h-full object-contain rounded {{ !$isAvailable ? 'grayscale' : '' }}">
+        </a>
     </div>
 
     <!-- Название + Удалить -->
     <div class="w-[540px] pr-[40px] flex flex-col justify-center">
         <span class="font-bold text-[15px] text-[#231F20] {{ !$isAvailable ? 'text-gray-400' : '' }}">
-            {{ $item->variant->title }}
+            <a href="{{ route('catalog.variant', $item->variant->slug) }}">{{ $item->variant->title }}</a>
         </span>
         @if(!$isAvailable)
             <div class="text-[13px] text-red-600 font-semibold mt-1">Закончился</div>
@@ -44,7 +46,7 @@
             <input type="number" name="quantity" min="1"
                 value="{{ $item->quantity }}"
                 onchange="this.form.requestSubmit()"
-                class="w-[80px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center"
+                class="w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center"
                 {{ !$isAvailable ? 'disabled' : '' }}>
         </form>
     </div>

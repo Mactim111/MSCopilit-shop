@@ -34,15 +34,17 @@
 
                         <!-- Фото товара -->
                         <div class="w-24 h-24 flex-shrink-0">
-                            <img src="{{ $item->variant->mainImage() }}"
-                                 class="w-full h-full object-cover rounded-lg shadow-sm">
+                            <a href="{{ route('catalog.variant', $item->variant->slug) }}">
+                                <img src="{{ $item->variant->mainImage() }}"
+                                    class="w-full h-full object-cover rounded-lg shadow-sm">
+                            </a>
                         </div>
 
                         <!-- Информация -->
                         <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-gray-900">
+                            <a href="{{ route('catalog.variant', $item->variant->slug) }}" class="text-lg font-semibold text-gray-900">
                                 {{ $item->variant->title }}
-                            </h3>
+                            </a>
 
                             <p class="text-gray-600 mt-1">
                                 Количество: <span class="font-medium">{{ $item->quantity }}</span>
@@ -50,19 +52,14 @@
 
                             <p class="text-gray-600">
                                 Цена за шт.:
-                                <span class="font-medium">{!! $item->variant->formattedPrice() !!}</span>
+                                <span class="font-medium text-xl">{!! $item->variant->formattedPrice(16, 16) !!}</span>
                             </p>
                         </div>
 
                         <!-- Сумма -->
                         <div class="text-right">
-                            <p class="text-lg font-bold text-gray-900">
-                                @php
-                                    $subtotal = $item->price * $item->quantity;
-                                    $subtotalFormatted = number_format($subtotal, 2, '.', ' ');
-                                    [$whole, $fraction] = explode('.', $subtotalFormatted);
-                                @endphp
-                                {!! $whole . '<span class="text-sm">.</span><span class="text-sm">' . $fraction . '</span> <i class="nbrb-icon">BYN</i>' !!}
+                            <p class="text-xl font-bold text-gray-900">
+                                {!! $item->formattedSubtotal(16, 16) !!}
                             </p>
                         </div>
 
@@ -77,11 +74,9 @@
 
             <div class="flex justify-between text-lg font-medium text-gray-900">
                 <span>Сумма заказа:</span>
-                @php
-                    $totalFormatted = number_format($order->total, 2, '.', ' ');
-                    [$whole, $fraction] = explode('.', $totalFormatted);
-                @endphp
-                <span>{!! $whole . '<span class="text-sm">.</span><span class="text-sm">' . $fraction . '</span> <i class="nbrb-icon">BYN</i>' !!}</span>
+                <p class="text-xl font-bold text-gray-900">
+                    {!! $item->formattedSubtotal(16, 16) !!}
+                </p>
             </div>
         </div>
 

@@ -59,7 +59,7 @@
                 <div class="sticky top-20 border border-gray-200 rounded-xl px-[24px] py-[16px] bg-white shadow-sm">
                     <div class="flex justify-between items-center mb-4 pb-4 border-b border-dashed border-gray-200">
                         <span class="text-[15px]">Товары ({{ $items->sum('quantity') }})</span>
-                        <span class="font-bold text-[15px]">{!! $formattedTotal !!}</span>
+                        <span class="font-bold text-3xl">{!! $formattedTotal !!}</span>
                     </div>
                     <div class="flex justify-between text-[28px] font-bold mb-6">
                         <span>Итого:</span> 
@@ -67,7 +67,7 @@
                     </div>
                     <!-- Кнопка привязана к форме через атрибут form="cart-form" -->
                     <button type="submit" form="cart-form" name="action" value="checkout"
-                            class="block w-full text-center bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition font-bold">
+                            class="block w-full text-center bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition font-bold cursor-pointer">
                         Оформить заказ
                     </button>
                 </div>

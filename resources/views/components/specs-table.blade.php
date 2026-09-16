@@ -62,7 +62,7 @@
 
         {{-- ОБЫЧНАЯ СТРОКА --}}
         @if ($item['type'] === 'item')
-            <div class="flex h-[36px] text-[15px] text-[#231F20] mb-2">
+            <div class="flex h-[36px] text-[15px] text-[#231F20] mb-4">
 
                 {{-- Левая колонка --}}
                 <div class="w-[431px] pl-[17px] pt-[15px] flex items-center">
