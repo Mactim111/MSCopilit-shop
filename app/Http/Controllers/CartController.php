@@ -24,7 +24,26 @@ class CartController extends Controller
     {
         // Добавляем товар через сервис.
         // Сервис внутри себя сам проверит наличие (stock - reserved)
-        $this->cart->add($variant->id);
+        $added = $this->cart->add($variant->id);
+
+        if (!$added) {
+            $message = 'Товар больше недоступен для заказа';
+
+            if (request()->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return back()->with('error', $message);
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => 'Товар добавлен в корзину',
+                'added' => true,
+                'in_cart' => true,
+                'count' => $this->cart->count(),
+            ]);
+        }
         
         return back()->with(['success' => 'Товар добавлен в корзину', 'added' => true]);
     }

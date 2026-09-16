@@ -62,7 +62,8 @@
                     В корзине
                 </a>
             @else
-                <form action="{{ route('cart.add', $variant->id) }}" method="POST">
+                <form action="{{ route('cart.add', $variant->id) }}" method="POST"
+                      data-cart-url="{{ route('cart.index') }}" class="js-cart-add-form">
                     @csrf
                     <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition">
                         Добавить в корзину

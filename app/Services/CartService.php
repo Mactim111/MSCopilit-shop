@@ -49,7 +49,7 @@ class CartService
     // для логики действия кнопок «В корзину»
     // внутри add мы тоже используем min($quantity, $available), чтобы даже при быстром клике по кнопке "Добавить" в карточке нельзя было добавить больше, 
     // чем есть на складе
-    public function add($variantId, $quantity = 1)
+    public function add($variantId, $quantity = 1): bool
     {
         // Используем транзакцию, чтобы заблокировать строку товара в БД
         return DB::transaction(function () use ($variantId, $quantity) {
@@ -62,7 +62,7 @@ class CartService
 
             // 1. ЖЕСТКАЯ ПРОВЕРКА: Если товара нет — выбрасываем исключение или просто выходим
             if ($available <= 0) {
-                return; 
+                return false;
             }
 
             if (Auth::check()) {
@@ -90,6 +90,8 @@ class CartService
                 $cart[$variantId] = min($currentQty + $quantity, $available);
                 session()->put('cart', $cart);
             }
+
+            return true;
         });
     }
 

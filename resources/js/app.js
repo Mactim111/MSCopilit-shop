@@ -12,6 +12,72 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    /*
+     * AJAX-добавление товара из всех трёх карточек:
+     * слайдера, списка вариантов и страницы варианта товара.
+     * Маршрут остаётся тем же, поэтому обычная серверная логика корзины
+     * продолжает работать и без JavaScript.
+     */
+    document.addEventListener('submit', async (event) => {
+        const form = event.target.closest('.js-cart-add-form');
+
+        if (!form) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const button = form.querySelector('button[type="submit"], button:not([type])');
+
+        if (!button || button.disabled) {
+            return;
+        }
+
+        const originalText = button.textContent.trim();
+        button.disabled = true;
+        button.textContent = 'Добавление...';
+
+        try {
+            const response = await fetch(form.action, {
+                method: form.method || 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: new FormData(form),
+            });
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(payload.message || 'Не удалось добавить товар в корзину');
+            }
+
+            updateCartCount(payload.count);
+
+            const link = document.createElement('a');
+            link.href = form.dataset.cartUrl || '/cart';
+            link.textContent = 'В корзине';
+            link.className = `${button.className} block text-center`;
+            form.replaceWith(link);
+        } catch (error) {
+            button.disabled = false;
+            button.textContent = originalText;
+            window.alert(error.message);
+        }
+    });
+
+    function updateCartCount(count) {
+        const badge = document.getElementById('cart-count-badge');
+
+        if (!badge) {
+            return;
+        }
+
+        const normalizedCount = Number(count) || 0;
+        badge.textContent = normalizedCount > 99 ? '99+' : normalizedCount;
+        badge.classList.toggle('hidden', normalizedCount === 0);
+    }
+
 // -------------------------------------------------------------------------
     // ИНИЦИАЛИЗАЦИЯ ВСЕХ SWIPER-СЛАЙДЕРОВ
     // -------------------------------------------------------------------------

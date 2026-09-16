@@ -123,13 +123,12 @@
                     </svg>
 
                     {{-- Кружок с цифрой (появляется только если товаров > 0) --}}
-                    @if($cartCount > 0)
-                        <span class="absolute top-[-2px] -right-2 flex items-center justify-center 
+                    <span id="cart-count-badge"
+                          class="absolute top-[-2px] -right-2 flex items-center justify-center
                                     min-w-[18px] h-[18px] bg-[#DC092E] text-white text-[9px] 
-                                    font-bold rounded-full leading-none z-10">
-                            {{ $cartCount > 99 ? '99+' : $cartCount }}
-                        </span>
-                    @endif
+                                    font-bold rounded-full leading-none z-10 {{ $cartCount > 0 ? '' : 'hidden' }}">
+                        {{ $cartCount > 99 ? '99+' : $cartCount }}
+                    </span>
                 </div>
                 <span class="text-[10px]">Корзина</span>
             </a>
