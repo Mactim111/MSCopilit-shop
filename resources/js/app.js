@@ -57,7 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const link = document.createElement('a');
             link.href = form.dataset.cartUrl || '/cart';
             link.textContent = 'В корзине';
-            link.className = `${button.className} block text-center`;
+            // Используем классы серверной ссылки «В корзине», а не классы
+            // красной кнопки «В корзину», чтобы состояние сразу выглядело одинаково.
+            link.className = form.dataset.cartLinkClass || 'block text-center';
             form.replaceWith(link);
         } catch (error) {
             button.disabled = false;

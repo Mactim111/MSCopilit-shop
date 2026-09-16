@@ -65,7 +65,9 @@
                 {{-- Передаём модель, чтобы route model binding использовал её slug,
                      указанный в ProductVariant::getRouteKeyName(). --}}
                 <form action="{{ route('cart.add', $variant) }}" method="POST"
-                      data-cart-url="{{ route('cart.index') }}" class="js-cart-add-form">
+                      data-cart-url="{{ route('cart.index') }}"
+                      data-cart-link-class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-3 rounded-lg hover:bg-red-50 transition"
+                      class="js-cart-add-form">
                     @csrf
                     <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition">
                         Добавить в корзину

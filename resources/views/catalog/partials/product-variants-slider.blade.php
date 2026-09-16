@@ -121,7 +121,9 @@
                                 @else
                                 <div class="text-right">
                                     <form action="{{ route('cart.add', $variant) }}" method="POST"
-                                          data-cart-url="{{ route('cart.index') }}" class="mx-auto js-cart-add-form">
+                                          data-cart-url="{{ route('cart.index') }}"
+                                          data-cart-link-class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-500 hover:text-white"
+                                          class="mx-auto js-cart-add-form">
                                         @csrf
                                         <button class="w-full h-[40px] bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors text-[15px]
                                         cursor-pointer">
