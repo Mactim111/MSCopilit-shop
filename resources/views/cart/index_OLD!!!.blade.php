@@ -1,84 +1,95 @@
 @extends('layouts.main')
-
 @section('title', 'Корзина')
 
 @section('content')
-    <div class="max-w-full mx-auto py-6">
+<div class="max-w-[1500px] mx-auto py-6">
 
-        <h1 class="text-[28px] font-bold pb-5 border-b border-dashed border-gray-200">Корзина</h1>
-
-        @if($items->isEmpty())
-            <div class="p-10 text-center">
-                <p class="text-[28px] text-gray-600 mb-5">Ваша корзина пуста</p>
-                <a href="/catalog"
-                   class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
-                    Перейти в каталог
-                </a>
-            </div>
-        @else
-
-            <div>
-                <table class="w-full">
-
-                    <tbody>
-                    @foreach($items as $item)
-                        <tr class="border-b border-dashed border-gray-200 flex py-4">
-                            <td class="p-[4px] flex gap-4">
-                                <img src="{{ $item->variant->mainImage() }}" alt="{{ $item->variant->title }}"
-                                     class="w-20 h-20 object-cover rounded">
-                                <span class="font-bold text-[15px]">{{ $item->variant->title }}</span>
-                            </td>
-
-                            <td class="py-4 font-bold text-2xl">
-                                {!! $item->variant->formattedPrice(24, 24) !!}
-                            </td>
-
-                            <td class="py-4">
-                                <form action="{{ route('cart.update', $item) }}" method="POST" class="flex gap-2">
-                                    @csrf
-                                    @method('PUT')
-
-                                    <input type="number"
-                                           name="quantity"
-                                           min="1"
-                                           value="{{ $item->quantity }}"
-                                           class="w-[120px] h-[40px] border-gray-300 rounded-lg border px-[10px] text-center" 
-                                           onchange="this.form.submit()">   
-                                </form>
-                            </td>
-
-                            <td class="py-4 font-bold text-2xl">
-                                {!! $item->formattedSubtotal(24, 24) !!} 
-                            </td>
-
-
-                            <td class="py-4 text-left">
-                                <form action="{{ route('cart.remove', $item) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="text-red-600 hover:underline">Удалить</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- Итог --}}
-            <div class="p-6 flex justify-between items-center">
-                <div class="font-bold text-[28px]">
-                    Итого: <span class="text-3xl">{!! $formattedTotal !!}</span>
+    @if($items->isEmpty())
+        {{-- ЗАГЛУШКА ПУСТОЙ КОРЗИНЫ --}}
+        <div class="flex flex-col">
+            <p class="text-[28px] text-[#231f20] mb-5 font-bold">В корзине еще нет товаров</p>
+            <a href="{{ route('catalog.index') }}"
+               class="inline-block text-[#007EEF] text-[15px]">
+                <span class="text-[#231f20]">Выберите нужный Вам товар из </span>каталога Интернет-магазина
+            </a>
+        </div>
+    @else
+        {{-- РАБОЧАЯ КОРЗИНА --}}
+        <div class="flex gap-8">
+            
+            <!-- ЛЕВАЯ КОЛОНКА (8/12) -->
+            <div class="w-8/12">
+                <div class="flex items-center mb-5 gap-4">
+                    <h1 class="text-[28px] font-bold">Корзина</h1>
+                    <span class="text-[20px] text-[#8c8c8c]">{{ $items->sum('quantity') }}</span>
                 </div>
 
-                 <a href="{{ route('orders.checkout') }}"
-                   class="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition">
-                    Оформить заказ
-                </a>
-                
+                <!-- Форма только для МАССОВЫХ действий (удаление выбранного и переход к заказу) -->
+                <form id="cart-form" action="{{ route('cart.batch-actions') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="action" id="cart-action" value="">
+
+                    <!-- Блок "Выбрать все" -->
+                    <div class="flex items-center pb-4 justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="select-all" class="cursor-pointer">
+                            <label for="select-all" class="ml-[10px] text-[15px] font-medium text-[#231f20] cursor-pointer">Выбрать все</label>
+                        </div>
+                        <button type="submit" name="action" value="delete" 
+                                class="text-[15px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200">
+                            Удалить выбранное
+                        </button>
+                    </div>
+                    <div class="border-t border-dashed border-gray-300 w-full"></div>
+
+                    <div>
+                        @foreach($items as $item)
+                            <x-cart-item :item="$item" />
+                        @endforeach
+                    </div>
+                </form>
             </div>
 
-        @endif
-
-    </div>
+            <!-- ПРАВАЯ КОЛОНКА -->
+            <aside class="w-4/12">
+                <div class="sticky top-20 border border-gray-200 rounded-xl px-[24px] py-[16px] bg-white shadow-sm">
+                    <div class="flex justify-between items-center mb-4 pb-4 border-b border-dashed border-gray-200">
+                        <span class="text-[15px]">Товары ({{ $items->sum('quantity') }})</span>
+                        <span class="font-bold text-3xl">{!! $formattedTotal !!}</span>
+                    </div>
+                    <div class="flex justify-between text-[28px] font-bold mb-6">
+                        <span>Итого:</span> 
+                        <span class="font-bold text-3xl">{!! $formattedTotal !!}</span>
+                    </div>
+                    <button type="submit" form="cart-form" name="action" value="checkout"
+                            class="block w-full text-center bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition font-bold">
+                        Оформить заказ
+                    </button>
+                </div>
+            </aside>
+        </div>
+    @endif
+</div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.js-item-checkbox');
+    const cartForm = document.getElementById('cart-form');
+    
+    // --- Логика "Выбрать все" ---
+    if (selectAll) {
+        selectAll.addEventListener('change', (e) => {
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) cb.checked = e.target.checked;
+            });
+        });
+    }
+
+    // --- Логика действий ---
+    // Нам больше не нужно искать клик по кнопке, так как кнопка сама 
+    // передает name="action" и value="delete/checkout" при submit формы.
+    // Это стандартное поведение HTML-форм!
+});
+</script>

@@ -24,10 +24,13 @@
                     <span class="text-[20px] text-[#8c8c8c]">{{ $items->sum('quantity') }}</span>
                 </div>
 
-                <!-- ГЛОБАЛЬНАЯ ФОРМА (id="cart-form") -->
+                <!--
+                    Форма массовых действий отделена от форм карточек.
+                    Вложенные HTML-формы недопустимы: из-за них браузер отправлял
+                    DELETE-запрос на POST-маршрут batch-actions и возникала ошибка 405.
+                -->
                 <form id="cart-form" action="{{ route('cart.batch-actions') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="action" id="cart-action" value="">
 
                     <!-- Блок "Выбрать все" -->
                     <div class="flex items-center pb-4 justify-between">
@@ -41,14 +44,14 @@
                         </button>
                     </div>
                     <div class="border-t border-dashed border-gray-300 w-full"></div>
-
-                    <div>
-                        @foreach($items as $item)
-                            {{-- Карточка товара — все элементы внутри привязаны к cart-form --}}
-                            <x-cart-item :item="$item" />
-                        @endforeach
-                    </div>
                 </form>
+
+                <div>
+                    @foreach($items as $item)
+                        {{-- Карточка содержит независимые формы удаления и обновления количества. --}}
+                        <x-cart-item :item="$item" />
+                    @endforeach
+                </div>
             </div>
 
             <!-- ПРАВАЯ КОЛОНКА -->
@@ -78,25 +81,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const selectAll = document.getElementById('select-all');
     const checkboxes = document.querySelectorAll('.js-item-checkbox');
-    
-    // Логика "Выбрать все"
-    if (selectAll) {
-        selectAll.addEventListener('change', (e) => {
-            checkboxes.forEach(cb => {
-                if (!cb.disabled) cb.checked = e.target.checked;
-            });
-        });
-    }
-});
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const selectAll = document.getElementById('select-all');
-    const checkboxes = document.querySelectorAll('.js-item-checkbox');
-    const cartForm = document.getElementById('cart-form');
-    
-    // --- Логика "Выбрать все" ---
+    // «Выбрать все» меняет только доступные варианты товаров.
     if (selectAll) {
         selectAll.addEventListener('change', (e) => {
             checkboxes.forEach(cb => {
@@ -105,9 +91,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Логика действий ---
-    // Нам больше не нужно искать клик по кнопке, так как кнопка сама 
-    // передает name="action" и value="delete/checkout" при submit формы.
-    // Это стандартное поведение HTML-форм!
+    // Снимаем «Выбрать все», если пользователь вручную снял один чекбокс.
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+            if (selectAll) {
+                const availableCheckboxes = [...checkboxes].filter(cb => !cb.disabled);
+                selectAll.checked = availableCheckboxes.length > 0
+                    && availableCheckboxes.every(cb => cb.checked);
+            }
+        });
+    });
 });
 </script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CartQuantityUnavailableException;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use App\Services\CartService;
@@ -30,47 +31,78 @@ class CartController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate(['quantity' => 'required|integer|min:1']);
+        $data = $request->validate(['quantity' => 'required|integer|min:1']);
 
-        /**
-         * КЛЮЧЕВОЙ МОМЕНТ:
-         * Вызываем update из сервиса.
-         * Если сервис вернет объект RedirectResponse (значит была ошибка лимита),
-         * то мы возвращаем его пользователю.
-         */
-        $result = $this->cart->update($id, $request->quantity);
+        try {
+            $this->cart->update($id, $data['quantity']);
+        } catch (CartQuantityUnavailableException $exception) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $exception->getMessage()], 422);
+            }
 
-        // Если сервис вернул редирект (с ошибкой "Недоступно"), отдаем его пользователю
-        if ($result instanceof \Illuminate\Http\RedirectResponse) {
-            return $result;
+            return back()->with('error', $exception->getMessage());
         }
 
-        // Если все прошло успешно — стандартное сообщение
+        if ($request->expectsJson()) {
+            return $this->cartJsonResponse('Количество обновлено');
+        }
+
         return back()->with('success', 'Количество обновлено');
     }
 
     public function remove($id)
     {
         $this->cart->remove($id);
+
+        if (request()->expectsJson()) {
+            return $this->cartJsonResponse('Товар удалён');
+        }
+
         return back()->with('success', 'Товар удалён');
     }
 
     public function batchActions(Request $request)
     {
-        $action = $request->input('action'); 
-        $ids = $request->input('items', []);
+        $action = $request->string('action')->toString();
+        $ids = collect($request->input('items', []))
+            ->filter(fn ($id) => is_scalar($id) && ctype_digit((string) $id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
 
         if ($action === 'delete') {
-            foreach($ids as $id) { $this->cart->remove($id); }
+            if (empty($ids)) {
+                return back()->with('error', 'Выберите товары для удаления');
+            }
+
+            $this->cart->removeMany($ids);
+
+            if ($request->expectsJson()) {
+                return $this->cartJsonResponse('Выбранные товары удалены');
+            }
+
             return back()->with('success', 'Выбранные товары удалены');
         }
 
         if ($action === 'checkout') {
-            if (empty($ids)) return back()->with('error', 'Выберите товары');
+            if (empty($ids)) {
+                return back()->with('error', 'Выберите товары для заказа');
+            }
+
             return redirect()->route('orders.checkout', ['items' => $ids]);
         }
 
-        return back();
+        return back()->with('error', 'Неизвестное действие корзины');
+    }
+
+    private function cartJsonResponse(string $message)
+    {
+        return response()->json([
+            'message' => $message,
+            'count' => $this->cart->count(),
+            'total' => $this->cart->total(),
+        ]);
     }
 
 }

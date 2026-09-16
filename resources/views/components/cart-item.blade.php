@@ -5,10 +5,10 @@
 @endphp
 
 <div class="flex items-center w-full h-[112px] py-[16px] border-b border-dashed border-gray-200">
-    <!-- Чекбокс: привязан к "cart-form" снаружи -->
+    <!-- Чекбокс передает ID выбранного варианта в форму массовых действий. -->
     <div class="w-[30px]">
         <input type="checkbox" name="items[]" value="{{ $item->id }}" form="cart-form"
-               {{ !$isAvailable ? 'disabled' : 'checked' }}
+               {{ !$isAvailable ? 'disabled' : '' }}
                class="js-item-checkbox cursor-pointer {{ !$isAvailable ? 'opacity-30' : '' }}">
     </div>
 
@@ -27,7 +27,7 @@
             <div class="text-[13px] text-red-600 font-semibold mt-1">Закончился</div>
         @endif
         
-        {{-- Удаление конкретного товара: независимая форма --}}
+        {{-- Независимая форма позволяет удалить товар без установки чекбокса. --}}
         <form action="{{ route('cart.remove', $item->id) }}" method="POST">
             @csrf @method('DELETE')
             <button type="submit" class="text-[13px] text-red-600 hover:underline mt-1 w-fit">Удалить</button>
@@ -36,12 +36,14 @@
 
     <!-- Количество -->
     <div class="flex-1">
-        {{-- Обновление количества: независимая форма (Enter будет работать только здесь!) --}}
+        {{-- Enter отправляет только эту форму и не запускает удаление или оформление заказа. --}}
         <form action="{{ route('cart.update', $item->id) }}" method="POST">
             @csrf @method('PUT')
-            <input type="number" name="quantity" min="1" max="{{ $isAvailable ? $available : 1 }}"
+            {{-- Не задаём max в HTML: превышение обрабатывается сервером и
+                 возвращает сессионное сообщение с доступным остатком. --}}
+            <input type="number" name="quantity" min="1"
                 value="{{ $item->quantity }}"
-                onchange="this.form.submit()" 
+                onchange="this.form.requestSubmit()"
                 class="w-[80px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center"
                 {{ !$isAvailable ? 'disabled' : '' }}>
         </form>

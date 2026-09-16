@@ -656,6 +656,7 @@ class CatalogFilterService
         };
     }
 
+
     /**
      * Формирует набор тегов для блока быстрых фильтров над списком товаров.
      * Возвращает Collection объектов с полями:
@@ -717,9 +718,13 @@ class CatalogFilterService
                         $tags->push([
                             'label'    => $lineup->value,
                             'url'      => route('catalog.subcategory.brand', [
-                                ...$routeParams,
-                                $activeBrand,
-                            ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
+                                ...$routeParams, 
+                                $activeBrand])
+                                . '?f[lineup][]=' . urlencode($lineup->value_slug), 
+                            // 'url'      => route('catalog.subcategory.brand', [
+                            //     ...$routeParams,
+                            //     $activeBrand,
+                            // ]) . '?' . http_build_query(['f' => ['lineup' => [$lineup->value_slug]]]),
                             'type'     => 'lineup',
                             'active'   => $activeLineup === $lineup->value_slug,
                             // URL для сброса этого тега (только бренд без линейки)
@@ -790,9 +795,10 @@ class CatalogFilterService
             foreach ($lineups as $lineup) {
                 $tags->push([
                     'label'  => $lineup->value,
-                    'url'    => $baseUrl . '?' . http_build_query([
-                        'f' => ['lineup' => [$lineup->value_slug]]
-                    ]),
+                    // 'url'    => $baseUrl . '?' . http_build_query([
+                    //     'f' => ['lineup' => [$lineup->value_slug]]
+                    // ]),
+                    'url' => $baseUrl . '?f[lineup][]=' . urlencode($lineup->value_slug),
                     'type'   => 'lineup',
                     'active' => $activeLineupSlug === $lineup->value_slug,
                 ]);
@@ -827,9 +833,10 @@ class CatalogFilterService
             foreach ($topOptions as $option) {
                 $tags->push([
                     'label'  => $option->value,
-                    'url'    => $baseUrl . '?' . http_build_query([
-                        'f' => [$propSlug => [$option->value_slug]]
-                    ]),
+                    // 'url'    => $baseUrl . '?' . http_build_query([
+                    //     'f' => [$propSlug => [$option->value_slug]]
+                    // ]),
+                    'url' => $baseUrl . '?f[' . $propSlug . '][]=' . urlencode($option->value_slug),
                     'type'   => 'property',
                     'active' => in_array($option->value_slug, (array)($filters['f'][$propSlug] ?? [])),
                 ]);
@@ -915,9 +922,10 @@ class CatalogFilterService
 
             $tags->push([
                 'label'  => $prop->title, // «NFC», «Поддержка беспроводной зарядки»
-                'url'    => $baseUrl . '?' . http_build_query([
-                    'f' => [$propSlug => ['yes']]
-                ]),
+                // 'url'    => $baseUrl . '?' . http_build_query([
+                //     'f' => [$propSlug => ['yes']]
+                // ]),
+                'url' => $baseUrl . '?f[' . $propSlug . '][]=yes',
                 'type'   => 'toggle',
                 'active' => $isActive,
             ]);

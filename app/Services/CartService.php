@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CartQuantityUnavailableException;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
@@ -92,9 +93,9 @@ class CartService
         });
     }
 
-    // для заполнения покупателем полей ввода для количества вариантов товара в корзине
-    // метод возвращает после ввода количества в поле либо redirect, либо null, что позволяет CartController принять решение:  показать ошибку или успех
-    public function update($itemId, $quantity)
+    // Обновление количества не зависит от HTTP: при недоступном остатке
+    // сервис бросает исключение, а контроллер выбирает redirect или JSON-ответ.
+    public function update($itemId, int $quantity): void
     {
         // Определяем variant и текущий item
         if (Auth::check()) {
@@ -107,18 +108,7 @@ class CartService
         $available = $variant->stock - $variant->reserved;
 
         if ($quantity > $available) {
-            $finalQuantity = ($available > 0) ? $available : 1;
-            
-            // Обновляем на максимально доступное
-            if (Auth::check()) {
-                $item->update(['quantity' => $finalQuantity]);
-            } else {
-                $cart = session()->get('cart', []);
-                $cart[$variant->id] = $finalQuantity;
-                session()->put('cart', $cart);
-            }
-            // ВОЗВРАЩАЕМ РЕДИРЕКТ, чтобы контроллер мог его пробросить
-            return redirect()->back()->with('error', "Доступно только: {$available} шт.");
+            throw new CartQuantityUnavailableException(max(0, $available));
         }
 
         // Обычное обновление
@@ -129,8 +119,6 @@ class CartService
             $cart[$variant->id] = $quantity;
             session()->put('cart', $cart);
         }
-
-        return null; // Успешное выполнение
 
     }
 
