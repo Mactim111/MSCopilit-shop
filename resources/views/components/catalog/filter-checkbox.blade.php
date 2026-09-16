@@ -50,6 +50,24 @@
             @endif
         </button>   
 
+        @php
+            $visibleIndex = 0;
+            
+            // Проверяем: есть ли активное значение среди скрытых (visibleIndex >= 6).
+            // Если да — показываем все опции сразу без кнопки «Посмотреть все».
+            $hasActiveInHidden = false;
+            $tempIndex = 0;
+            foreach ($property->options as $option) {
+                if (($option->products_count ?? 0) > 0) {
+                    if ($tempIndex >= 6 && in_array($option->slug, $active)) {
+                        $hasActiveInHidden = true;
+                        break;
+                    }
+                    $tempIndex++;
+                }
+            }
+        @endphp
+
         <ul x-show="open"
             x-transition:enter="transition ease-out duration-150"
             x-transition:enter-start="opacity-0 -translate-y-1"
@@ -63,7 +81,8 @@
                 @if (($option->products_count ?? 0) > 0)
                     <li
                         data-option-item
-                        @if($visibleIndex >= 6) style="display:none" @endif
+                        {{-- Скрываем только если: индекс >= 6 И нет активного в скрытых --}}
+                        @if($visibleIndex >= 6 && !$hasActiveInHidden) style="display:none" @endif
                         class="flex items-center gap-[8px]"
                     >
                         <input
@@ -72,11 +91,6 @@
                             name="f[{{ $property->slug }}][]"
                             value="{{ $option->slug }}"
                             @checked(in_array($option->slug, $active))
-                            {{--
-                                onchange: при клике собираем ВСЕ отмеченные чекбоксы
-                                данного свойства и обновляем URL через buildUrl().
-                                buildUrl() определена в filters.blade.php глобально.
-                            --}}
                             onchange="filterCheckboxChange('{{ $property->slug }}')"
                             class="cursor-pointer"
                         >
@@ -93,11 +107,13 @@
             @endforeach
         </ul>
 
-        @if ($property->options->where('products_count', '>', 0)->count() > 6)
+        {{-- Кнопку «Посмотреть все» не показываем если список уже раскрыт --}}
+        @if (!$hasActiveInHidden && $property->options->where('products_count', '>', 0)->count() > 6)
             <button
                 type="button"
                 x-show="open"
-                class="flex items-center gap-[4px] text-[14px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer mt-[4px]"
+                class="flex items-center gap-[4px] text-[14px] text-[#007EFF] hover:text-[#0064cc]
+                    transition-all duration-200 cursor-pointer mt-[4px]"
                 x-data="{ expanded: false }"
                 @click="
                     expanded = !expanded;
