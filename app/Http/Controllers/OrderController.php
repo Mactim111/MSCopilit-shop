@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CartOrderAvailabilityException;
 use App\Mail\OrderClient;
 use App\Mail\OrderManager;
 use App\Models\Address;
@@ -73,7 +74,18 @@ class OrderController extends Controller
             'phone'      => 'required|string|max:50',
         ]);
 
-        $order = $this->orders->createFromCart($selectedIds, $data);
+        try {
+            $order = $this->orders->createFromCart($selectedIds, $data);
+        } catch (CartOrderAvailabilityException $exception) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $exception->getMessage()], 422);
+            }
+
+            return back()
+                ->withInput()
+                ->with('error', $exception->getMessage())
+                ->with('error_link', route('cart.index'));
+        }
 
         // --- ПОДГОТОВКА ДАННЫХ ДЛЯ ПИСЬМА ---
         // Мы создаем плоский массив, который точно соответствует шаблону mail.order-client

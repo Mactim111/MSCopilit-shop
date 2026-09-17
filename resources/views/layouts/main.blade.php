@@ -36,25 +36,45 @@
         <x-category-slider />
     </div>
 
-    {{-- Sticky border line --}}
-    <div class="w-full sticky top-[72px] z-40 bg-white h-[10px] border-b-white shadow-lg shadow-[0_6px_20px_-4px_rgba(0,0,0,0.32)]">
+    {{--
+        Единая sticky-зона сообщений.
+        В верхней позиции она находится под слайдером категорий, а после
+        его ухода вверх фиксируется сразу под основным header и остаётся
+        видимой при дальнейшем скролле страницы.
+    --}}
+    <div id="flash-messages" class="sticky top-[72px] z-[45] bg-white">
+        <div class="max-w-full mx-auto">
+            {{-- Общие flash-сообщения закрываются крестиком и автоматически исчезают. --}}
+            @foreach(['success' => 'bg-green-100 text-green-700', 'error' => 'bg-red-100 text-red-700'] as $type => $classes)
+                @if(session($type))
+                    <div data-flash-message
+                         class="relative mb-4 p-3 pr-10 {{ $classes }} rounded text-center transition-opacity duration-300">
+                        <span>{{ session($type) }}</span>
+                        @if($type === 'error' && session('error_link'))
+                            <a href="{{ session('error_link') }}"
+                               class="ml-2 font-semibold underline hover:no-underline">
+                                Вернуться в корзину
+                            </a>
+                        @endif
+                        <button type="button"
+                                data-dismiss-flash
+                                aria-label="Закрыть сообщение"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-xl leading-none opacity-60 hover:opacity-100">
+                            &times;
+                        </button>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Тонкий sticky-разделитель под верхней частью сайта с короткой мягкой тенью. --}}
+    <div class="w-full sticky top-[72px] z-40 h-px bg-gray-200 shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
     </div>
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
     <main class="min-h-screen">
         <div class="max-w-[1500px] mx-auto">
-
-            @if(session('success'))
-                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded text-center">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded text-center">
-                    {{ session('error') }}
-                </div>
-            @endif
 
             @yield('content')
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CartOrderAvailabilityException;
 use App\Exceptions\CartQuantityUnavailableException;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
@@ -107,6 +108,14 @@ class CartController extends Controller
         if ($action === 'checkout') {
             if (empty($ids)) {
                 return back()->with('error', 'Выберите товары для заказа');
+            }
+
+            try {
+                $this->cart->assertAvailableForOrder($ids);
+            } catch (CartOrderAvailabilityException $exception) {
+                return back()
+                    ->with('error', $exception->getMessage())
+                    ->with('error_link', route('cart.index'));
             }
 
             return redirect()->route('orders.checkout', ['items' => $ids]);

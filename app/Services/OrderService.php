@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CartOrderAvailabilityException;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -90,9 +91,11 @@ class OrderService
             if (!$variant || $available < $item->quantity) {
                 $title = $item->variant?->title ?? 'Выбранный товар';
 
-                throw ValidationException::withMessages([
-                    'items' => "Товар «{$title}» больше недоступен в нужном количестве.",
-                ]);
+                throw new CartOrderAvailabilityException(
+                    $title,
+                    max(0, $available),
+                    $item->quantity
+                );
             }
 
             $item->setRelation('variant', $variant);

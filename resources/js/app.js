@@ -13,6 +13,20 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 document.addEventListener('DOMContentLoaded', () => {
 
     /*
+     * Единая логика flash-сообщений layout: пользователь может закрыть
+     * сообщение вручную, а если этого не сделал — оно исчезает автоматически.
+     */
+    document.querySelectorAll('[data-flash-message]').forEach((message) => {
+        const close = () => {
+            message.classList.add('opacity-0');
+            window.setTimeout(() => message.remove(), 300);
+        };
+
+        message.querySelector('[data-dismiss-flash]')?.addEventListener('click', close);
+        window.setTimeout(close, 6000);
+    });
+
+    /*
      * AJAX-добавление товара из всех трёх карточек:
      * слайдера, списка вариантов и страницы варианта товара.
      * Маршрут остаётся тем же, поэтому обычная серверная логика корзины
@@ -46,6 +60,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: new FormData(form),
             });
+
+            /*
+             * Даже при Accept: application/json сервер может вернуть HTML
+             * при временной PHP/Laravel-ошибке или redirect. Не пытаемся
+             * разбирать такой ответ как JSON, чтобы не показывать пользователю
+             * техническую ошибку «Unexpected token '<'».
+             */
+            const contentType = response.headers.get('content-type') || '';
+
+            if (!contentType.includes('application/json')) {
+                throw new Error('Сервер вернул неожиданный ответ. Попробуйте повторить действие.');
+            }
+
             const payload = await response.json();
 
             if (!response.ok) {
@@ -53,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             updateCartCount(payload.count);
+            showFlashMessage(payload.message || 'Товар добавлен в корзину', 'success');
 
             const link = document.createElement('a');
             link.href = form.dataset.cartUrl || '/cart';
@@ -78,6 +106,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const normalizedCount = Number(count) || 0;
         badge.textContent = normalizedCount > 99 ? '99+' : normalizedCount;
         badge.classList.toggle('hidden', normalizedCount === 0);
+    }
+
+    /*
+     * AJAX-запрос не выполняет redirect и поэтому не может показать
+     * session('success') через layout. Создаём такой же flash-блок на странице
+     * прямо после успешного ответа сервера.
+     */
+    function showFlashMessage(message, type = 'success') {
+        const container = document.querySelector('#flash-messages > div');
+
+        if (!container) {
+            return;
+        }
+
+        const flash = document.createElement('div');
+        const classes = type === 'error'
+            ? 'bg-red-100 text-red-700'
+            : 'bg-green-100 text-green-700';
+
+        flash.dataset.flashMessage = '';
+        flash.className = `relative mb-4 p-3 pr-10 ${classes} rounded text-center transition-opacity duration-300`;
+        flash.innerHTML = `
+            <span></span>
+            <button type="button"
+                    data-dismiss-flash
+                    aria-label="Закрыть сообщение"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xl leading-none opacity-60 hover:opacity-100">
+                &times;
+            </button>
+        `;
+        flash.querySelector('span').textContent = message;
+        container.prepend(flash);
+
+        const close = () => {
+            flash.classList.add('opacity-0');
+            window.setTimeout(() => flash.remove(), 300);
+        };
+
+        flash.querySelector('[data-dismiss-flash]').addEventListener('click', close);
+        window.setTimeout(close, 6000);
     }
 
 // -------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CartOrderAvailabilityException;
 use App\Exceptions\CartQuantityUnavailableException;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
@@ -146,6 +147,31 @@ class CartService
                 unset($cart[$id]);
             }
             session()->put('cart', $cart);
+        }
+    }
+
+    /**
+     * Проверяет выбранные позиции перед переходом к оформлению заказа.
+     * Это предварительная проверка для понятного сообщения пользователю;
+     * окончательная проверка всё равно выполняется внутри транзакции заказа.
+     */
+    public function assertAvailableForOrder(array $ids): void
+    {
+        $items = $this->items()->whereIn('id', $ids);
+
+        foreach ($items as $item) {
+            $variant = $item->variant;
+            $available = $variant
+                ? max(0, $variant->stock - $variant->reserved)
+                : 0;
+
+            if (!$variant || $available < $item->quantity) {
+                throw new CartOrderAvailabilityException(
+                    $variant?->title ?? 'Выбранный товар',
+                    $available,
+                    $item->quantity
+                );
+            }
         }
     }
 
