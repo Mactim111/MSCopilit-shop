@@ -65,7 +65,9 @@ $similarVariants = \App\Models\ProductVariant::limit(10)->get();
                                 <x-dynamic-component :component="'labels.' . $label->component" />
                                 @endforeach
                             </div>
-                            <button class="favorite-toggle" data-id="{{ $variant->id }}">
+                            <button type="button" class="favorite-toggle"
+                                    data-id="{{ $variant->id }}"
+                                    data-favorite-url="{{ route('favorites.toggle', $variant) }}">
                                 @include('products.icons.heart-outline')
                             </button>
                         </div>

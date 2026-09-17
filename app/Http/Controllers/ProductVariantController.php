@@ -93,6 +93,9 @@ class ProductVariantController extends Controller
             ->orderBy('order')
             ->get();
 
+        $isFavorite = auth()->check()
+            && auth()->user()->favoriteVariants()->whereKey($variant->id)->exists();
+
         // Добавляем! ниже 'sections' в compact
 
         return view('variants.show', compact(
@@ -109,6 +112,7 @@ class ProductVariantController extends Controller
             'popular_variants',
             'variantMatrix',   // ← добавлено для свитчера
             'sections',        // ← добавлено для динамических секций
+            'isFavorite',
         ));
     }
 }

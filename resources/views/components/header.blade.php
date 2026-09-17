@@ -45,10 +45,25 @@
         <div class="flex items-center gap-6">
 
             {{-- Избранное --}}
-            <a href="#" class="hover:text-red-600 flex flex-col items-center ">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 stroke-black fill-white" viewBox="0 0 24 24">
-                    <path stroke-width="2" d="M12 21s-6.7-4.35-10-9.14C-1.5 7.5 1.5 2 6.5 2c2.54 0 4.5 2 5.5 3 1-1 3-3 5.5-3C22.5 2 25.5 7.5 22 11.86 18.7 16.65 12 21 12 21z" />
-                </svg>
+            <a href="{{ route('profile.favorites') }}" class="hover:text-red-600 flex flex-col items-center ">
+                @php
+                    $favoriteCount = auth()->check()
+                        ? auth()->user()->favorites()->count()
+                        : 0;
+                @endphp
+
+                <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 stroke-black fill-white" viewBox="0 0 24 24">
+                        <path stroke-width="2" d="M12 21s-6.7-4.35-10-9.14C-1.5 7.5 1.5 2 6.5 2c2.54 0 4.5 2 5.5 3 1-1 3-3 5.5-3C22.5 2 25.5 7.5 22 11.86 18.7 16.65 12 21 12 21z" />
+                    </svg>
+
+                    <span id="favorite-count-badge"
+                          class="absolute top-[-2px] -right-2 flex items-center justify-center
+                                    min-w-[18px] h-[18px] bg-[#DC092E] text-white text-[9px]
+                                    font-bold rounded-full leading-none z-10 {{ $favoriteCount > 0 ? '' : 'hidden' }}">
+                        {{ $favoriteCount > 99 ? '99+' : $favoriteCount }}
+                    </span>
+                </div>
                 <span class="text-[12px]">Избранное</span>
             </a>
 
@@ -80,7 +95,7 @@
                         Мои заказы
                     </a>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
+                    <a href="{{ route('profile.favorites') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
                         <i data-lucide="settings"></i>
                         Избранное
                     </a>

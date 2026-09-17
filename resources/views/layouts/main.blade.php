@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Интернет‑магазин')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
@@ -69,7 +70,7 @@
     </div>
 
     {{-- Тонкий sticky-разделитель под верхней частью сайта с короткой мягкой тенью. --}}
-    <div class="w-full sticky top-[72px] z-40 h-px bg-gray-200 shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
+    <div class="w-full sticky top-[72px] z-40 h-px bg-gray-200 shadow-[0_4px_8px_rgba(0,0,0,0.24)]">
     </div>
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}

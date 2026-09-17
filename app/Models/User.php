@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -57,6 +58,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function favoriteVariants(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ProductVariant::class,
+            'favorites',
+            'user_id',
+            'product_variant_id'
+        )->withTimestamps()->withTrashed();
     }
 
     public function getAvatarUrlAttribute()

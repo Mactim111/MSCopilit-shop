@@ -22,6 +22,8 @@ class ProductVariant extends Model
         'price',
         'old_price',
         'stock',
+        'reserved',
+        'is_active',
         'is_default',
         'position'
     ];
@@ -30,6 +32,8 @@ class ProductVariant extends Model
         'price'      => 'decimal:2',
         'old_price'  => 'decimal:2',
         'stock'      => 'integer',
+        'reserved'   => 'integer',
+        'is_active'  => 'boolean',
         'is_default' => 'boolean',
         'position'   => 'integer',
     ];
@@ -47,6 +51,21 @@ class ProductVariant extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class, 'product_variant_id');
+    }
+
+    public function favoritedBy(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'favorites',
+            'product_variant_id',
+            'user_id'
+        )->withTimestamps();
     }
 
     // Галерея изображений варианта

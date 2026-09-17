@@ -65,7 +65,9 @@
                                         <x-dynamic-component :component="'labels.' . $label->component" />
                                     @endforeach
                                 </div>
-                                <button class="favorite-toggle" data-id="{{ $variant->article }}">
+                                <button type="button" class="favorite-toggle"
+                                        data-id="{{ $variant->id }}"
+                                        data-favorite-url="{{ route('favorites.toggle', $variant) }}">
                                     @include('products.icons.heart-outline')
                                 </button>
                             </div>

@@ -3,7 +3,7 @@
 @php
     // Используем наш новый геттер из модели
     $available = $variant->available_stock;
-    $isAvailable = $available > 0;
+    $isAvailable = $variant->is_active && $available > 0;
 @endphp
 
 <div class="rounded-xl p-5 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.1)] bg-white">
@@ -51,7 +51,11 @@
                 $inCart = app(CartService::class)->has($variant->id);
             @endphp
 
-            @if(!$isAvailable)
+            @if(!$variant->is_active)
+                <button disabled class="w-full bg-gray-200 text-gray-500 font-semibold py-3 rounded-lg cursor-not-allowed">
+                    Снят с продажи
+                </button>
+            @elseif(!$isAvailable)
                 {{-- Кнопка неактивна, если товара нет --}}
                 <button disabled class="w-full bg-gray-200 text-gray-500 font-semibold py-3 rounded-lg cursor-not-allowed">
                     Нет в наличии
@@ -77,14 +81,18 @@
         </div>
 
         <div class="col-span-1 flex justify-center items-center">
-            <button class="favorite-toggle" data-id="{{ $variant->id }}">
+            <button type="button" class="favorite-toggle"
+                    data-id="{{ $variant->id }}"
+                    data-favorite-url="{{ route('favorites.toggle', $variant) }}">
                 @if($isFavorite) @include('products.icons.heart-filled') @else @include('products.icons.heart-outline') @endif
             </button>
         </div>
     </div>
 
     {{-- Статус наличия (обновленная логика) --}}
-    @if($available > 5)
+    @if(!$variant->is_active)
+        <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 rounded">Снят с продажи</div>
+    @elseif($available > 5)
         <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 py-2 rounded">В наличии</div>
     @elseif($available > 0)
         <div class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-2 rounded">Товар заканчивается</div>
