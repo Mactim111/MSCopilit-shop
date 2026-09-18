@@ -101,5 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Кнопки количества используют ту же форму PUT, что и ручной ввод.
+    document.querySelectorAll('[data-quantity-decrease], [data-quantity-increase]')
+        .forEach((button) => {
+            button.addEventListener('click', () => {
+                const form = button.closest('form');
+                const input = form?.querySelector('input[name="quantity"]');
+
+                if (!form || !input || input.disabled) {
+                    return;
+                }
+
+                const currentValue = Number.parseInt(input.value, 10) || 1;
+                const nextValue = button.hasAttribute('data-quantity-increase')
+                    ? currentValue + 1
+                    : Math.max(1, currentValue - 1);
+
+                if (nextValue === currentValue) {
+                    return;
+                }
+
+                input.value = nextValue;
+                form.requestSubmit();
+            });
+        });
 });
 </script>

@@ -38,16 +38,25 @@
 
     <!-- Количество -->
     <div class="flex-1">
-        {{-- Enter отправляет только эту форму и не запускает удаление или оформление заказа. --}}
-        <form action="{{ route('cart.update', $item->id) }}" method="POST">
+        {{-- Кнопки меняют значение и отправляют только форму обновления количества. --}}
+        <form action="{{ route('cart.update', $item->id) }}" method="POST"
+              class="flex items-center w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg overflow-hidden">
             @csrf @method('PUT')
             {{-- Не задаём max в HTML: превышение обрабатывается сервером и
                  возвращает сессионное сообщение с доступным остатком. --}}
+            <button type="button" aria-label="Уменьшить количество"
+                class="w-[12px] h-full shrink-0 flex items-center justify-center text-[12px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                data-quantity-decrease
+                {{ !$isAvailable ? 'disabled' : '' }}>−</button>
             <input type="number" name="quantity" min="1"
                 value="{{ $item->quantity }}"
                 onchange="this.form.requestSubmit()"
-                class="w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg text-center"
+                class="flex-1 min-w-0 h-full border-0 text-center focus:outline-none focus:ring-0"
                 {{ !$isAvailable ? 'disabled' : '' }}>
+            <button type="button" aria-label="Увеличить количество"
+                class="w-[12px] h-full shrink-0 flex items-center justify-center text-[12px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                data-quantity-increase
+                {{ !$isAvailable ? 'disabled' : '' }}>+</button>
         </form>
     </div>
 
