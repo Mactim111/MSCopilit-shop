@@ -69,7 +69,9 @@
     </div>
 
     {{-- Тонкий sticky-разделитель под верхней частью сайта с короткой мягкой тенью. --}}
-    <div class="w-full sticky top-[72px] z-40 h-px bg-gray-200 shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
+    <div class="w-full sticky top-[72px] z-40 h-[2px] bg-white
+                border-t border-gray-100 border-b border-gray-200/70
+                shadow-[0_3px_7px_rgba(0,0,0,0.18)]">
     </div>
 
     {{-- Контентная часть — был серый фон - изменили на белый! --}}
