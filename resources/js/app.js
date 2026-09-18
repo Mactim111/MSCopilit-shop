@@ -126,6 +126,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            /*
+             * Гостевой запрос проходит через auth middleware и после redirect
+             * возвращает HTML страницы входа. Перенаправляем пользователя на
+             * неё явно, а HTML других ошибок не пытаемся разбирать как JSON.
+             */
+            const contentType = response.headers.get('content-type') || '';
+
+            if (!contentType.includes('application/json')) {
+                if (response.redirected && new URL(response.url).pathname === '/login') {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                throw new Error('Сервер вернул неожиданный ответ. Попробуйте повторить действие.');
+            }
+
             const payload = await response.json();
 
             if (!response.ok) {
