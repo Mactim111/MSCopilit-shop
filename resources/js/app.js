@@ -96,8 +96,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    /*
+     * AJAX-переключение избранного во всех карточках вариантов.
+     * Обработчик находится отдельно от корзины, поэтому работает
+     * независимо от предыдущих действий пользователя.
+     */
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('.favorite-toggle');
+
+        if (!button || button.disabled || !button.dataset.favoriteUrl) {
+            return;
+        }
+
+        event.preventDefault();
+        button.disabled = true;
+
+        try {
+            const response = await fetch(button.dataset.favoriteUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                },
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(payload.message || 'Не удалось изменить избранное');
+            }
+
+            button.innerHTML = payload.icon;
+            button.setAttribute('aria-pressed', payload.is_favorite ? 'true' : 'false');
+            updateFavoriteCount(payload.count);
+            showFlashMessage(payload.message, 'success');
+        } catch (error) {
+            showFlashMessage(error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    });
+
     function updateCartCount(count) {
         const badge = document.getElementById('cart-count-badge');
+
+        if (!badge) {
+            return;
+        }
+
+        const normalizedCount = Number(count) || 0;
+        badge.textContent = normalizedCount > 99 ? '99+' : normalizedCount;
+        badge.classList.toggle('hidden', normalizedCount === 0);
+    }
+
+    function updateFavoriteCount(count) {
+        const badge = document.getElementById('favorite-count-badge');
 
         if (!badge) {
             return;

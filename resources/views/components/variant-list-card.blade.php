@@ -6,6 +6,8 @@
     use Illuminate\Support\Facades\Auth;
     // Внедряем сервис корзины прямо в шаблон
     $cartService = app(App\Services\CartService::class);
+    $available = $variant->available_stock;
+    $isAvailable = $variant->is_active && $available > 0;
 @endphp
 
 <div class="w-full bg-white border border-gray-100 rounded-lg
@@ -115,7 +117,12 @@
                     $inCart = $cartService->has($variant->id);
                 @endphp
 
-                @if($inCart)
+                @if(!$isAvailable)
+                    <button disabled
+                            class="w-full bg-gray-200 text-gray-500 font-semibold py-2 rounded-lg cursor-not-allowed">
+                        {{ $variant->is_active ? 'Нет в наличии' : 'Снят с продажи' }}
+                    </button>
+                @elseif($inCart)
                     <a href="{{ route('cart.index') }}"
                        class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer
                        hover:bg-red-500 hover:text-white">
@@ -135,7 +142,9 @@
             </div>
 
             <div class="col-span-1 flex justify-center items-center">
-                <button class="favorite-toggle" data-id="{{ $variant->id }}">
+                <button type="button" class="favorite-toggle"
+                        data-id="{{ $variant->id }}"
+                        data-favorite-url="{{ route('favorites.toggle', $variant) }}">
                     @if($isFavorite)
                         @include('products.icons.heart-filled')
                     @else
@@ -147,11 +156,15 @@
 
         {{-- Наличие --}}
 
-        @if($variant->available_stock > 5)
+        @if(!$variant->is_active)
+            <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 rounded">
+                Снят с продажи
+            </div>
+        @elseif($available > 5)
             <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 py-2 rounded">
                 В наличии
             </div>
-        @elseif($variant->available_stock > 0 && $variant->available_stock <= 5)
+        @elseif($available > 0 && $available <= 5)
             <div class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-2 rounded">
                 Товар заканчивается
             </div>

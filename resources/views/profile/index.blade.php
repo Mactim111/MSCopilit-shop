@@ -23,6 +23,14 @@
                 Мои заказы
             </a>
 
+            <a href="{{ route('profile.favorites') }}"
+               class="px-5 py-2 rounded-lg border transition
+              {{ request()->routeIs('profile.favorites')
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50' }}">
+                Избранное
+            </a>
+
         </div>
 
 
@@ -199,4 +207,3 @@
     </script>
 
 @endsection
-

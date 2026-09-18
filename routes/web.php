@@ -19,6 +19,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\FavoriteController;
 
 // Главная
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -39,7 +40,12 @@ Route::get('/catalog/{group}/{category}/{subcategory}', [CatalogController::clas
 Route::get('/catalog/{group}/{category}/{subcategory}/brand={brands}', [CatalogController::class, 'subcategory'])->name('catalog.subcategory.brand');
 
 // Вариант товара
-Route::get('/products/{variant}', [ProductVariantController::class, 'show'])->name('catalog.variant');
+Route::get('/products/{variant}', [ProductVariantController::class, 'show'])
+    ->name('catalog.variant')
+    ->withTrashed();
+
+// Избранное: просмотр доступен гостям, изменение списка — только авторизованным пользователям.
+Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('profile.favorites');
 
 // --- КОРЗИНА (теперь без привязки к модели в маршруте) ---
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -59,6 +65,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
+    Route::post('/favorites/{variant}/toggle', [FavoriteController::class, 'toggle'])
+        ->name('favorites.toggle')
+        ->withTrashed();
 
     Route::get('/profile/orders/{order}', [ProfileController::class, 'order'])->name('profile.order')->middleware('can:view,order');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -113,8 +122,6 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::post('/email/send', [EmailVerificationController::class, 'send'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
-
-
 
 
 
