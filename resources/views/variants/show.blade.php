@@ -45,7 +45,7 @@
 
 
         {{-- Название + код товара в одной строке --}}
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mb-5">
             <h1 class="text-[#231f20] text-[28px] font-bold">{{ $variant->title }}</h1>
 
             <div class="text-[#231f20] text-[14px]">
@@ -53,20 +53,7 @@
             </div>
         </div>
 
-        {{-- Вкладки --}}
-        <div class="border-b border-gray-200 mb-8">
-            <ul class="flex gap-8 text-lg font-medium">
-                <li class="pb-3 border-b-2 border-red-600 text-red-600 cursor-pointer">
-                    Основное
-                </li>
-                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
-                    Характеристики
-                </li>
-                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
-                    Отзывы
-                </li>
-            </ul>
-        </div>
+
 
         {{-- Трёхколоночная структура --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -76,7 +63,9 @@
 
                 {{-- Большая картинка --}}
                 
-                <div class="flex items-center justify-center overflow-hidden 
+                <div class="flex h-6 mb-2"></div>
+
+                <div class="flex items-center justify-center overflow-hidden mb-5 
                     {{-- border border-gray-100 rounded-lg bg-gray-100 
                     shadow-[0_2px_8px_rgba(0,0,0,0.20)] --}}
                     zoom-cursor transition-all duration-200 w-[510px] h-[510px]
@@ -147,6 +136,7 @@
                 @endif
 
             </div>
+            
 
             {{-- Колонка 2: Основные характеристики (excerpt) — 4/12 --}}
             
@@ -178,8 +168,23 @@
 
         </div>
 
+                {{-- Вкладки --}}
+        <div class="border-b border-gray-200 pt-10 mb-10">
+            <ul class="flex gap-8 text-lg font-medium">
+                <li class="pb-3 border-b-2 border-red-600 text-red-600 cursor-pointer">
+                    Характеристики
+                </li>
+                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                    Отзывы
+                </li>
+                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                    Вопросы о товаре
+                </li>
+            </ul>
+        </div>
+
         {{-- Полный блок характеристик --}}
-        <div id="full-specs" class="mt-16">
+        <div id="full-specs">
             <!-- <h2 class="text-2xl font-bold mb-4">Основные характеристики</h2> -->
 
             <div class="text-gray-700 leading-relaxed">

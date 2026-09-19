@@ -58,6 +58,11 @@ class ProductVariant extends Model
         return $this->hasMany(Favorite::class, 'product_variant_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_variant_id');
+    }
+
     public function favoritedBy(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(

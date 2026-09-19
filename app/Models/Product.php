@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -55,6 +56,33 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class)->orderBy('position');
+    }
+
+    public function reviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Review::class,
+            ProductVariant::class,
+            'product_id',
+            'product_variant_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function publishedReviews(): HasManyThrough
+    {
+        return $this->reviews()->where('reviews.is_published', true);
+    }
+
+    public function publishedReviewStats(): array
+    {
+        $query = $this->publishedReviews();
+
+        return [
+            'count' => (clone $query)->count(),
+            'rating' => round((float) ((clone $query)->avg('rating') ?? 0), 1),
+        ];
     }
 
     public function mainVariant(): ?ProductVariant

@@ -20,6 +20,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ReviewController;
 
 // Главная
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -75,6 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('favorites.delete-all');
 
     Route::get('/profile/orders/{order}', [ProfileController::class, 'order'])->name('profile.order')->middleware('can:view,order');
+    Route::post('/products/{variant}/reviews', [ReviewController::class, 'store'])
+        ->name('reviews.store')
+        ->withTrashed();
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::post('/profile/address', [AddressController::class, 'store'])->name('profile.address.store');
@@ -127,6 +131,5 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::post('/email/send', [EmailVerificationController::class, 'send'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
-
 
 
