@@ -1,4 +1,4 @@
-@props(['variant', 'isFavorite' => false])
+@props(['variant', 'isFavorite' => false, 'isFavoritesPage' => false])
 
 @php
     $product = $variant->product;
@@ -10,7 +10,8 @@
     $isAvailable = $variant->is_active && $available > 0;
 @endphp
 
-<div class="w-full bg-white border border-gray-100 rounded-lg
+<div data-favorite-card
+     class="relative w-full bg-white border border-gray-100 rounded-lg
     shadow-[0_2px_8px_rgba(0,0,0,0.20)]
     cursor-pointer transition-all duration-200
     hover:shadow-[0_6px_20px_rgba(0,0,0,0.28)]
@@ -19,6 +20,21 @@
     focus-visible:border-gray-200
     focus-visible:outline-none
     px-[30px] py-[14px] flex mb-[16px]">
+
+    @if($isFavoritesPage)
+        <button type="button"
+                class="absolute top-[3px] right-[3px] z-10
+                       w-5 h-5 flex items-center justify-center
+                       text-[#231F20] hover:text-[#DC092E] transition-colors"
+                data-favorite-remove
+                data-favorite-url="{{ route('favorites.toggle', $variant) }}"
+                aria-label="Удалить товар из избранного">
+            <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    @endif
 
     {{-- Колонка 1: фото --}}
     <div class="w-[327px] min-h-[302px] flex items-center justify-center">
@@ -61,22 +77,22 @@
     <div class="w-[327px] min-h-[302px] pl-[35px] flex flex-col justify-between">
 
         {{-- Лейбл + рейтинг --}}
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex justify-between items-center mb-3 mt-1">
             <div class="flex gap-2">
                 @foreach($variant->labels as $label)
                     <x-dynamic-component :component="'labels.' . $label->component" />
                 @endforeach
             </div>
 
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-                <div class="flex items-center gap-1">
+            <div class="flex items-center gap-3 text-sm text-gray-600">
+                <div class="flex items-center gap-2">
                     @include('products.icons.star')
-                    <span class="font-semibold text-gray-900">
+                    <span class="font-semibold text-gray-400">
                         {{ number_format($product->rating, 1) }}
                     </span>
                 </div>
                 <div>
-                    <a href="#" class="flex items-center gap-1 text-gray-500 hover:text-gray-700">
+                    <a href="#" class="flex items-center gap-1 text-[#007EEF] hover:text-[#0064cc] transition-all duration-200">
                         @include('products.icons.message')
                         <span>
                             {{ number_format($product->reviews_count, 0, '.', ' ') }}
@@ -142,7 +158,10 @@
             </div>
 
             <div class="col-span-1 flex justify-center items-center">
-                <button type="button" class="favorite-toggle"
+                {{-- Кнопка избранного --}}
+                <button type="button"
+                        class="favorite-toggle cursor-pointer"
+                        @if($isFavoritesPage) data-favorite-remove @endif
                         data-id="{{ $variant->id }}"
                         data-favorite-url="{{ route('favorites.toggle', $variant) }}">
                     @if($isFavorite)
@@ -157,19 +176,19 @@
         {{-- Наличие --}}
 
         @if(!$variant->is_active)
-            <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 rounded">
+            <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 mb-3 rounded">
                 Снят с продажи
             </div>
         @elseif($available > 5)
-            <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 py-2 rounded">
+            <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 mb-3 py-2 rounded">
                 В наличии
             </div>
         @elseif($available > 0 && $available <= 5)
-            <div class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-2 rounded">
+            <div class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-2 mb-3 rounded">
                 Товар заканчивается
             </div>
         @else
-            <div class="bg-red-100 text-red-700 text-sm font-semibold px-3 py-2 rounded">
+            <div class="bg-red-100 text-red-700 text-sm font-semibold px-3 py-2 mb-3 rounded">
                 Товар закончился
             </div>
         @endif

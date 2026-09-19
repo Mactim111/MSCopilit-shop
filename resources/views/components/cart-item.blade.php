@@ -45,7 +45,7 @@
             {{-- Не задаём max в HTML: превышение обрабатывается сервером и
                  возвращает сессионное сообщение с доступным остатком. --}}
             <button type="button" aria-label="Уменьшить количество"
-                class="w-[12px] h-full shrink-0 flex items-center justify-center text-[12px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-[18px] h-full shrink-0 flex items-center justify-center text-[18px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
                 data-quantity-decrease
                 {{ !$isAvailable ? 'disabled' : '' }}>−</button>
             <input type="number" name="quantity" min="1"
@@ -54,7 +54,7 @@
                 class="flex-1 min-w-0 h-full border-0 text-center focus:outline-none focus:ring-0"
                 {{ !$isAvailable ? 'disabled' : '' }}>
             <button type="button" aria-label="Увеличить количество"
-                class="w-[12px] h-full shrink-0 flex items-center justify-center text-[12px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                class="w-[18px] h-full shrink-0 flex items-center justify-center text-[18px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
                 data-quantity-increase
                 {{ !$isAvailable ? 'disabled' : '' }}>+</button>
         </form>

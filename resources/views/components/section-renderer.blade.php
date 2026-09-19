@@ -40,7 +40,7 @@
         {{-- Сначала заголовок --}}
         @include('components.title-with-tags', ['slider_title' => $data['title']])
         
-        {{-- Затем исправленный слайдер --}}
+        {{-- Затем слайдер из карточек ранее просмотренных товаров--}}
         @include('catalog.partials.recently-viewed-slider', [
             'recently_viewed_slider' => $data['items']
         ])

@@ -90,11 +90,11 @@
         pagination.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (!link) return;
+            if (typeof window.loadPage !== 'function') return;
 
             e.preventDefault();
-            loadPage(link.href);
+            window.loadPage(link.href);
         });
 
     });
 </script>
-

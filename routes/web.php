@@ -68,6 +68,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/favorites/{variant}/toggle', [FavoriteController::class, 'toggle'])
         ->name('favorites.toggle')
         ->withTrashed();
+    Route::delete('/favorites/categories/{category}', [FavoriteController::class, 'deleteCategory'])
+        ->name('favorites.category.delete')
+        ->withTrashed();
+    Route::delete('/favorites/all', [FavoriteController::class, 'deleteAll'])
+        ->name('favorites.delete-all');
 
     Route::get('/profile/orders/{order}', [ProfileController::class, 'order'])->name('profile.order')->middleware('can:view,order');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -122,8 +127,6 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::post('/email/send', [EmailVerificationController::class, 'send'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
-
-
 
 
 

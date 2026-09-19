@@ -102,7 +102,36 @@ document.addEventListener('DOMContentLoaded', () => {
      * независимо от предыдущих действий пользователя.
      */
     document.addEventListener('click', async (event) => {
-        const button = event.target.closest('.favorite-toggle');
+        const showMore = event.target.closest('[data-show-more]');
+
+        if (showMore) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (typeof window.loadPage !== 'function') {
+                return;
+            }
+
+            const wrapper = showMore.closest('#show-more-wrapper');
+
+            if (!wrapper) {
+                return;
+            }
+
+            const currentPage = Number(wrapper.dataset.currentPage);
+            const lastPage = Number(wrapper.dataset.lastPage);
+
+            if (currentPage >= lastPage) {
+                return;
+            }
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', currentPage + 1);
+            await window.loadPage(url.toString());
+            return;
+        }
+
+        const button = event.target.closest('.favorite-toggle, [data-favorite-remove]');
 
         if (!button || button.disabled || !button.dataset.favoriteUrl) {
             return;
@@ -151,6 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
             button.innerHTML = payload.icon;
             button.setAttribute('aria-pressed', payload.is_favorite ? 'true' : 'false');
             updateFavoriteCount(payload.count);
+
+            if (button.hasAttribute('data-favorite-remove')) {
+                button.closest('[data-favorite-card]')?.remove();
+                updateFavoritesPageCount(payload.count);
+
+                /*
+                 * На странице избранного сервер также формирует заголовок
+                 * со счетчиками подкатегорий. После удаления карточки нужно
+                 * заменить этот блок, чтобы обновить счетчики и empty state.
+                 */
+                if (document.getElementById('favorites-heading')
+                    && typeof window.loadFavoritesPage === 'function') {
+                    const favoritesUrl = new URL(window.location.href);
+                    favoritesUrl.searchParams.delete('page');
+                    await window.loadFavoritesPage(favoritesUrl.toString());
+                }
+            }
+
             showFlashMessage(payload.message, 'success');
         } catch (error) {
             showFlashMessage(error.message, 'error');
@@ -181,6 +228,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const normalizedCount = Number(count) || 0;
         badge.textContent = normalizedCount > 99 ? '99+' : normalizedCount;
         badge.classList.toggle('hidden', normalizedCount === 0);
+    }
+
+    function updateFavoritesPageCount(count) {
+        const counter = document.getElementById('favorites-page-count');
+
+        if (!counter) {
+            return;
+        }
+
+        counter.textContent = Number(count) || 0;
     }
 
     /*
@@ -222,6 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
         flash.querySelector('[data-dismiss-flash]').addEventListener('click', close);
         window.setTimeout(close, 6000);
     }
+
+    // Эти функции используются страницей избранного для синхронизации
+    // счетчиков после AJAX-фильтрации и удаления подкатегории.
+    window.updateFavoriteCount = updateFavoriteCount;
+    window.updateFavoritesPageCount = updateFavoritesPageCount;
+    window.showFlashMessage = showFlashMessage;
 
 // -------------------------------------------------------------------------
     // ИНИЦИАЛИЗАЦИЯ ВСЕХ SWIPER-СЛАЙДЕРОВ
