@@ -152,7 +152,9 @@
                          {!! $variant->formatted_excerpt !!}
                     </div>
 
-                    <a href="#full-specs" class="text-blue-600 hover:underline">
+                    <a href="#characteristics"
+                       data-product-tab-link="characteristics"
+                       class="text-blue-600 hover:underline">
                         Все характеристики
                     </a>
                 </div>    
@@ -169,38 +171,71 @@
         </div>
 
                 {{-- Вкладки --}}
-        <div class="border-b border-gray-200 pt-10 mb-10">
-            <ul class="flex gap-8 text-lg font-medium">
-                <li class="pb-3 border-b-2 border-red-600 text-red-600 cursor-pointer">
+        <div id="product-tabs" class="border-b border-gray-200 pt-10 mb-10">
+            <ul class="flex gap-8 text-lg font-medium" role="tablist">
+                <li>
+                    <a href="#about"
+                       data-product-tab="about"
+                       role="tab"
+                       class="inline-block pb-3 border-b-2 border-red-600 text-gray-500 cursor-pointer hover:text-gray-700">
+                    О товаре
+                    </a>
+                </li>
+                <li>
+                    <a href="#characteristics"
+                       data-product-tab="characteristics"
+                       role="tab"
+                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
                     Характеристики
+                    </a>
                 </li>
-                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                <li>
+                    <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                       data-product-tab="reviews"
+                       role="tab"
+                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
                     Отзывы
+                    </a>
                 </li>
-                <li class="pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                <li>
+                    <a href="#"
+                       data-product-tab="questions"
+                       role="tab"
+                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
                     Вопросы о товаре
+                    </a>
                 </li>
             </ul>
         </div>
 
-        {{-- Полный блок характеристик --}}
-        <div id="full-specs">
-            <!-- <h2 class="text-2xl font-bold mb-4">Основные характеристики</h2> -->
+        <div id="product-tab-content">
+            <section data-product-tab-panel="about">
+                @include('variants.partials.about-tab')
+            </section>
 
-            <div class="text-gray-700 leading-relaxed">
-                <x-specs-table :text="$variant->description" />
-                <!-- {!! nl2br(str_replace(['\n', '\"'], ["\n", '"'], $variant->description)) !!} -->
-            </div>
+            <section id="full-specs" data-product-tab-panel="characteristics" class="hidden">
+                <div class="text-gray-700 leading-relaxed">
+                    <x-specs-table :text="$variant->description" />
+                </div>
+            </section>
+
+            <section data-product-tab-panel="reviews" class="hidden">
+                @include('variants.partials.reviews-placeholder')
+            </section>
+
+            <section data-product-tab-panel="questions" class="hidden"></section>
         </div>
 
-    </div>
+        {{-- Общий рекламный блок для всех вкладок страницы варианта --}}
+        @if($sections->isNotEmpty())
+            <section class="w-full">
+                @foreach($sections as $section)
+                    <x-section-renderer :section="$section" :currentVariant="$variant" />
+                @endforeach
+            </section>
+        @endif
 
-    {{-- Блоки заголовков с тегами и слайдеры --}}
-    <section class="w-full">
-        @foreach($sections as $section)
-            <x-section-renderer :section="$section" :currentVariant="$variant" />
-        @endforeach
-    </section>
+    </div>
 
     <x-variant-image-modal-window 
     :images="$variant->images"
@@ -211,6 +246,70 @@
 {{-- JS для прокрутки миниатюр --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const tabs = [...document.querySelectorAll('[data-product-tab]')];
+    const panels = [...document.querySelectorAll('[data-product-tab-panel]')];
+    const tabRoot = document.getElementById('product-tabs');
+    const productUrl = @json(route('catalog.variant', $variant));
+    const reviewsUrl = @json(route('catalog.variant.reviews', $variant));
+    const initialTab = @json($initialTab);
+
+    function setActiveTab(tab, {updateUrl = true, scroll = false} = {}) {
+        const activeTab = tab === 'questions' ? 'questions' : tab;
+        const panelTab = ['about', 'characteristics', 'reviews'].includes(activeTab)
+            ? activeTab
+            : null;
+
+        tabs.forEach(link => {
+            const isActive = link.dataset.productTab === activeTab;
+            link.classList.toggle('border-b-2', isActive);
+            link.classList.toggle('border-red-600', isActive);
+            link.classList.toggle('text-gray-500', !isActive);
+        });
+
+        if (panelTab) {
+            panels.forEach(panel => {
+                panel.classList.toggle('hidden', panel.dataset.productTabPanel !== panelTab);
+            });
+        }
+
+        if (updateUrl && activeTab !== 'questions') {
+            const url = activeTab === 'reviews'
+                ? reviewsUrl
+                : `${productUrl}#${activeTab}`;
+            window.history.pushState({productTab: activeTab}, '', url);
+        }
+
+        if (scroll && tabRoot) {
+            tabRoot.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    }
+
+    tabs.forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            setActiveTab(link.dataset.productTab, {scroll: true});
+        });
+    });
+
+    document.querySelector('[data-product-tab-link="characteristics"]')
+        ?.addEventListener('click', event => {
+            event.preventDefault();
+            setActiveTab('characteristics', {scroll: true});
+        });
+
+    window.addEventListener('popstate', () => {
+        const tab = window.location.pathname === new URL(reviewsUrl).pathname
+            ? 'reviews'
+            : (window.location.hash.slice(1) || 'about');
+        setActiveTab(tab, {updateUrl: false});
+    });
+
+    setActiveTab(
+        window.location.pathname === new URL(reviewsUrl).pathname
+            ? 'reviews'
+            : (window.location.hash.slice(1) || initialTab),
+        {updateUrl: false}
+    );
 
     let activeId = {{ $activeId }};
     const images = @json($images);

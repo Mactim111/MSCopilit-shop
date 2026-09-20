@@ -40,6 +40,9 @@ Route::get('/catalog/{group}/{category}/{subcategory}', [CatalogController::clas
 Route::get('/catalog/{group}/{category}/{subcategory}/brand={brands}', [CatalogController::class, 'subcategory'])->name('catalog.subcategory.brand');
 
 // Вариант товара
+Route::get('/products/{variant}/reviews', [ProductVariantController::class, 'show'])
+    ->name('catalog.variant.reviews')
+    ->withTrashed();
 Route::get('/products/{variant}', [ProductVariantController::class, 'show'])
     ->name('catalog.variant')
     ->withTrashed();
@@ -130,4 +133,3 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::post('/email/send', [EmailVerificationController::class, 'send'])
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
-

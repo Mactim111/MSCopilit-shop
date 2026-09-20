@@ -93,6 +93,10 @@ class ProductVariantController extends Controller
             ->orderBy('order')
             ->get();
 
+        $initialTab = request()->routeIs('catalog.variant.reviews')
+            ? 'reviews'
+            : 'about';
+
         $isFavorite = auth()->check()
             && auth()->user()->favoriteVariants()->whereKey($variant->id)->exists();
 
@@ -112,6 +116,7 @@ class ProductVariantController extends Controller
             'popular_variants',
             'variantMatrix',   // ← добавлено для свитчера
             'sections',        // ← добавлено для динамических секций
+            'initialTab',
             'isFavorite',
         ));
     }
