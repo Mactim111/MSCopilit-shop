@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductVariant extends Model
@@ -43,6 +45,31 @@ class ProductVariant extends Model
         return 'slug';
     }
 
+    /**
+     * Старые записи могут быть созданы без slug. Для них используем ID
+     * только как fallback, не меняя человекочитаемые URL существующих записей.
+     */
+    public function getRouteKey(): string
+    {
+        return $this->slug ?: (string) $this->getKey();
+    }
+
+    /**
+     * Поддерживает стандартный slug и fallback-ссылки по ID.
+     */
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        $field ??= $this->getRouteKeyName();
+
+        return $query->where(function ($routeQuery) use ($field, $value) {
+            $routeQuery->where($field, $value);
+
+            if ($field === 'slug' && is_numeric($value)) {
+                $routeQuery->orWhere($this->getKeyName(), (int) $value);
+            }
+        });
+    }
+
     /* -----------------------------------------
      |  СВЯЗИ
      |------------------------------------------*/
@@ -71,6 +98,25 @@ class ProductVariant extends Model
             'product_variant_id',
             'user_id'
         )->withTimestamps();
+    }
+
+    /**
+     * Добавляет к выборке признак избранности варианта текущим пользователем.
+     */
+    public function scopeWithFavoriteState(Builder $query): Builder
+    {
+        if (! auth()->check()) {
+            if ($query->getQuery()->columns === null) {
+                $query->select($query->getModel()->getTable() . '.*');
+            }
+
+            return $query->addSelect(DB::raw('0 as is_favorite'));
+        }
+
+        return $query->withExists([
+            'favoritedBy as is_favorite' => fn (Builder $favoriteQuery) =>
+                $favoriteQuery->where('users.id', auth()->id()),
+        ]);
     }
 
     // Галерея изображений варианта

@@ -12,18 +12,16 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Длительность показа flash-сообщения в миллисекундах.
+    // Чтобы изменить время, поменяйте значение 4000 (например, 6000 = 6 секунд).
+    const flashMessageDuration = 4000;
+
     /*
      * Единая логика flash-сообщений layout: пользователь может закрыть
      * сообщение вручную, а если этого не сделал — оно исчезает автоматически.
      */
     document.querySelectorAll('[data-flash-message]').forEach((message) => {
-        const close = () => {
-            message.classList.add('opacity-0');
-            window.setTimeout(() => message.remove(), 300);
-        };
-
-        message.querySelector('[data-dismiss-flash]')?.addEventListener('click', close);
-        window.setTimeout(close, 6000);
+        setupFlashMessage(message);
     });
 
     /*
@@ -102,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * независимо от предыдущих действий пользователя.
      */
     document.addEventListener('click', async (event) => {
-        const showMore = event.target.closest('[data-show-more]');
+        const showMore = event.target.closest('[data-show-more], [data-favorites-show-more]');
 
         if (showMore) {
             event.preventDefault();
@@ -112,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const wrapper = showMore.closest('#show-more-wrapper');
+            const wrapper = showMore.closest('#show-more-wrapper, #favorites-show-more-wrapper');
 
             if (!wrapper) {
                 return;
@@ -252,13 +250,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const removalMessage = /удал|снят/i.test(message);
+        const flashType = removalMessage ? 'removal' : type;
+        const current = container.querySelector('[data-flash-message]');
+
+        if (current?.querySelector('span')?.textContent === message) {
+            setupFlashMessage(current);
+            return;
+        }
+
+        current?.remove();
+
         const flash = document.createElement('div');
-        const classes = type === 'error'
+        const classes = flashType === 'removal' || type === 'error'
             ? 'bg-red-100 text-red-700'
             : 'bg-green-100 text-green-700';
 
         flash.dataset.flashMessage = '';
-        flash.className = `relative mb-4 p-3 pr-10 ${classes} rounded text-center transition-opacity duration-300`;
+        flash.dataset.flashType = flashType;
+        flash.className = `pointer-events-auto relative p-3 pr-10 ${classes} rounded text-center shadow-lg transition-opacity duration-300`;
         flash.innerHTML = `
             <span></span>
             <button type="button"
@@ -269,15 +279,23 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
         flash.querySelector('span').textContent = message;
-        container.prepend(flash);
+        container.replaceChildren(flash);
+        setupFlashMessage(flash);
+    }
 
+    function setupFlashMessage(flash) {
         const close = () => {
+            if (!flash.isConnected) {
+                return;
+            }
+
             flash.classList.add('opacity-0');
             window.setTimeout(() => flash.remove(), 300);
         };
 
         flash.querySelector('[data-dismiss-flash]').addEventListener('click', close);
-        window.setTimeout(close, 6000);
+        window.clearTimeout(Number(flash.dataset.timeoutId));
+        flash.dataset.timeoutId = String(window.setTimeout(close, flashMessageDuration));
     }
 
     // Эти функции используются страницей избранного для синхронизации

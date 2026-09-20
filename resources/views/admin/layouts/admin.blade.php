@@ -5,10 +5,35 @@
     <meta charset="UTF-8">
     <title>@yield('title', 'Админ-панель')</title>
 
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-gray-100">
+
+{{-- Единый fixed-контейнер сообщений для административного интерфейса. --}}
+<div id="flash-messages" class="fixed top-[24px] left-1/2 -translate-x-1/2 z-[60]
+                                    w-[min(600px,calc(100vw-32px))] pointer-events-none">
+    <div class="w-full">
+        @php
+            $flashType = session('error') ? 'error' : (session('success') ? 'success' : null);
+            $flashMessage = $flashType ? session($flashType) : null;
+            $isRemovalMessage = is_string($flashMessage) && preg_match('/удал|снят/i', $flashMessage);
+        @endphp
+        @if($flashMessage)
+            <div data-flash-message
+                 data-flash-type="{{ $isRemovalMessage ? 'removal' : $flashType }}"
+                 class="pointer-events-auto relative p-3 pr-10 rounded text-center shadow-lg
+                        {{ $isRemovalMessage || $flashType === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}
+                        transition-opacity duration-300">
+                <span>{{ $flashMessage }}</span>
+                <button type="button" data-dismiss-flash aria-label="Закрыть сообщение"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xl leading-none opacity-60 hover:opacity-100 cursor-pointer">
+                    &times;
+                </button>
+            </div>
+        @endif
+    </div>
+</div>
 
     <div class="flex min-h-screen">
 
@@ -122,22 +147,6 @@
 
             </header>
 
-            @if(session('success'))
-            <div id="flash-message"
-                class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] transition-opacity duration-500">
-                {{ session('success') }}
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div id="flash-message"
-                class="fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] transition-opacity duration-500">
-                {{ session('error') }}
-            </div>
-            @endif
-
-
-
             <!-- CONTENT -->
             <main class="p-6">
                 @yield('content')
@@ -160,14 +169,6 @@
             }
         });
     
-        // --- Flash message auto-hide (session messages) ---
-        setTimeout(() => {
-            const el = document.getElementById('flash-message');
-            if (el) {
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 500);
-            }
-        }, 3000);
 
         // --- JS toast for fetch actions ---
         function showToast(message, type = 'success') {

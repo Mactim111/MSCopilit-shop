@@ -2,27 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\ProductVariant;
-use Illuminate\Http\Request;
-
 class ProductController extends Controller
 {
-
-    // public function show(ProductVariant $variant)
-    // {
-    //     $variant->load(['images', 'labels', 'propertyOptions.property', 'product.brand']);
-
-    //     $product = $variant->product;
-
-    //     $relatedVariants = ProductVariant::where('id', '!=', $variant->id)
-    //         ->whereHas('product', fn($q) => $q->where('category_id', $product->category_id))
-    //         ->with(['images', 'product'])
-    //         ->take(6)
-    //         ->get();
-
-    //     return view('products.show', compact('variant', 'product', 'relatedVariants'));
-    // }
-
+    /*
+     * Старый Product-ориентированный сценарий просмотра товара отключён.
+     * Актуальная клиентская страница варианта товара обслуживается
+     * ProductVariantController.
+     *
+     * Контроллер сохраняется как задел для возможного административного
+     * или совместимого сценария в будущем.
+     */
 }

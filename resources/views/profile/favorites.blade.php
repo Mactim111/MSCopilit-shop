@@ -48,15 +48,15 @@
             {{-- Список карточек избранных вариантов вынесен в partial для AJAX-замены. --}}
             @include('profile.partials.favorites-list')
 
-            {{-- Блок "Показать еще" использует готовую механику каталога. --}}
+            {{-- Специализированный блок "Показать еще" для страницы избранного. --}}
             <div id="favorites-show-more">
-                @include('catalog.partials.show-more', ['variants' => $favorites])
+                @include('profile.partials.favorites-show-more', ['variants' => $favorites])
             </div>
 
             @if($favorites->total() > $favorites->perPage())
-                {{-- Пагинация использует ту же верстку, что и страница подкатегории. --}}
+                {{-- Специализированная пагинация страницы избранного. --}}
                 <div id="favorites-pagination">
-                    @include('catalog.partials.pagination', ['variants' => $favorites])
+                    @include('profile.partials.favorites-pagination', ['variants' => $favorites])
                 </div>
             @endif
         </main>

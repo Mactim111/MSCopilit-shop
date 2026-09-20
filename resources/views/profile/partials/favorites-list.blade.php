@@ -1,10 +1,6 @@
 <div id="favorites-list" class="space-y-4">
     @forelse($favorites as $variant)
-        <x-variant-list-card
-            :variant="$variant"
-            :isFavorite="true"
-            :isFavoritesPage="true"
-        />
+        <x-favorite-variant-card :variant="$variant" />
     @empty
         <div class="text-left">
             <p class="text-[15px] font-semibold text-black">

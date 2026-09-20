@@ -102,6 +102,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Скрываем минус при количестве 1 и показываем его начиная с 2.
+    const updateDecreaseButton = (input) => {
+        const form = input.closest('form');
+        const decreaseButton = form?.querySelector('[data-quantity-decrease]');
+        const quantity = Number.parseInt(input.value, 10) || 1;
+
+        if (!decreaseButton) {
+            return;
+        }
+
+        decreaseButton.classList.toggle('hidden', quantity <= 1);
+        decreaseButton.classList.toggle('flex', quantity > 1);
+    };
+
+    document.querySelectorAll('[data-quantity-input]').forEach((input) => {
+        updateDecreaseButton(input);
+        input.addEventListener('input', () => updateDecreaseButton(input));
+        input.addEventListener('change', () => updateDecreaseButton(input));
+    });
+
     // Кнопки количества используют ту же форму PUT, что и ручной ввод.
     document.querySelectorAll('[data-quantity-decrease], [data-quantity-increase]')
         .forEach((button) => {
@@ -123,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 input.value = nextValue;
+                updateDecreaseButton(input);
                 form.requestSubmit();
             });
         });

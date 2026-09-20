@@ -1,10 +1,7 @@
-@props(['variant', 'isFavorite' => false])
+@props(['variant'])
 
 @php
     $product = $variant->product;
-    use App\Models\CartItem;
-    use Illuminate\Support\Facades\Auth;
-    // Внедряем сервис корзины прямо в шаблон
     $cartService = app(App\Services\CartService::class);
     $available = $variant->available_stock;
     $isAvailable = $variant->is_active && $available > 0;
@@ -21,7 +18,19 @@
     focus-visible:outline-none
     px-[30px] py-[14px] flex mb-[16px]">
 
-    {{-- Колонка 1: фото --}}
+    <button type="button"
+            class="absolute top-[3px] right-[3px] z-10
+                   w-5 h-5 flex items-center justify-center
+                   text-[#231F20] hover:text-[#DC092E] transition-colors cursor-pointer"
+            data-favorite-remove
+            data-favorite-url="{{ route('favorites.toggle', $variant) }}"
+            aria-label="Удалить товар из избранного">
+        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+             aria-hidden="true">
+            <path stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+
     <div class="w-[327px] min-h-[302px] flex items-center justify-center">
         <div class="w-[260px] h-[260px] rounded-lg overflow-hidden bg-gray-100 cursor-pointer">
             <a href="{{ route('catalog.variant', $variant->slug) }}">
@@ -32,36 +41,26 @@
         </div>
     </div>
 
-    {{-- Колонка 2 --}}
     <div class="w-[436px] min-h-[302px] pl-[8px] pr-[65px] flex flex-col">
-
-        {{-- Название --}}
-        <a href="{{ route('catalog.variant', $variant->slug) }}" class="block mb-[2px] cursor-pointer ">
+        <a href="{{ route('catalog.variant', $variant->slug) }}" class="block mb-[2px] cursor-pointer">
             <div class="w-[364px] min-h-[40px] text-[15px] font-bold text-[#231F20]">
                 {{ $variant->title }}
             </div>
         </a>
 
-        {{-- Код товара --}}
         <div class="h-[21px] text-[14px] text-gray-600 mb-1">
             Код товара: {{ $variant->article }}
         </div>
 
         <hr class="border-t border-dashed border-gray-300 mb-2">
 
-        {{-- Описание --}}
         <div class="w-[364px] min-h-full text-[14px] text-gray-700 pb-[5px]">
             {!! $variant->formatted_excerpt !!}
             <hr class="border-t border-dashed border-gray-300 mt-[10px]">
         </div>
-
-        
     </div>
 
-    {{-- Колонка 3 --}}
     <div class="w-[327px] min-h-[302px] pl-[35px] flex flex-col justify-between">
-
-        {{-- Лейбл + рейтинг --}}
         <div class="flex justify-between items-center mb-3 mt-1">
             <div class="flex gap-2">
                 @foreach($variant->labels as $label)
@@ -88,7 +87,6 @@
             </div>
         </div>
 
-        {{-- Цена --}}
         <div class="mb-4">
             <div class="text-3xl font-bold text-gray-900">
                 {!! $variant->formattedPrice(28, 17) !!}
@@ -109,14 +107,9 @@
             @endif
         </div>
 
-        {{-- Кнопки --}}
         <div class="grid grid-cols-5 gap-3 mb-3">
-
             <div class="col-span-4">
-                @php
-                    // Теперь проверка работает универсально для всех (залогиненных и гостей) через сервис корзины
-                    $inCart = $cartService->has($variant->id);
-                @endphp
+                @php($inCart = $cartService->has($variant->id))
 
                 @if(!$isAvailable)
                     <button disabled
@@ -125,8 +118,7 @@
                     </button>
                 @elseif($inCart)
                     <a href="{{ route('cart.index') }}"
-                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer
-                       hover:bg-red-500 hover:text-white">
+                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-500 hover:text-white">
                         В корзине
                     </a>
                 @else
@@ -143,21 +135,15 @@
             </div>
 
             <div class="col-span-1 flex justify-center items-center">
-                {{-- Кнопка избранного --}}
                 <button type="button"
                         class="favorite-toggle cursor-pointer"
+                        data-favorite-remove
                         data-id="{{ $variant->id }}"
                         data-favorite-url="{{ route('favorites.toggle', $variant) }}">
-                    @if($isFavorite)
-                        @include('products.icons.heart-filled')
-                    @else
-                        @include('products.icons.heart-outline')
-                    @endif
+                    @include('products.icons.heart-filled')
                 </button>
             </div>
         </div>
-
-        {{-- Наличие --}}
 
         @if(!$variant->is_active)
             <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 mb-3 rounded">
@@ -167,7 +153,7 @@
             <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 mb-3 py-2 rounded">
                 В наличии
             </div>
-        @elseif($available > 0 && $available <= 5)
+        @elseif($available > 0)
             <div class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-2 mb-3 rounded">
                 Товар заканчивается
             </div>
@@ -176,7 +162,5 @@
                 Товар закончился
             </div>
         @endif
-
     </div>
-
 </div>

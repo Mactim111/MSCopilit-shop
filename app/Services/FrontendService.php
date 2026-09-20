@@ -30,6 +30,7 @@ class FrontendService
         // Источник: Хиты продаж
         elseif ($section->source_type === 'best_sellers') {
             $data['items'] = \App\Models\ProductVariant::with(['product', 'labels', 'images'])
+                ->withFavoriteState()
                 ->where('is_active', true)
                 ->inRandomOrder()
                 ->take(10)
@@ -39,6 +40,7 @@ class FrontendService
         // Источник: Новинки
         elseif ($section->source_type === 'new_arrivals') {
             $data['items'] = \App\Models\ProductVariant::with(['product', 'labels', 'images'])
+                ->withFavoriteState()
                 ->where('is_active', true)
                 ->latest()
                 ->take(10)
@@ -53,6 +55,7 @@ class FrontendService
                     $q->where('category_id', $currentVariant->product->category_id);
                 })
                 ->with(['product', 'labels', 'images'])
+                ->withFavoriteState()
                 ->where('is_active', true)
                 ->take(10)
                 ->get();
@@ -62,6 +65,7 @@ class FrontendService
         if ($section->type === 'recently_viewed') {
             // Пока для теста берем рандомные варианты, позже заменим на логику из Cookies/Session
             $data['items'] = \App\Models\ProductVariant::with(['product', 'images'])
+                ->withFavoriteState()
                 ->where('is_active', true)
                 ->inRandomOrder()
                 ->take(10)

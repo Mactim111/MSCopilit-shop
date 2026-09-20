@@ -16,6 +16,9 @@
     </div>
 @else
     @foreach ($variants as $variant)
-        <x-variant-list-card :variant="$variant" />
+        <x-variant-list-card
+            :variant="$variant"
+            :isFavorite="(bool) ($variant->is_favorite ?? false)"
+        />
     @endforeach
 @endif

@@ -40,7 +40,8 @@ class CatalogFilterService
 
         // Строим запрос по вариантам — точно как в твоём subcategory().
         $query = ProductVariant::whereIn('id', $filteredVariantIds)
-        ->with(['product', 'images', 'labels', 'propertyOptions.property']);
+        ->with(['product', 'images', 'labels', 'propertyOptions.property'])
+        ->withFavoriteState();
 
         // Ценовой фильтр применяем прямо к вариантам
         // (price живёт в product_variants, не нужен индекс).

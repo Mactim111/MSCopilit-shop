@@ -43,29 +43,37 @@
         его ухода вверх фиксируется сразу под основным header и остаётся
         видимой при дальнейшем скролле страницы.
     --}}
-    <div id="flash-messages" class="sticky top-[72px] z-[45] bg-white">
-        <div class="max-w-full mx-auto">
-            {{-- Общие flash-сообщения закрываются крестиком и автоматически исчезают. --}}
-            @foreach(['success' => 'bg-green-100 text-green-700', 'error' => 'bg-red-100 text-red-700'] as $type => $classes)
-                @if(session($type))
-                    <div data-flash-message
-                         class="relative mb-4 p-3 pr-10 {{ $classes }} rounded text-center transition-opacity duration-300">
-                        <span>{{ session($type) }}</span>
-                        @if($type === 'error' && session('error_link'))
-                            <a href="{{ session('error_link') }}"
-                               class="ml-2 font-semibold underline hover:no-underline">
-                                Вернуться в корзину
-                            </a>
-                        @endif
-                        <button type="button"
-                                data-dismiss-flash
-                                aria-label="Закрыть сообщение"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-xl leading-none opacity-60 hover:opacity-100">
-                            &times;
-                        </button>
-                    </div>
-                @endif
-            @endforeach
+    <div id="flash-messages" class="fixed top-[84px] left-1/2 -translate-x-1/2 z-[60]
+                                    w-[min(600px,calc(100vw-32px))] pointer-events-none">
+        <div class="w-full">
+            {{-- Показываем только одно сообщение; новые AJAX-сообщения заменяют его. --}}
+            @php
+                $flashType = session('error') ? 'error' : (session('success') ? 'success' : null);
+                $flashMessage = $flashType ? session($flashType) : null;
+                $isRemovalMessage = is_string($flashMessage)
+                    && preg_match('/удал|снят/i', $flashMessage);
+            @endphp
+            @if($flashMessage)
+                <div data-flash-message
+                     data-flash-type="{{ $isRemovalMessage ? 'removal' : $flashType }}"
+                     class="pointer-events-auto relative p-3 pr-10 rounded text-center shadow-lg
+                            {{ $isRemovalMessage ? 'bg-red-100 text-red-700' : ($flashType === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700') }}
+                            transition-opacity duration-300">
+                    <span>{{ $flashMessage }}</span>
+                    @if($flashType === 'error' && session('error_link'))
+                        <a href="{{ session('error_link') }}"
+                           class="ml-2 font-semibold underline hover:no-underline">
+                            Вернуться в корзину
+                        </a>
+                    @endif
+                    <button type="button"
+                            data-dismiss-flash
+                            aria-label="Закрыть сообщение"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-xl leading-none opacity-60 hover:opacity-100 cursor-pointer">
+                        &times;
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 

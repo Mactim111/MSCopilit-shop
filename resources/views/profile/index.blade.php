@@ -35,10 +35,6 @@
 
 
         <div class="mb-1 mt-1">
-            @if(session('success'))
-                <div style="color: green">{{ session('success') }}</div>
-            @endif
-
             @if($errors->any())
                 <div style="color: red">
                     {{ $errors->first() }}
