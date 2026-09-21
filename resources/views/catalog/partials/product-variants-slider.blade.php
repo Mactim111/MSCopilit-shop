@@ -96,7 +96,7 @@
 
                                 <div class="min-h-[50px] flex flex-col justify-start">
                                     <div class="text-[30px] font-bold text-gray-900">
-                                        {!! $variant->formattedPrice(30, 19) !!}
+                                        {!! $variant->formattedPrice(28, 19) !!}
                                     </div>
 
                                     @if($variant->old_price > 0)

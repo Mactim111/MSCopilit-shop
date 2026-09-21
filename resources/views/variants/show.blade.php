@@ -45,7 +45,7 @@
 
 
         {{-- Название + код товара в одной строке --}}
-        <div class="flex justify-between items-center mb-5">
+        <div data-product-title class="{{ $initialTab === 'about' ? 'flex' : 'hidden' }} justify-between items-center mb-5">
             <h1 class="text-[#231f20] text-[28px] font-bold">{{ $variant->title }}</h1>
 
             <div class="text-[#231f20] text-[14px]">
@@ -55,6 +55,8 @@
 
 
 
+        {{-- Полная карточка варианта для вкладки «О товаре» --}}
+        <div data-product-card="full" class="{{ $initialTab === 'about' ? '' : 'hidden' }}">
         {{-- Трёхколоночная структура --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
@@ -169,6 +171,9 @@
             </div>
 
         </div>
+        </div>
+
+        @include('variants.partials.compact-product-card')
 
                 {{-- Вкладки --}}
         <div id="product-tabs" class="border-b border-gray-200 pt-10 mb-10">
@@ -271,6 +276,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 panel.classList.toggle('hidden', panel.dataset.productTabPanel !== panelTab);
             });
         }
+
+        const isAbout = activeTab === 'about';
+        document.querySelector('[data-product-title]')
+            ?.classList.toggle('hidden', !isAbout);
+        document.querySelector('[data-product-card="full"]')
+            ?.classList.toggle('hidden', !isAbout);
+        document.querySelector('[data-product-card="compact"]')
+            ?.classList.toggle('hidden', isAbout);
 
         if (updateUrl && activeTab !== 'questions') {
             const url = activeTab === 'reviews'
