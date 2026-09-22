@@ -176,13 +176,13 @@
         @include('variants.partials.compact-product-card')
 
                 {{-- Вкладки --}}
-        <div id="product-tabs" class="border-b border-gray-200 pt-10 mb-10">
-            <ul class="flex gap-8 text-lg font-medium" role="tablist">
+        <div id="product-tabs" class="pt-10">
+            <ul class="inline-flex gap-8 border-b border-gray-200 text-lg font-medium" role="tablist">
                 <li>
                     <a href="#about"
                        data-product-tab="about"
                        role="tab"
-                       class="inline-block pb-3 border-b-2 border-red-600 text-gray-500 cursor-pointer hover:text-gray-700">
+                       class="inline-block pb-2 border-b-2 border-red-600 text-gray-500 cursor-pointer hover:text-gray-700">
                     О товаре
                     </a>
                 </li>
@@ -190,7 +190,7 @@
                     <a href="#characteristics"
                        data-product-tab="characteristics"
                        role="tab"
-                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                       class="inline-block pb-2 text-gray-500 cursor-pointer hover:text-gray-700">
                     Характеристики
                     </a>
                 </li>
@@ -198,7 +198,7 @@
                     <a href="{{ route('catalog.variant.reviews', $variant) }}"
                        data-product-tab="reviews"
                        role="tab"
-                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                       class="inline-block pb-2 text-gray-500 cursor-pointer hover:text-gray-700">
                     Отзывы
                     </a>
                 </li>
@@ -206,7 +206,7 @@
                     <a href="#"
                        data-product-tab="questions"
                        role="tab"
-                       class="inline-block pb-3 text-gray-500 cursor-pointer hover:text-gray-700">
+                       class="inline-block pb-2 text-gray-500 cursor-pointer hover:text-gray-700">
                     Вопросы о товаре
                     </a>
                 </li>
@@ -219,7 +219,7 @@
             </section>
 
             <section id="full-specs" data-product-tab-panel="characteristics" class="hidden">
-                <div class="text-gray-700 leading-relaxed">
+                <div class="text-gray-700 leading-relaxed pt-[40px] mb-[70px]">
                     <x-specs-table :text="$variant->description" />
                 </div>
             </section>
@@ -253,7 +253,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tabs = [...document.querySelectorAll('[data-product-tab]')];
     const panels = [...document.querySelectorAll('[data-product-tab-panel]')];
-    const tabRoot = document.getElementById('product-tabs');
     const productUrl = @json(route('catalog.variant', $variant));
     const reviewsUrl = @json(route('catalog.variant.reviews', $variant));
     const initialTab = @json($initialTab);
@@ -292,8 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.pushState({productTab: activeTab}, '', url);
         }
 
-        if (scroll && tabRoot) {
-            tabRoot.scrollIntoView({behavior: 'smooth', block: 'start'});
+        if (scroll) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
     }
 

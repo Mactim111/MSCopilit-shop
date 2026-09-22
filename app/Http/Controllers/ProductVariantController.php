@@ -97,6 +97,14 @@ class ProductVariantController extends Controller
             ? 'reviews'
             : 'about';
 
+        $canReview = auth()->check()
+            && auth()->user()->orders()
+                ->whereIn('status', ['paid', 'shipped'])
+                ->whereHas('items', fn ($query) =>
+                    $query->where('product_variant_id', $variant->id)
+                )
+                ->exists();
+
         $isFavorite = auth()->check()
             && auth()->user()->favoriteVariants()->whereKey($variant->id)->exists();
 
@@ -117,6 +125,7 @@ class ProductVariantController extends Controller
             'variantMatrix',   // ← добавлено для свитчера
             'sections',        // ← добавлено для динамических секций
             'initialTab',
+            'canReview',
             'isFavorite',
         ));
     }
