@@ -77,11 +77,21 @@ class Product extends Model
 
     public function publishedReviewStats(): array
     {
-        $query = $this->publishedReviews();
+        $distribution = $this->publishedReviews()
+            ->selectRaw('reviews.rating, COUNT(*) as review_count')
+            ->groupBy('reviews.rating')
+            ->pluck('review_count', 'rating');
+
+        $count = (int) $distribution->sum();
 
         return [
-            'count' => (clone $query)->count(),
-            'rating' => round((float) ((clone $query)->avg('rating') ?? 0), 1),
+            'count' => $count,
+            'rating' => $count
+                ? round((float) $this->publishedReviews()->avg('reviews.rating'), 1)
+                : 0,
+            'distribution' => collect(range(1, 5))
+                ->mapWithKeys(fn (int $rating) => [$rating => (int) ($distribution[$rating] ?? 0)])
+                ->all(),
         ];
     }
 
@@ -234,8 +244,8 @@ class Product extends Model
         return "<span style=\"font-size: {$wholeFontSize}px;\">{$whole}</span><span style=\"font-size: {$fractionFontSize}px;\">.</span><span style=\"font-size: {$fractionFontSize}px;\">{$fraction}</span> <i class=\"nbrb-icon\">BYN</i>";
     }
 
-    // ДЛЯ ЛИНЕЙКИ — возвращает значение опции свойства "линейка" текущего варианта товара, если оно есть - НА ВСЯКИЙ СЛУЧАЙ! 
-    // можно в ХЛЕБНЫХ КРОШКАХ использовать, чтобы выводить ".../iPhone 14/Смартфоны" вместо просто "Смартфоны", 
+    // ДЛЯ ЛИНЕЙКИ — возвращает значение опции свойства "линейка" текущего варианта товара, если оно есть - НА ВСЯКИЙ СЛУЧАЙ!
+    // можно в ХЛЕБНЫХ КРОШКАХ использовать, чтобы выводить ".../iPhone 14/Смартфоны" вместо просто "Смартфоны",
     // хотя у варианта есть в модели свой аксессор getLineupAttribute(), который возвращает значение линейки
     public function getLineupAttribute()
     {
@@ -244,9 +254,9 @@ class Product extends Model
 
         if (!$variant) {
             return null;
+
         }
 
         return $variant->lineup; // используем аксессор варианта
     }
-
 }

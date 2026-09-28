@@ -15,6 +15,8 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        abort_unless($request->user()?->is_admin, Response::HTTP_FORBIDDEN);
+
         return $next($request);
     }
 }

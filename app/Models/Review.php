@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Review extends Model
 {
@@ -33,5 +35,20 @@ class Review extends Model
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id')->withTrashed();
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ReviewImage::class)->orderBy('position');
+    }
+
+    public function reply(): HasOne
+    {
+        return $this->hasOne(ReviewReply::class);
+    }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(ReviewVote::class);
     }
 }

@@ -23,25 +23,27 @@
                  src="{{ $activeImage }}"
                  class="h-[748px] object-contain">
 
+            @if($images->count() >= 5) 
             <!-- Кнопка назад -->
-            <button 
-                class="js-modal-prev absolute left-[40px] top-1/2 -translate-y-1/2
-                       w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                       flex items-center justify-center cursor-pointer z-20">
-                <span class="text-red-600">
-                    @include('products.icons.chevron-left-thin')
-                </span>
-            </button>
-
-            <!-- Кнопка вперед -->
-            <button 
-                class="js-modal-next absolute right-[40px] top-1/2 -translate-y-1/2
-                       w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                       flex items-center justify-center cursor-pointer z-20">
-                <span class="text-red-600">
-                    @include('products.icons.chevron-right-thin')
-                </span>
-            </button>
+                <button 
+                    class="js-modal-prev absolute left-[40px] top-1/2 -translate-y-1/2
+                        w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                        flex items-center justify-center cursor-pointer z-20">
+                    <span class="text-red-600">
+                        @include('products.icons.chevron-left-thin')
+                    </span>
+                </button>
+            
+                <!-- Кнопка вперед -->
+                <button 
+                    class="js-modal-next absolute right-[40px] top-1/2 -translate-y-1/2
+                        w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                        flex items-center justify-center cursor-pointer z-20">
+                    <span class="text-red-600">
+                        @include('products.icons.chevron-right-thin')
+                    </span>
+                </button>
+            @endif
 
         </div>
 

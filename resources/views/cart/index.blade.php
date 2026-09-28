@@ -9,7 +9,7 @@
         <div class="flex flex-col">
             <p class="text-[28px] text-[#231f20] mb-5 font-bold">В корзине еще нет товаров</p>
             <a href="{{ route('catalog.index') }}"
-               class="inline-block text-[#007EEF] text-[15px]">
+               class="inline-block text-[#007eff] hover:text-[#0064cc] transition-all duration-200 text-[15px]">
                 <span class="text-[#231f20]">Выберите нужный Вам товар из </span>каталога Интернет-магазина
             </a>
         </div>

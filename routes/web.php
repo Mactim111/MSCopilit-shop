@@ -1,25 +1,27 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
+use App\Http\Controllers\Admin\ReviewImageAdminController;
+use App\Http\Controllers\Admin\ReviewReplyAdminController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewVoteController;
+use Illuminate\Support\Facades\Route;
 
 // Главная
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,6 +48,12 @@ Route::get('/products/{variant}/reviews', [ProductVariantController::class, 'sho
 Route::get('/products/{variant}', [ProductVariantController::class, 'show'])
     ->name('catalog.variant')
     ->withTrashed();
+Route::get('/products/{variant}/reviews/data', [ReviewController::class, 'index'])
+    ->name('reviews.index')
+    ->withTrashed();
+Route::post('/reviews/{review}/vote', [ReviewVoteController::class, 'toggle'])
+    ->name('reviews.vote')
+    ->middleware(['auth', 'throttle:30,1']);
 
 // Избранное: просмотр доступен гостям, изменение списка — только авторизованным пользователям.
 Route::get('/profile/favorites', [FavoriteController::class, 'index'])->name('profile.favorites');
@@ -103,6 +111,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', CategoryAdminController::class);
 
     Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'update']);
+    Route::post('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'store'])->name('reviews.reply.store');
+    Route::put('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'update'])->name('reviews.reply.update');
+    Route::delete('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'destroy'])->name('reviews.reply.destroy');
+    Route::post('/reviews/{review}/images', [ReviewImageAdminController::class, 'store'])->name('reviews.images.store');
+    Route::put('/reviews/{review}/images/{image}', [ReviewImageAdminController::class, 'update'])->name('reviews.images.update');
+    Route::delete('/reviews/{review}/images/{image}', [ReviewImageAdminController::class, 'destroy'])->name('reviews.images.destroy');
 });
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -120,7 +134,6 @@ Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showRese
     ->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
     ->name('password.update');
-
 
 Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
     ->middleware('auth')

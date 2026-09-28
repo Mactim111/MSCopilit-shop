@@ -80,19 +80,19 @@
                 </div>
 
                 {{-- Галерея миниатюр с прокруткой --}}
-                @if($variant->images->count() >= 5)
+                
                 <div class="max-w-[510px] overflow-hidden mx-auto relative">
 
                     <div class="relative px-[16px]">
-
-                        {{-- Кнопка назад --}}
-                        <button type="button"
-                            class="js-swiper-prev absolute left-[1px] top-1/2 -translate-y-1/2
-                                w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                                flex items-center justify-center cursor-pointer z-10">
-                            <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
-                        </button>
-
+                        @if($variant->images->count() >= 5)
+                            {{-- Кнопка назад --}}
+                            <button type="button"
+                                class="js-swiper-prev absolute left-[1px] top-1/2 -translate-y-1/2
+                                    w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                                    flex items-center justify-center cursor-pointer z-10">
+                                <span class="text-red-600">@include('products.icons.chevron-left-thin')</span>
+                            </button>
+                        @endif
                         {{-- SWIPER --}}
                         <div class="swiper js-swiper"
                             data-grab="true"
@@ -125,17 +125,18 @@
                             </div>
                         </div>
 
-                        {{-- Кнопка вперед --}}
-                        <button type="button"
-                            class="js-swiper-next absolute right-[1px] top-1/2 -translate-y-1/2
-                                w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
-                                flex items-center justify-center cursor-pointer z-10">
-                            <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
-                        </button>
-
+                        @if($variant->images->count() >= 5)   
+                            {{-- Кнопка вперед --}}
+                            <button type="button"
+                                class="js-swiper-next absolute right-[1px] top-1/2 -translate-y-1/2
+                                    w-[32px] h-[32px] rounded-full bg-white border border-gray-200 shadow-md
+                                    flex items-center justify-center cursor-pointer z-10">
+                                <span class="text-red-600">@include('products.icons.chevron-right-thin')</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
-                @endif
+                
 
             </div>
             
@@ -156,7 +157,7 @@
 
                     <a href="#characteristics"
                        data-product-tab-link="characteristics"
-                       class="text-blue-600 hover:underline">
+                       class="text-[#007eff] hover:text-[#0064cc] transition-all duration-200">
                         Все характеристики
                     </a>
                 </div>    
@@ -199,7 +200,7 @@
                        data-product-tab="reviews"
                        role="tab"
                        class="inline-block pb-2 text-gray-500 cursor-pointer hover:text-gray-700">
-                    Отзывы
+                    Отзывы {{ $reviewStats['count'] }}
                     </a>
                 </li>
                 <li>
@@ -297,6 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 behavior: 'smooth'
             });
         }
+
+        document.dispatchEvent(new CustomEvent('product-tab:changed', {
+            detail: {tab: activeTab}
+        }));
     }
 
     tabs.forEach(link => {

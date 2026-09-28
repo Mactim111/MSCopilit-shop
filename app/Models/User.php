@@ -70,6 +70,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Review::class);
     }
 
+    public function reviewVotes()
+    {
+        return $this->hasMany(ReviewVote::class);
+    }
+
+    public function reviewReplies()
+    {
+        return $this->hasMany(ReviewReply::class, 'admin_id');
+    }
+
     public function favoriteVariants(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -90,10 +100,10 @@ class User extends Authenticatable implements MustVerifyEmail
         // Локальный путь
         if ($this->avatar) {
             return asset('storage/' . $this->avatar);
+
         }
 
         // Fallback (если аватара нет)
         return asset('storage/assets/img/no-avatar.png'); // можешь заменить на свой путь
     }
-
 }
