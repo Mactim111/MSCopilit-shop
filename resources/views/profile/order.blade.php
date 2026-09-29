@@ -30,21 +30,36 @@
 
             <div class="space-y-6">
                 @foreach($order->items as $item)
+                    @php
+                        $variant = $item->variant;
+                        $review = $variant
+                            ? $reviewsByVariant->get($variant->id)
+                            : null;
+                        $canReviewOrderItem = in_array($order->status, ['paid', 'shipped'], true)
+                            && $variant !== null;
+                    @endphp
                     <div class="flex items-center gap-6 pb-6 border-b last:border-b-0">
 
                         <!-- Фото товара -->
                         <div class="w-24 h-24 flex-shrink-0">
-                            <a href="{{ route('catalog.variant', $item->variant->slug) }}">
-                                <img src="{{ $item->variant->mainImage() }}"
-                                    class="w-full h-full object-cover rounded-lg shadow-sm">
-                            </a>
+                            @if($variant)
+                                <a href="{{ route('catalog.variant', $variant->slug) }}">
+                                    <img src="{{ $variant->mainImage() }}"
+                                        alt="{{ $variant->title }}"
+                                        class="w-full h-full object-cover rounded-lg shadow-sm">
+                                </a>
+                            @endif
                         </div>
 
                         <!-- Информация -->
                         <div class="flex-1">
-                            <a href="{{ route('catalog.variant', $item->variant->slug) }}" class="text-lg font-semibold text-gray-900">
-                                {{ $item->variant->title }}
-                            </a>
+                            @if($variant)
+                                <a href="{{ route('catalog.variant', $variant->slug) }}" class="text-lg font-semibold text-gray-900">
+                                    {{ $variant->title }}
+                                </a>
+                            @else
+                                <p class="text-lg font-semibold text-gray-900">{{ $item->title }}</p>
+                            @endif
 
                             <p class="text-gray-600 mt-1">
                                 Количество: <span class="font-medium">{{ $item->quantity }}</span>
@@ -52,8 +67,50 @@
 
                             <p class="text-gray-600">
                                 Цена за шт.:
-                                <span class="font-medium text-xl">{!! $item->variant->formattedPrice(16, 16) !!}</span>
+                                <span class="font-medium text-xl">
+                                    @if($variant)
+                                        {!! $variant->formattedPrice(16, 16) !!}
+                                    @else
+                                        {{ number_format($item->price, 2, '.', ' ') }} BYN
+                                    @endif
+                                </span>
                             </p>
+
+                            @if($canReviewOrderItem)
+                                @if($review)
+                                    <div class="mt-1 flex items-center justify-between">
+                                        @if($review->addition === null)
+                                            <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                                               data-review-form="addition"
+                                               data-review-id="{{ $review->id }}"
+                                               data-form-action="{{ route('reviews.addition', $review) }}"
+                                               class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
+                                                Дополнить отзыв
+                                            </a>
+                                        @else
+                                            <span class="text-[13px] text-gray-500">Отзыв дополнен</span>
+                                        @endif
+
+                                        <form action="{{ route('reviews.destroy', $review) }}"
+                                              method="POST"
+                                              data-review-delete-form>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="cursor-pointer text-[13px] text-[#DC092E] hover:text-[#a80723]">
+                                                Удалить отзыв
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                                       data-review-form="create"
+                                       data-form-action="{{ route('reviews.store', $variant) }}"
+                                       class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
+                                        Добавить отзыв
+                                    </a>
+                                @endif
+                            @endif
                         </div>
 
                         <!-- Сумма -->

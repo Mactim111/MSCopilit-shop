@@ -120,7 +120,30 @@
                 {{ $text['text'] }}
             </p>
         @endforeach
+
+        @if($review->addition && $review->addition_is_published)
+            <p class="mb-[13px]">
+                <strong>Дополнено:</strong>
+                {{ $review->addition }}
+            </p>
+        @endif
     </div>
+
+    @if(auth()->id() === $review->user_id)
+        {{-- Удалять свой отзыв может только его автор. --}}
+        <div class="w-full border-t border-dashed border-gray-300 pb-[25px] pt-[21px] text-left">
+            <form action="{{ route('reviews.destroy', $review) }}"
+                  method="POST"
+                  data-review-delete-form>
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="cursor-pointer text-[15px] text-[#DC092E] hover:text-[#a80723]">
+                    Удалить
+                </button>
+            </form>
+        </div>
+    @endif
 
     {{-- Ответ магазина и разделитель существуют только при наличии ответа. --}}
     @if($review->reply)

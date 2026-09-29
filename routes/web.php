@@ -89,6 +89,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/products/{variant}/reviews', [ReviewController::class, 'store'])
         ->name('reviews.store')
         ->withTrashed();
+    Route::patch('/reviews/{review}/addition', [ReviewController::class, 'addAddition'])
+        ->name('reviews.addition');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::post('/profile/address', [AddressController::class, 'store'])->name('profile.address.store');

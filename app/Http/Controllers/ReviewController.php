@@ -80,16 +80,6 @@ class ReviewController extends Controller
             );
         }
 
-        if (Review::where('user_id', $user->id)
-            ->where('product_variant_id', $variant->id)
-            ->exists()) {
-            return $this->errorResponse(
-                $request,
-                'Вы уже оставляли отзыв на этот вариант товара.',
-                422
-            );
-        }
-
         $data = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'advantages' => ['nullable', 'string', 'max:5000'],
@@ -105,6 +95,17 @@ class ReviewController extends Controller
 
         try {
             $review = DB::transaction(function () use ($user, $variant, $data, $photos, &$storedPaths) {
+                $user->newQuery()
+                    ->whereKey($user->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($user->reviews()
+                    ->where('product_variant_id', $variant->id)
+                    ->exists()) {
+                    return null;
+                }
+
                 $review = $user->reviews()->create([
                     ...$data,
                     'product_variant_id' => $variant->id,
@@ -127,6 +128,16 @@ class ReviewController extends Controller
             throw $exception;
         }
 
+        if ($review === null) {
+            Storage::disk('public')->delete($storedPaths);
+
+            return $this->errorResponse(
+                $request,
+                'У вас уже есть активный отзыв на этот вариант товара.',
+                422
+            );
+        }
+
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Спасибо! Отзыв отправлен на модерацию.',
@@ -135,6 +146,69 @@ class ReviewController extends Controller
         }
 
         return back()->with('success', 'Спасибо! Отзыв отправлен на модерацию.');
+    }
+
+    public function addAddition(Request $request, Review $review): JsonResponse|RedirectResponse
+    {
+        $data = $request->validate([
+            'addition' => ['required', 'string', 'max:10000'],
+        ]);
+
+        $wasAdded = DB::transaction(function () use ($request, $review, $data) {
+            $lockedReview = Review::query()
+                ->whereKey($review->id)
+                ->where('user_id', $request->user()->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedReview->addition !== null) {
+                return false;
+            }
+
+            $lockedReview->update([
+                'addition' => $data['addition'],
+                'addition_updated_at' => now(),
+                'addition_is_published' => false,
+            ]);
+
+            return true;
+        });
+
+        if (! $wasAdded) {
+            return $this->errorResponse(
+                $request,
+                'Вы уже дополняли этот отзыв.',
+                422
+            );
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Дополнение отправлено на модерацию.',
+                'review_id' => $review->id,
+            ], 200);
+        }
+
+        return back()->with('success', 'Дополнение отправлено на модерацию.');
+    }
+
+    public function destroy(Request $request, Review $review): JsonResponse|RedirectResponse
+    {
+        $deleted = Review::query()
+            ->whereKey($review->id)
+            ->where('user_id', $request->user()->id)
+            ->delete();
+
+        abort_unless($deleted > 0, 404);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Отзыв удалён.',
+                'review_id' => $review->id,
+            ]);
+        }
+
+        return back()->with('success', 'Отзыв удалён.');
     }
 
     private function errorResponse(

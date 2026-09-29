@@ -69,6 +69,18 @@ class ProfileController extends Controller
     public function order(Order $order)
     {
         $order->load('items.variant');
-        return view('profile.order', compact('order'));
+
+        $variantIds = $order->items
+            ->pluck('product_variant_id')
+            ->filter()
+            ->unique();
+
+        $reviewsByVariant = auth()->user()
+            ->reviews()
+            ->whereIn('product_variant_id', $variantIds)
+            ->get()
+            ->keyBy('product_variant_id');
+
+        return view('profile.order', compact('order', 'reviewsByVariant'));
     }
 }
