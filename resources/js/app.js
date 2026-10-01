@@ -304,6 +304,309 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateFavoritesPageCount = updateFavoritesPageCount;
     window.showFlashMessage = showFlashMessage;
 
+    // Универсальная модалка создания отзыва открывается и из заказа, и со страницы варианта.
+    const reviewModal = document.querySelector('[data-review-create-modal]');
+
+    if (reviewModal) {
+        const formPanel = reviewModal.querySelector('[data-review-form-panel]');
+        const formState = reviewModal.querySelector('[data-review-form-state]');
+        const thanksPanel = reviewModal.querySelector('[data-review-thanks-panel]');
+        const form = reviewModal.querySelector('[data-review-create-form]');
+        const ratingInput = reviewModal.querySelector('[data-review-rating]');
+        const commentInput = reviewModal.querySelector('[data-review-comment]');
+        const submitButton = reviewModal.querySelector('[data-review-submit]');
+        const loadingOverlay = reviewModal.querySelector('[data-review-loading]');
+        const errorMessage = reviewModal.querySelector('[data-review-form-error]');
+        const starButtons = [...reviewModal.querySelectorAll('[data-rating-star]')];
+        let selectedRating = 0;
+        let isSubmitting = false;
+        let wasSubmitted = false;
+        let previousFocus = null;
+
+        const showFormError = message => {
+            errorMessage.textContent = message;
+            errorMessage.classList.toggle('hidden', !message);
+        };
+
+        const updateSubmitState = () => {
+            const isValid = selectedRating > 0 && commentInput.value.trim().length > 0;
+            submitButton.disabled = !isValid || isSubmitting;
+            submitButton.classList.toggle('cursor-not-allowed', submitButton.disabled);
+            submitButton.classList.toggle('border-[#bdbbbc]', submitButton.disabled);
+            submitButton.classList.toggle('bg-[#bdbbbc]', submitButton.disabled);
+            submitButton.classList.toggle('cursor-pointer', !submitButton.disabled);
+            submitButton.classList.toggle('border-[#DC092E]', !submitButton.disabled);
+            submitButton.classList.toggle('bg-[#DC092E]', !submitButton.disabled);
+        };
+
+        const setRating = rating => {
+            selectedRating = Math.max(0, Math.min(5, rating));
+            ratingInput.value = selectedRating ? String(selectedRating) : '';
+
+            starButtons.forEach((button, index) => {
+                const active = index < selectedRating;
+                button.setAttribute('aria-checked', String(index + 1 === selectedRating));
+                button.classList.toggle('border-[#DC092E]', !active);
+                button.classList.toggle('bg-white', !active);
+                button.classList.toggle('border-[#ffb000]', active);
+                button.classList.toggle('bg-[#ffb000]', active);
+
+                const star = button.querySelector('svg');
+                star.classList.toggle('fill-white', !active);
+                star.classList.toggle('stroke-[#DC092E]', !active);
+                star.classList.toggle('fill-[#ffb000]', active);
+                star.classList.toggle('stroke-[#ffb000]', active);
+            });
+
+            updateSubmitState();
+        };
+
+        const clearMediaPreview = input => {
+            const slot = input.closest('[data-media-slot]').parentElement;
+            const preview = slot.querySelector('[data-media-preview]');
+            const placeholder = slot.querySelector('[data-media-placeholder]');
+            const removeButton = slot.querySelector('[data-media-remove]');
+
+            if (input.dataset.previewUrl) {
+                URL.revokeObjectURL(input.dataset.previewUrl);
+                delete input.dataset.previewUrl;
+            }
+
+            input.value = '';
+            preview.replaceChildren();
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            removeButton.textContent = '+';
+            removeButton.setAttribute(
+                'aria-label',
+                input.dataset.mediaKind === 'video' ? 'Добавить видео' : 'Добавить фотографию'
+            );
+        };
+
+        const resetForm = () => {
+            form.reset();
+            showFormError('');
+            setRating(0);
+            reviewModal.querySelectorAll('[data-media-input]').forEach(clearMediaPreview);
+            submitButton.disabled = true;
+            isSubmitting = false;
+            wasSubmitted = false;
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('flex');
+            formPanel.setAttribute('aria-busy', 'false');
+        };
+
+        const closeModal = () => {
+            if (isSubmitting) return;
+
+            reviewModal.classList.add('hidden');
+            reviewModal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+
+            if (wasSubmitted) {
+                window.location.reload();
+                return;
+            }
+
+            resetForm();
+            formPanel.classList.remove('hidden');
+            formState.classList.remove('hidden');
+            thanksPanel.classList.add('hidden');
+            thanksPanel.classList.remove('flex');
+            reviewModal.setAttribute('aria-labelledby', 'review-create-title');
+            previousFocus?.focus();
+        };
+
+        const openModal = trigger => {
+            if (!form || !formState || !thanksPanel || !formPanel || !submitButton) return;
+
+            resetForm();
+            previousFocus = trigger;
+            form.action = trigger.dataset.formAction;
+
+            const title = reviewModal.querySelector('[data-review-product-title]');
+            const image = reviewModal.querySelector('[data-review-product-image]');
+            title.textContent = trigger.dataset.productTitle || '';
+            image.src = trigger.dataset.productImage || '';
+            image.alt = trigger.dataset.productTitle || '';
+            image.classList.toggle('hidden', !trigger.dataset.productImage);
+
+            formState.classList.remove('hidden');
+            formPanel.classList.remove('hidden');
+            thanksPanel.classList.add('hidden');
+            thanksPanel.classList.remove('flex');
+            reviewModal.setAttribute('aria-labelledby', 'review-create-title');
+            reviewModal.classList.remove('hidden');
+            reviewModal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            starButtons[0]?.focus();
+        };
+
+        document.addEventListener('click', event => {
+            const trigger = event.target.closest('[data-review-form="create"]');
+            if (trigger) {
+                event.preventDefault();
+                openModal(trigger);
+                return;
+            }
+
+            if (event.target.closest('[data-review-modal-close], [data-review-thanks-close]')) {
+                closeModal();
+                return;
+            }
+
+            if (event.target === reviewModal) {
+                closeModal();
+                return;
+            }
+
+            const starButton = event.target.closest('[data-rating-star]');
+            if (starButton) {
+                const rating = Number(starButton.dataset.ratingStar);
+                setRating(rating);
+            }
+
+            const removeButton = event.target.closest('[data-media-remove]');
+            if (removeButton) {
+                const slot = removeButton.closest('[data-media-slot]').parentElement;
+                const input = slot.querySelector('[data-media-input]');
+                if (input.files.length) {
+                    clearMediaPreview(input);
+                    showFormError('');
+                    updateSubmitState();
+                } else {
+                    input.click();
+                }
+            }
+        });
+
+        reviewModal.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                closeModal();
+                return;
+            }
+
+            const starButton = event.target.closest('[data-rating-star]');
+            if (!starButton || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+
+            const current = Number(starButton.dataset.ratingStar);
+            const next = event.key === 'Home'
+                ? 1
+                : event.key === 'End'
+                    ? 5
+                    : Math.max(1, Math.min(5, current + (event.key === 'ArrowRight' ? 1 : -1)));
+            starButtons[next - 1].focus();
+            setRating(next);
+        });
+
+        commentInput.addEventListener('input', updateSubmitState);
+
+        reviewModal.querySelectorAll('[data-media-input]').forEach(input => {
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if (!file) return;
+
+                const isVideo = input.dataset.mediaKind === 'video';
+                const extension = file.name.split('.').pop().toLowerCase();
+                const acceptedExtensions = isVideo
+                    ? ['avi', 'mp4', 'hevc']
+                    : ['jpg', 'jpeg', 'png'];
+                const maxSize = (isVideo ? 100 : 5) * 1024 * 1024;
+
+                if (!acceptedExtensions.includes(extension) || file.size > maxSize) {
+                    clearMediaPreview(input);
+                    showFormError(isVideo
+                        ? 'Выберите видео в формате AVI, MP4 или HEVC размером не более 100 МБ.'
+                        : 'Выберите изображение JPG или PNG размером не более 5 МБ.');
+                    return;
+                }
+
+                showFormError('');
+                const slot = input.closest('[data-media-slot]').parentElement;
+                const preview = slot.querySelector('[data-media-preview]');
+                const placeholder = slot.querySelector('[data-media-placeholder]');
+                const removeButton = slot.querySelector('[data-media-remove]');
+                if (input.dataset.previewUrl) {
+                    URL.revokeObjectURL(input.dataset.previewUrl);
+                }
+                const previewUrl = URL.createObjectURL(file);
+                input.dataset.previewUrl = previewUrl;
+
+                const mediaPreview = document.createElement(isVideo ? 'video' : 'img');
+                mediaPreview.className = 'h-full w-full object-cover';
+                mediaPreview.src = previewUrl;
+                if (isVideo) {
+                    mediaPreview.muted = true;
+                    mediaPreview.playsInline = true;
+                } else {
+                    mediaPreview.alt = 'Предпросмотр фотографии';
+                }
+
+                preview.replaceChildren(mediaPreview);
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                removeButton.textContent = '−';
+                removeButton.setAttribute('aria-label', isVideo ? 'Удалить видео' : 'Удалить фотографию');
+            });
+        });
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (submitButton.disabled || isSubmitting) return;
+
+            showFormError('');
+            isSubmitting = true;
+            submitButton.disabled = true;
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            formPanel.setAttribute('aria-busy', 'true');
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    credentials: 'same-origin',
+                    body: new FormData(form),
+                });
+                const contentType = response.headers.get('content-type') || '';
+
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Сервер вернул неожиданный ответ. Проверьте размер файлов и попробуйте ещё раз.');
+                }
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    const validationError = Object.values(payload.errors || {}).flat()[0];
+                    throw new Error(validationError || payload.message || 'Не удалось отправить отзыв.');
+                }
+
+                isSubmitting = false;
+                wasSubmitted = true;
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                formPanel.classList.add('hidden');
+                formState.classList.add('hidden');
+                thanksPanel.classList.remove('hidden');
+                thanksPanel.classList.add('flex');
+                reviewModal.setAttribute('aria-labelledby', 'review-thanks-title');
+                thanksPanel.querySelector('h2').id = 'review-thanks-title';
+                thanksPanel.querySelector('[data-review-thanks-close]').focus();
+            } catch (error) {
+                showFormError(error.message || 'Не удалось отправить отзыв.');
+                isSubmitting = false;
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+                formPanel.setAttribute('aria-busy', 'false');
+                updateSubmitState();
+            }
+        });
+    }
+
 // -------------------------------------------------------------------------
     // ИНИЦИАЛИЗАЦИЯ ВСЕХ SWIPER-СЛАЙДЕРОВ
     // -------------------------------------------------------------------------

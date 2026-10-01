@@ -220,6 +220,10 @@
     </script>
 @endguest
 
+@auth
+    @include('variants.partials.review-create-modal')
+@endauth
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const list = document.querySelector('[data-review-list]');

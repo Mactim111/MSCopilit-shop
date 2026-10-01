@@ -95,9 +95,17 @@
                        target="_blank"
                        rel="noopener"
                        class="block h-[80px] w-[80px] overflow-hidden rounded-lg bg-gray-100">
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($image->path) }}"
-                             alt="Фотография к отзыву"
-                             class="h-full w-full object-cover">
+                        @if($image->media_type === 'video')
+                            <video class="h-full w-full object-cover"
+                                   preload="metadata"
+                                   aria-label="Видео к отзыву">
+                                <source src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($image->path) }}">
+                            </video>
+                        @else
+                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($image->path) }}"
+                                 alt="Фотография к отзыву"
+                                 class="h-full w-full object-cover">
+                        @endif
                     </a>
                 @endforeach
             </div>

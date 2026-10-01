@@ -76,6 +76,15 @@ class DatabaseSeeder extends Seeder
             'remember_token' => Str::random(10),
             'is_admin' => false, 
         ]);
+        // Создаем Юзера 6
+        User::factory()->create([
+            'name' => 'Panas',
+            'email' => 'panas@mail.ru',
+            'email_verified_at' => now(),
+            'password' => Hash::make('11111111'),
+            'remember_token' => Str::random(10),
+            'is_admin' => false, 
+        ]);
 
         $this->call([
             CategorySeeder::class,

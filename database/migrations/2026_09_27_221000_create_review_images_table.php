@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('review_id')->constrained()->cascadeOnDelete();
             $table->string('path');
+            $table->string('media_type')->default('image');
             $table->unsignedTinyInteger('position');
             $table->timestamps();
 

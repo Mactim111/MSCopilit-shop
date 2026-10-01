@@ -13,6 +13,7 @@ class ReviewImage extends Model
     protected $fillable = [
         'review_id',
         'path',
+        'media_type',
         'position',
     ];
 

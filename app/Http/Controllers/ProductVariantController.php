@@ -110,6 +110,11 @@ class ProductVariantController extends Controller
                 )
                 ->exists();
 
+        $hasActiveReview = auth()->check()
+            && auth()->user()->reviews()
+                ->where('product_variant_id', $variant->id)
+                ->exists();
+
         $isFavorite = auth()->check()
             && auth()->user()->favoriteVariants()->whereKey($variant->id)->exists();
 
@@ -133,6 +138,7 @@ class ProductVariantController extends Controller
             'reviewStats',
             'currentVariantReviewCount',
             'canReview',
+            'hasActiveReview',
             'isFavorite',
         ));
     }

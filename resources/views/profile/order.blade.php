@@ -84,6 +84,8 @@
                                                data-review-form="addition"
                                                data-review-id="{{ $review->id }}"
                                                data-form-action="{{ route('reviews.addition', $review) }}"
+                                               data-product-title="{{ $variant->title }}"
+                                               data-product-image="{{ $variant->mainImage() }}"
                                                class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
                                                 Дополнить отзыв
                                             </a>
@@ -106,6 +108,8 @@
                                     <a href="{{ route('catalog.variant.reviews', $variant) }}"
                                        data-review-form="create"
                                        data-form-action="{{ route('reviews.store', $variant) }}"
+                                       data-product-title="{{ $variant->title }}"
+                                       data-product-image="{{ $variant->mainImage() }}"
                                        class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
                                         Добавить отзыв
                                     </a>
@@ -146,4 +150,7 @@
         </div>
 
     </div>
+
+    @include('variants.partials.review-create-modal')
+
 @endsection

@@ -85,16 +85,18 @@ class ReviewController extends Controller
             'advantages' => ['nullable', 'string', 'max:5000'],
             'disadvantages' => ['nullable', 'string', 'max:5000'],
             'comment' => ['required', 'string', 'max:10000'],
-            'photos' => ['nullable', 'array', 'max:6'],
-            'photos.*' => ['image', 'max:5120'],
+            'photos' => ['nullable', 'array', 'max:4'],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'video' => ['nullable', 'file', 'mimes:avi,mp4,hevc', 'max:102400'],
         ]);
 
         $photos = $data['photos'] ?? [];
-        unset($data['photos']);
+        $video = $data['video'] ?? null;
+        unset($data['photos'], $data['video']);
         $storedPaths = [];
 
         try {
-            $review = DB::transaction(function () use ($user, $variant, $data, $photos, &$storedPaths) {
+            $review = DB::transaction(function () use ($user, $variant, $data, $photos, $video, &$storedPaths) {
                 $user->newQuery()
                     ->whereKey($user->id)
                     ->lockForUpdate()
@@ -112,12 +114,25 @@ class ReviewController extends Controller
                     'is_published' => false,
                 ]);
 
-                foreach ($photos as $position => $photo) {
+                $position = 1;
+
+                if ($video) {
+                    $path = $video->store('reviews', 'public');
+                    $storedPaths[] = $path;
+                    $review->images()->create([
+                        'path' => $path,
+                        'media_type' => 'video',
+                        'position' => $position++,
+                    ]);
+                }
+
+                foreach ($photos as $photoIndex => $photo) {
                     $path = $photo->store('reviews', 'public');
                     $storedPaths[] = $path;
                     $review->images()->create([
                         'path' => $path,
-                        'position' => $position + 1,
+                        'media_type' => 'image',
+                        'position' => $photoIndex + ($video ? 2 : 1),
                     ]);
                 }
 
