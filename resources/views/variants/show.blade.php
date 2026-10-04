@@ -200,7 +200,7 @@
                        data-product-tab="reviews"
                        role="tab"
                        class="inline-block pb-2 text-gray-500 cursor-pointer hover:text-gray-700">
-                    Отзывы {{ $reviewStats['count'] }}
+                    Отзывы <span class="text-[14px] ml-[3px]">{{ $reviewStats['count'] }}</span>
                     </a>
                 </li>
                 <li>

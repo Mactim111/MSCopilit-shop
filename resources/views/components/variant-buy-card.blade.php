@@ -16,11 +16,19 @@
             @endforeach
         </div>
 
-        <div class="flex items-center gap-2 text-sm text-gray-600">
-            <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2 text-sm">
+            <div class="flex items-center gap-1 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
                 @include('products.icons.star')
-                <span class="font-semibold text-gray-900">{{ number_format($variant->product->rating, 1) }}</span>
+                <span class="font-semibold text-[#ffb000]">{{ number_format($variant->product->rating, 1) }}</span>
             </div>
+            <a href="{{ route('catalog.variant.reviews', $variant) }}"
+               class="flex items-center gap-[2px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
+                @include('products.icons.message')
+                <span>
+                    {{ number_format($variant->product->reviews_count, 0, '.', ' ') }}
+                    {{ $variant->product->reviews_label }}
+                </span>
+            </a>
         </div>
     </div>
 

@@ -52,6 +52,40 @@
   }
 }
 
+[data-review-scroll-area]::-webkit-scrollbar-button,
+[data-review-create-modal]::-webkit-scrollbar-button {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+[data-review-scroll-area]::-webkit-scrollbar-button:vertical:decrement,
+[data-review-scroll-area]::-webkit-scrollbar-button:vertical:increment,
+[data-review-scroll-area]::-webkit-scrollbar-button:vertical:start:decrement,
+[data-review-scroll-area]::-webkit-scrollbar-button:vertical:end:increment,
+[data-review-create-modal]::-webkit-scrollbar-button:vertical:decrement,
+[data-review-create-modal]::-webkit-scrollbar-button:vertical:increment,
+[data-review-create-modal]::-webkit-scrollbar-button:vertical:start:decrement,
+[data-review-create-modal]::-webkit-scrollbar-button:vertical:end:increment {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
 /* Контейнер слайдера */
 #price-slider {
     width: 316px;
@@ -224,8 +258,3 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
 }
-
-
-
-
-

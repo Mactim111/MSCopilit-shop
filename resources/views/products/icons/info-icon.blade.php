@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="20" height="20" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="16.25" height="16.25" fill="none">
   <!-- Внешняя круглая обводка -->
   <circle cx="10" cy="10" r="8.5" stroke="#007eff" stroke-width="1.5" />
 

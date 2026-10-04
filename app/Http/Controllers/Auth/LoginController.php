@@ -37,11 +37,19 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $previousUrl = url()->previous();
+        $previousHost = parse_url($previousUrl, PHP_URL_HOST);
+        $currentHost = $request->getHost();
+
+        if ($previousHost !== null && strcasecmp($previousHost, $currentHost) !== 0) {
+            $previousUrl = url('/');
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->to($previousUrl);
     }
 }

@@ -69,15 +69,22 @@
                 @endforeach
             </div>
 
-            <div class="flex items-center gap-3 text-sm text-gray-600">
-                <div class="flex items-center gap-2">
-                    @include('products.icons.star')
-                    <span class="font-semibold text-gray-400">
+            <div class="flex items-center gap-2 text-sm">
+                <div class="flex items-center gap-1 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
+                    @if($product->rating > 0)
+                        @include('products.icons.star')
+                    @else
+                        <span class="[&_svg]:!fill-white [&_svg]:!stroke-[#8c8c8c]">
+                            @include('products.icons.star-outline')
+                        </span>
+                    @endif
+                    <span class="font-semibold {{ $product->rating > 0 ? 'text-[#ffb000]' : 'text-[#8c8c8c]' }}">
                         {{ number_format($product->rating, 1) }}
                     </span>
                 </div>
                 <div>
-                    <a href="#" class="flex items-center gap-1 text-[#007EEF] hover:text-[#0064cc] transition-all duration-200">
+                    <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                       class="flex items-center gap-[2px] text-[#007EEF] hover:text-[#0064cc] transition-all duration-200 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
                         @include('products.icons.message')
                         <span>
                             {{ number_format($product->reviews_count, 0, '.', ' ') }}

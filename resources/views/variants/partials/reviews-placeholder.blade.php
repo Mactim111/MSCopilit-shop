@@ -5,7 +5,7 @@
     $isReviewRestricted = auth()->check() && !$canReview;
 @endphp
 
-<div class="mt-[10px] mb-[70px] w-[1110px] max-w-full text-left">
+<div class="mt-10 mb-[70px] w-[1110px] max-w-full text-left">
     <div class="w-[864px] max-w-full">
         @if($totalReviews === 0)
             <div class="pb-10">
@@ -31,12 +31,12 @@
             </div>
         @else
             {{-- Общая оценка и распределение рейтинга по опубликованным отзывам всех вариантов. --}}
-            <div class="mb-8 flex h-[100px] w-full items-start gap-[5px] border border-[#8c8c8c] pb-1 pl-[65px] pr-14">
-                <div class="w-[175px] shrink-0 pt-px text-[92px] font-bold leading-none text-[#FFB000]">
+            <div class="mb-8 flex h-[100px] w-full items-start gap-[5px] border border-[#e0e0e0] rounded-[10px] pb-1 pl-[65px] pr-14">
+                <div class="w-fit shrink-0 pt-px text-[92px] font-semibold leading-none text-[#FFB000]">
                     {{ $formattedRating }}
                 </div>
 
-                <div class="flex flex-1 flex-col pt-[14px]">
+                <div class="flex min-w-0 flex-1 flex-col pt-[14px] pl-4 pr-7">
                     @for($stars = 5; $stars >= 1; $stars--)
                         @php
                             $ratingCount = $reviewStats['distribution'][$stars];
@@ -44,8 +44,8 @@
                                 ? ($ratingCount / $totalReviews) * 100
                                 : 0;
                         @endphp
-                        <div class="mb-[3px] flex h-[12px] items-center gap-[2px] last:mb-0">
-                            <div class="flex h-[10px] w-[66px] shrink-0 items-center gap-1">
+                        <div class="mb-[3px] flex h-[12px] items-center gap-[5px] last:mb-0">
+                            <div class="flex h-[10px] w-[66px] shrink-0 flex-row-reverse items-center gap-1">
                                 @for($star = 0; $star < $stars; $star++)
                                     <svg class="h-[10px] w-[10px] shrink-0 fill-[#FFB000]"
                                          viewBox="0 0 24 24"
@@ -55,12 +55,12 @@
                                 @endfor
                             </div>
 
-                            <div class="h-[2px] w-[431px] max-w-full bg-[#8c8c8c]">
+                            <div class="h-[2px] min-w-0 flex-1 bg-[#f2f2f2]">
                                 <div class="h-full bg-[#FFB000]"
                                      style="width: {{ number_format($barPercent, 2, '.', '') }}%"></div>
                             </div>
 
-                            <span class="pl-[1px] text-[12px] leading-none text-[#8c8c8c]">
+                            <span class="shrink-0 pl-[1px] text-[12px] leading-none text-[#8c8c8c]">
                                 {{ $ratingCount }}
                             </span>
                         </div>
@@ -222,6 +222,8 @@
 
 @auth
     @include('variants.partials.review-create-modal')
+    @include('variants.partials.review-addition-modal')
+    @include('variants.partials.review-action-result-modal')
 @endauth
 
 <script>

@@ -139,14 +139,28 @@
 
     @if(auth()->id() === $review->user_id)
         {{-- Удалять свой отзыв может только его автор. --}}
-        <div class="w-full border-t border-dashed border-gray-300 pb-[25px] pt-[21px] text-left">
+        <div class="flex w-full items-center justify-between border-t border-dashed border-gray-300 pb-[25px] pt-[21px] text-left">
+            @if($review->addition === null)
+                <a href="{{ route('catalog.variant.reviews', $review->variant) }}"
+                   data-review-form="addition"
+                   data-review-id="{{ $review->id }}"
+                   data-form-action="{{ route('reviews.addition', $review) }}"
+                   data-product-title="{{ $review->variant->title }}"
+                   data-product-image="{{ $review->variant->mainImage() }}"
+                   class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
+                    Дополнить отзыв
+                </a>
+            @else
+                <span class="text-[13px] text-gray-500">Отзыв дополнен</span>
+            @endif
+
             <form action="{{ route('reviews.destroy', $review) }}"
                   method="POST"
                   data-review-delete-form>
                 @csrf
                 @method('DELETE')
                 <button type="submit"
-                        class="cursor-pointer text-[15px] text-[#DC092E] hover:text-[#a80723]">
+                        class="cursor-pointer text-[13px] text-[#DC092E] hover:text-[#a80723]">
                     Удалить
                 </button>
             </form>

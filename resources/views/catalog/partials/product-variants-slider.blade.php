@@ -142,14 +142,21 @@
                             </div>
 
                             {{-- Рейтинг --}}
-                            <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                <div class="flex items-center gap-1">
-                                    @include('products.icons.star')
-                                    <span class="font-semibold text-gray-900">
+                            <div class="flex items-center gap-2 text-sm mt-1">
+                                <div class="flex items-center gap-1 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
+                                    @if($variant->product->rating > 0)
+                                        @include('products.icons.star')
+                                    @else
+                                        <span class="[&_svg]:!fill-white [&_svg]:!stroke-[#8c8c8c]">
+                                            @include('products.icons.star-outline')
+                                        </span>
+                                    @endif
+                                    <span class="font-semibold {{ $variant->product->rating > 0 ? 'text-[#ffb000]' : 'text-[#8c8c8c]' }}">
                                         {{ number_format($variant->product->rating, 1) }}
                                     </span>
                                 </div>
-                                <a href="#" class="flex items-center gap-1 text-gray-500 hover:text-gray-700">
+                                <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                                   class="flex items-center gap-[2px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200 [&_svg]:!h-[15px] [&_svg]:!w-[15px]">
                                     @include('products.icons.message')
                                     <span>
                                         {{ number_format($variant->product->reviews_count, 0, '.', ' ') }}

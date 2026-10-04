@@ -346,10 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
             starButtons.forEach((button, index) => {
                 const active = index < selectedRating;
                 button.setAttribute('aria-checked', String(index + 1 === selectedRating));
-                button.classList.toggle('border-[#DC092E]', !active);
-                button.classList.toggle('bg-white', !active);
-                button.classList.toggle('border-[#ffb000]', active);
-                button.classList.toggle('bg-[#ffb000]', active);
 
                 const star = button.querySelector('svg');
                 star.classList.toggle('fill-white', !active);
@@ -424,12 +420,14 @@ document.addEventListener('DOMContentLoaded', () => {
             previousFocus = trigger;
             form.action = trigger.dataset.formAction;
 
-            const title = reviewModal.querySelector('[data-review-product-title]');
-            const image = reviewModal.querySelector('[data-review-product-image]');
-            title.textContent = trigger.dataset.productTitle || '';
-            image.src = trigger.dataset.productImage || '';
-            image.alt = trigger.dataset.productTitle || '';
-            image.classList.toggle('hidden', !trigger.dataset.productImage);
+            const productTitle = trigger.dataset.productTitle || '';
+            const productImage = trigger.dataset.productImage || '';
+            const productTitleElement = reviewModal.querySelector('[data-review-product-title]');
+            const productImageElement = reviewModal.querySelector('[data-review-product-image]');
+            productTitleElement.textContent = productTitle;
+            productImageElement.src = productImage;
+            productImageElement.alt = productTitle;
+            productImageElement.classList.toggle('hidden', !productImage);
 
             formState.classList.remove('hidden');
             formPanel.classList.remove('hidden');
@@ -603,6 +601,204 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadingOverlay.classList.remove('flex');
                 formPanel.setAttribute('aria-busy', 'false');
                 updateSubmitState();
+            }
+        });
+    }
+
+    const reviewAdditionModal = document.querySelector('[data-review-addition-modal]');
+    const reviewAdditionForm = reviewAdditionModal?.querySelector('[data-review-addition-form]');
+    const reviewAdditionInput = reviewAdditionModal?.querySelector('[data-review-addition-input]');
+    const reviewAdditionSubmit = reviewAdditionModal?.querySelector('[data-review-addition-submit]');
+    const reviewResultModal = document.querySelector('[data-review-action-result-modal]');
+    const reviewResultPanel = reviewResultModal?.querySelector('[data-review-action-result-panel]');
+    const reviewResultMessage = reviewResultModal?.querySelector('[data-review-result-message]');
+    let reviewAdditionSubmitting = false;
+    let reviewResultReload = false;
+    let reviewActionTrigger = null;
+
+    const syncReviewModalScrollLock = () => {
+        const isAnyReviewModalOpen = [reviewModal, reviewAdditionModal, reviewResultModal]
+            .some(modal => modal && !modal.classList.contains('hidden'));
+        document.body.classList.toggle('overflow-hidden', isAnyReviewModalOpen);
+    };
+
+    const openReviewResult = (message, { isError = false, reload = false } = {}) => {
+        if (!reviewResultModal || !reviewResultPanel || !reviewResultMessage) return;
+
+        reviewResultMessage.textContent = message;
+        reviewResultPanel.classList.toggle('h-[264px]', !isError);
+        reviewResultPanel.classList.toggle('w-[290px]', !isError);
+        reviewResultPanel.classList.toggle('h-[164px]', isError);
+        reviewResultPanel.classList.toggle('w-[422px]', isError);
+        reviewResultMessage.classList.toggle('whitespace-nowrap', !isError);
+        reviewResultReload = reload;
+        reviewResultModal.classList.remove('hidden');
+        reviewResultModal.classList.add('flex');
+        syncReviewModalScrollLock();
+        reviewResultModal.querySelector('[data-review-result-close]')?.focus();
+    };
+
+    const closeReviewAddition = () => {
+        if (!reviewAdditionModal || reviewAdditionSubmitting) return;
+
+        reviewAdditionModal.classList.add('hidden');
+        reviewAdditionModal.classList.remove('flex');
+        reviewAdditionForm?.reset();
+        if (reviewAdditionSubmit) {
+            reviewAdditionSubmit.disabled = true;
+            reviewAdditionSubmit.classList.add('cursor-not-allowed', 'border-[#bdbbbc]', 'bg-[#bdbbbc]');
+            reviewAdditionSubmit.classList.remove('cursor-pointer', 'border-[#DC092E]', 'bg-[#DC092E]');
+        }
+        syncReviewModalScrollLock();
+        reviewActionTrigger?.focus();
+    };
+
+    const closeReviewResult = () => {
+        if (!reviewResultModal) return;
+
+        reviewResultModal.classList.add('hidden');
+        reviewResultModal.classList.remove('flex');
+        syncReviewModalScrollLock();
+
+        if (reviewResultReload) {
+            window.location.reload();
+            return;
+        }
+
+        reviewActionTrigger?.focus();
+    };
+
+    const updateReviewAdditionSubmit = () => {
+        if (!reviewAdditionInput || !reviewAdditionSubmit) return;
+
+        const isDisabled = !reviewAdditionInput.value.trim() || reviewAdditionSubmitting;
+        reviewAdditionSubmit.disabled = isDisabled;
+        reviewAdditionSubmit.classList.toggle('cursor-not-allowed', isDisabled);
+        reviewAdditionSubmit.classList.toggle('border-[#bdbbbc]', isDisabled);
+        reviewAdditionSubmit.classList.toggle('bg-[#bdbbbc]', isDisabled);
+        reviewAdditionSubmit.classList.toggle('cursor-pointer', !isDisabled);
+        reviewAdditionSubmit.classList.toggle('border-[#DC092E]', !isDisabled);
+        reviewAdditionSubmit.classList.toggle('bg-[#DC092E]', !isDisabled);
+    };
+
+    if (reviewAdditionModal && reviewAdditionForm && reviewAdditionInput && reviewAdditionSubmit) {
+        document.addEventListener('click', event => {
+            const trigger = event.target.closest('[data-review-form="addition"]');
+            if (trigger) {
+                event.preventDefault();
+                reviewActionTrigger = trigger;
+                reviewAdditionForm.reset();
+                reviewAdditionForm.action = trigger.dataset.formAction;
+                updateReviewAdditionSubmit();
+                reviewAdditionModal.classList.remove('hidden');
+                reviewAdditionModal.classList.add('flex');
+                syncReviewModalScrollLock();
+                reviewAdditionInput.focus();
+                return;
+            }
+
+            if (event.target.closest('[data-review-addition-close]') || event.target === reviewAdditionModal) {
+                closeReviewAddition();
+                return;
+            }
+
+            if (event.target.closest('[data-review-result-close]') || event.target === reviewResultModal) {
+                closeReviewResult();
+            }
+        });
+
+        reviewAdditionInput.addEventListener('input', updateReviewAdditionSubmit);
+
+        reviewAdditionModal.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeReviewAddition();
+        });
+
+        reviewResultModal?.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeReviewResult();
+        });
+
+        reviewAdditionForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (reviewAdditionSubmit.disabled || reviewAdditionSubmitting) return;
+
+            reviewAdditionSubmitting = true;
+            updateReviewAdditionSubmit();
+
+            try {
+                const response = await fetch(reviewAdditionForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    credentials: 'same-origin',
+                    body: new FormData(reviewAdditionForm),
+                });
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Сервер вернул неожиданный ответ.');
+                }
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    const validationError = Object.values(payload.errors || {}).flat()[0];
+                    throw new Error(validationError || payload.message || 'Не удалось дополнить отзыв.');
+                }
+
+                reviewAdditionSubmitting = false;
+                reviewAdditionModal.classList.add('hidden');
+                reviewAdditionModal.classList.remove('flex');
+                syncReviewModalScrollLock();
+                openReviewResult('Данные успешно обновлены', { reload: true });
+            } catch (error) {
+                reviewAdditionSubmitting = false;
+                updateReviewAdditionSubmit();
+                reviewAdditionModal.classList.add('hidden');
+                reviewAdditionModal.classList.remove('flex');
+                syncReviewModalScrollLock();
+                openReviewResult('Ошибка при добавлении комментария к отзыву', { isError: true });
+            }
+        });
+
+        document.addEventListener('submit', async event => {
+            const deleteForm = event.target.closest('[data-review-delete-form]');
+            if (!deleteForm) return;
+
+            event.preventDefault();
+            const deleteButton = deleteForm.querySelector('button[type="submit"]');
+            if (deleteButton?.disabled) return;
+
+            if (deleteButton) deleteButton.disabled = true;
+
+            try {
+                const response = await fetch(deleteForm.action, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': deleteForm.querySelector('input[name="_token"]')?.value
+                            || document.querySelector('meta[name="csrf-token"]')?.content
+                            || '',
+                    },
+                    credentials: 'same-origin',
+                });
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Сервер вернул неожиданный ответ.');
+                }
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Не удалось удалить отзыв.');
+                }
+
+                reviewActionTrigger = deleteButton;
+                openReviewResult('Данные успешно обновлены', { reload: true });
+            } catch (error) {
+                if (deleteButton) deleteButton.disabled = false;
+                reviewActionTrigger = deleteButton;
+                openReviewResult(error.message || 'Не удалось удалить отзыв.', { isError: true });
             }
         });
     }

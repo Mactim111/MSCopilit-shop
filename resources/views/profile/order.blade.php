@@ -152,5 +152,7 @@
     </div>
 
     @include('variants.partials.review-create-modal')
+    @include('variants.partials.review-addition-modal')
+    @include('variants.partials.review-action-result-modal')
 
 @endsection

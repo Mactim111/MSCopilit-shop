@@ -16,7 +16,7 @@
             @endforeach
         </div>
 
-        <button type="button" class="favorite-toggle"
+        <button type="button" class="favorite-toggle cursor-pointer"
                 data-id="{{ $variant->id }}"
                 data-favorite-url="{{ route('favorites.toggle', $variant) }}">
             @if($isFavorite)
@@ -95,16 +95,22 @@
     </div>
 
     {{-- Рейтинг --}}
-    <div class="flex items-center gap-4 text-sm text-gray-600">
+    <div class="flex items-center gap-4 text-sm">
         <div class="flex items-center gap-1">
-            @include('products.icons.star')
-            <span class="font-semibold text-gray-900">
+            @if($product->rating > 0)
+                @include('products.icons.star')
+            @else
+                <span class="[&_svg]:!fill-white [&_svg]:!stroke-[#8c8c8c]">
+                    @include('products.icons.star-outline')
+                </span>
+            @endif
+            <span class="font-semibold {{ $product->rating > 0 ? 'text-[#ffb000]' : 'text-[#8c8c8c]' }}">
                 {{ number_format($product->rating, 1) }}
             </span>
         </div>
 
         <a href="{{ route('catalog.variant', $variant->slug) }}"
-           class="flex items-center gap-1 text-gray-500 hover:text-gray-700">
+           class="flex items-center gap-[2px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200">
             @include('products.icons.message')
             <span>
                 {{ number_format($product->reviews_count, 0, '.', ' ') }}
