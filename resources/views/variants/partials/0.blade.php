@@ -1,13 +1,12 @@
-<div data-v-c74e8e77="" class="review-card-comment">
-    <div data-v-c74e8e77="" class="review-card-comment__header">
-        <span data-v-c74e8e77="" class="_date">Дополнен 5 дней назад</span>        
-    </div>
-    <div data-v-c74e8e77="" class="review-card-comment__content">Прошло почти два года, ТВ пока работает - надолго
-        ли хватит китайского чуда - раньше всегда брал продукцию Samsung, Panasonic, Sony - чистый китаец впервые -
-        время покажет!
-    </div>
-</div>
---------------------------------------------------------------------------------------------------------------------------------
-<div data-v-c74e8e77="" class="review-card__actions-wrapper">
-    <div data-v-c74e8e77="" class="review-card__delete"> Удалить </div>
-</div>
+<a data-v-cacc26ec="" data-v-79d3e965="" href="/cabinet/personal" class="cabinet-link">
+    <svg data-v-cacc26ec=""
+        class="icon cabinet-link__icon" style="width: 32px; height: 32px;">
+        <use xlink:href="/local/templates/html/assets/images/sprite.svg?v=1790760022#login"></use>
+    </svg>
+
+    <div data-v-cacc26ec="" class="cabinet-link__title">Личные данные</div>
+    <svg data-v-cacc26ec=""
+        class="icon cabinet-link__chevron-icon" style="width: 14px; height: 14px;">
+        <use xlink:href="/local/templates/html/assets/images/sprite.svg?v=1790760022#chevron-down"></use>
+    </svg>
+</a>

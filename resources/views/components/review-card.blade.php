@@ -129,13 +129,20 @@
             </p>
         @endforeach
 
-        @if($review->addition && $review->addition_is_published)
-            <p class="mb-[13px]">
-                <strong>Дополнено:</strong>
-                {{ $review->addition }}
-            </p>
-        @endif
     </div>
+
+    @if($review->addition && $review->addition_is_published)
+        <div class="w-full items-center border-t border-dashed border-gray-300 pl-6 pt-4 pb-4 text-left">
+    
+            <div class="mb-[10px] text-[15px] text-[#8c8c8c]">
+                Дополнен {{ $review->addition_updated_at->locale('ru')->diffForHumans() }}
+            </div>
+            <div class="w-full text-[15px] text-black">
+                {{ $review->addition }}
+            </div>
+
+        </div>
+    @endif
 
     @if(auth()->id() === $review->user_id)
         {{-- Удалять свой отзыв может только его автор. --}}

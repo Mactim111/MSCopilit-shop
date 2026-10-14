@@ -76,7 +76,7 @@
                     </span>
                 </div>
                 <div>
-                    <a href="#" class="flex items-center gap-1 text-[#007EEF] hover:text-[#0064cc] transition-all duration-200">
+                    <a href="{{ route('catalog.variant.reviews', $variant) }}" class="flex items-center gap-1 text-[#007EEF] hover:text-[#0064cc] transition-all duration-200">
                         @include('products.icons.message')
                         <span>
                             {{ number_format($product->reviews_count, 0, '.', ' ') }}

@@ -18,8 +18,52 @@
 <div class="max-w-[1500px] mx-auto flex mt-6 mb-[70px]">
 
         {{-- Левая колонка --}}
-        <aside class="w-full max-w-[348px] pr-[32px] flex flex-col">
-            <div class="border border-gray-200 rounded-xl px-[24px] py-[16px] bg-white shadow-sm">
+        <aside class="w-full max-w-[315px] mr-8 flex flex-col p-1">
+            <div class="
+              bg-white border border-gray-50 rounded-lg
+                shadow-[0_2px_8px_rgba(0,0,0,0.20)]
+                transition-all duration-200
+                ">
+                <ul class="flex flex-col">
+                    <li>
+                        <a href="{{ route('profile') }}"
+                           class="block px-[10px] py-3 text-[15px] border-b border-gray-200 border-dashed
+                            {{ request()->routeIs('profile') ? 'bg-[#F4F4F4]' : 'hover:bg-[#F4F4F4]' }} cursor-pointer">
+                            Личные данные
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('profile.orders') }}"
+                           class="block px-[10px] py-3 text-[15px] border-b border-gray-200 border-dashed
+                            {{ request()->routeIs('profile.orders') ? 'bg-[#F4F4F4]' : 'hover:bg-[#F4F4F4]' }} cursor-pointer">
+                            Мои заказы
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('profile.favorites') }}"
+                           class="block px-[10px] py-3 text-[15px] border-b border-gray-200 border-dashed
+                            {{ request()->routeIs('profile.favorites') ? 'bg-[#F4F4F4]' : 'hover:bg-[#F4F4F4]' }} cursor-pointer">
+                            Избранное
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                           class="block px-[10px] py-3 text-[15px] border-b border-gray-200 border-dashed
+                            {{ request()->routeIs('profile.reviews') ? 'bg-[#F4F4F4]' : 'hover:bg-[#F4F4F4]' }} cursor-pointer">
+                            Мои отзывы
+                        </a>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <a href="{{ route('logout') }}"
+                           class="block px-[10px] py-3 text-[15px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer">
+                            Выход
+                        </a>
+                        <a href="{{ route('profile.favorites') }}"
+                           class="block px-[10px] py-3 text-[15px] text-[#007EFF] hover:text-[#0064cc] transition-all duration-200 cursor-pointer">
+                            Удалить аккаунт
+                        </a>
+                    </li>
+                </ul>
 
             </div>
         </aside>
