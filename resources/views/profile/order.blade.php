@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="w-full px-8 py-8">
 
         <!-- Заголовок -->
         <div class="mb-8">

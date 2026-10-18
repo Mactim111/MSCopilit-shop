@@ -44,6 +44,7 @@ class OrderService
                 'user_id' => $user?->id,
                 'address_id' => $data['address_id'] ?? null,
                 'name' => $data['name'],
+                'last_name' => $data['last_name'] ?? null,
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'address' => $addressText,

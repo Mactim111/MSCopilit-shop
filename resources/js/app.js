@@ -24,6 +24,310 @@ document.addEventListener('DOMContentLoaded', () => {
         setupFlashMessage(message);
     });
 
+    {
+        const profileForm = document.querySelector('[data-profile-personal-form]');
+        const profileSaveButton = profileForm?.querySelector('[data-profile-save]');
+        const profileError = profileForm?.querySelector('[data-profile-form-error]');
+        const profileSuccessModal = document.querySelector('[data-profile-success-modal]');
+        const profileCalendar = document.querySelector('[data-birthday-calendar]');
+        const birthdayInput = profileForm?.querySelector('[data-birthday-input]');
+        const birthdayClearButton = profileForm?.querySelector('[data-birthday-clear]');
+        const tabLinks = [...document.querySelectorAll('[data-profile-tab]')];
+        const tabPanels = [...document.querySelectorAll('[data-profile-panel]')];
+        const breadcrumbLabel = document.querySelector('[data-profile-breadcrumb]');
+        const monthLabel = profileCalendar?.querySelector('[data-calendar-month]');
+        const yearLabel = profileCalendar?.querySelector('[data-calendar-year]');
+        const calendarDays = profileCalendar?.querySelector('[data-calendar-days]');
+        let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        let initialProfileState = null;
+
+        const getProfileState = () => {
+            if (!profileForm) return {};
+
+            const data = new FormData(profileForm);
+            return {
+                name: String(data.get('name') || ''),
+                last_name: String(data.get('last_name') || ''),
+                gender: String(data.get('gender') || ''),
+                birth_date: String(data.get('birth_date') || ''),
+            };
+        };
+
+        const updateProfileSaveState = () => {
+            if (!profileForm || !profileSaveButton) return;
+
+            const isDirty = JSON.stringify(getProfileState()) !== JSON.stringify(initialProfileState);
+            profileSaveButton.disabled = !isDirty;
+            profileSaveButton.classList.toggle('cursor-not-allowed', !isDirty);
+            profileSaveButton.classList.toggle('border-[#bdbbbc]', !isDirty);
+            profileSaveButton.classList.toggle('bg-[#bdbbbc]', !isDirty);
+            profileSaveButton.classList.toggle('cursor-pointer', isDirty);
+            profileSaveButton.classList.toggle('border-[#DC092E]', isDirty);
+            profileSaveButton.classList.toggle('bg-[#DC092E]', isDirty);
+        };
+
+        const showProfileError = message => {
+            if (!profileError) return;
+            profileError.textContent = message;
+            profileError.classList.toggle('hidden', !message);
+        };
+
+        const setProfileTab = (tab, updateUrl = true) => {
+            const activePanel = tabPanels.find(panel => panel.dataset.profilePanel === tab)
+                || tabPanels.find(panel => panel.dataset.profilePanel === 'personal');
+            const activeTab = activePanel?.dataset.profilePanel || 'personal';
+
+            tabPanels.forEach(panel => panel.classList.toggle('hidden', panel !== activePanel));
+            tabLinks.forEach(link => {
+                const isActive = link.dataset.profileTab === activeTab;
+                link.classList.toggle('bg-[#f4f4f4]', isActive);
+                link.classList.toggle('before:absolute', isActive);
+                link.classList.toggle('before:inset-y-0', isActive);
+                link.classList.toggle('before:left-0', isActive);
+                link.classList.toggle('before:w-1', isActive);
+                link.classList.toggle('before:bg-[#dc092e]', isActive);
+                if (isActive) link.setAttribute('aria-current', 'page');
+                else link.removeAttribute('aria-current');
+            });
+
+            const activeLink = tabLinks.find(link => link.dataset.profileTab === activeTab);
+            if (breadcrumbLabel && activeLink) breadcrumbLabel.textContent = activeLink.textContent.trim();
+
+            if (updateUrl) {
+                const url = activeTab === 'personal'
+                    ? window.location.pathname
+                    : `${window.location.pathname}#${activeTab}`;
+                window.history.pushState({profileTab: activeTab}, '', url);
+            }
+        };
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                setProfileTab(link.dataset.profileTab);
+            });
+        });
+
+        if (tabPanels.length) {
+            setProfileTab(window.location.hash.slice(1) || 'personal', false);
+            window.addEventListener('popstate', () => {
+                setProfileTab(window.location.hash.slice(1) || 'personal', false);
+            });
+        }
+
+        if (profileForm && profileSaveButton) {
+            initialProfileState = getProfileState();
+            updateProfileSaveState();
+
+            profileForm.querySelectorAll('[data-profile-editable]').forEach(field => {
+                const onFieldChange = () => {
+                    showProfileError('');
+                    const fieldError = profileForm.querySelector(`[data-profile-field-error="${field.name}"]`);
+                    if (fieldError) {
+                        fieldError.textContent = '';
+                        fieldError.classList.add('hidden');
+                    }
+                    updateProfileSaveState();
+                };
+                field.addEventListener('input', onFieldChange);
+                field.addEventListener('change', onFieldChange);
+            });
+
+            profileForm.addEventListener('submit', async event => {
+                event.preventDefault();
+                if (profileSaveButton.disabled) return;
+
+                showProfileError('');
+                profileForm.querySelectorAll('[data-profile-field-error]').forEach(error => {
+                    error.textContent = '';
+                    error.classList.add('hidden');
+                });
+                profileSaveButton.disabled = true;
+
+                try {
+                    const response = await fetch(profileForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        },
+                        credentials: 'same-origin',
+                        body: new FormData(profileForm),
+                    });
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        throw new Error('Сервер вернул неожиданный ответ при сохранении профиля.');
+                    }
+
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        Object.entries(payload.errors || {}).forEach(([field, messages]) => {
+                            const fieldError = profileForm.querySelector(`[data-profile-field-error="${field}"]`);
+                            if (fieldError) {
+                                fieldError.textContent = messages[0];
+                                fieldError.classList.remove('hidden');
+                            }
+                        });
+                        throw new Error(Object.values(payload.errors || {}).flat()[0] || payload.message || 'Не удалось сохранить данные.');
+                    }
+
+                    initialProfileState = getProfileState();
+                    updateProfileSaveState();
+                    profileSuccessModal?.classList.remove('hidden');
+                    profileSuccessModal?.classList.add('flex');
+                    document.body.classList.add('overflow-hidden');
+                    profileSuccessModal?.querySelector('[data-profile-success-close]')?.focus();
+                } catch (error) {
+                    showProfileError(error.message || 'Не удалось сохранить данные профиля.');
+                    updateProfileSaveState();
+                }
+            });
+
+            const closeProfileSuccess = () => {
+                profileSuccessModal.classList.add('hidden');
+                profileSuccessModal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+                profileSaveButton.focus();
+            };
+            profileSuccessModal?.addEventListener('click', event => {
+                if (event.target.closest('[data-profile-success-close]') || event.target === profileSuccessModal) {
+                    closeProfileSuccess();
+                }
+            });
+            profileSuccessModal?.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeProfileSuccess();
+            });
+        }
+
+        const parseBirthday = () => {
+            const match = birthdayInput?.value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+            return match ? new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1])) : null;
+        };
+
+        const formatBirthday = date => [
+            String(date.getDate()).padStart(2, '0'),
+            String(date.getMonth() + 1).padStart(2, '0'),
+            date.getFullYear(),
+        ].join('.');
+
+        const renderCalendar = () => {
+            if (!profileCalendar || !monthLabel || !yearLabel || !calendarDays) return;
+
+            const year = calendarMonth.getFullYear();
+            const month = calendarMonth.getMonth();
+            const monthNames = ['янв.', 'февр.', 'мар.', 'апр.', 'май', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+            monthLabel.textContent = monthNames[month];
+            yearLabel.textContent = String(year);
+            calendarDays.replaceChildren();
+
+            const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+            const selectedDate = parseBirthday();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let index = 0; index < 42; index++) {
+                const date = new Date(year, month, index - offset + 1);
+                date.setHours(0, 0, 0, 0);
+                const isCurrentMonth = date.getMonth() === month;
+                const isSelected = selectedDate
+                    && date.getFullYear() === selectedDate.getFullYear()
+                    && date.getMonth() === selectedDate.getMonth()
+                    && date.getDate() === selectedDate.getDate();
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.dataset.calendarDate = formatBirthday(date);
+                button.textContent = String(date.getDate());
+                button.disabled = date > today;
+                button.className = 'mx-auto flex h-8 w-8 items-center justify-center rounded-[4px] text-[11px] transition-colors disabled:cursor-not-allowed disabled:text-[#d6d6d6]';
+                if (isSelected) {
+                    button.classList.add('border', 'border-[#dc092e]', 'bg-[#dc092e]', 'text-white');
+                } else if (date.getTime() === today.getTime()) {
+                    button.classList.add('border', 'border-[#dc092e]', 'text-[#231f20]');
+                } else if (isCurrentMonth) {
+                    button.classList.add('text-[#231f20]', 'hover:bg-[#f4f4f4]');
+                } else {
+                    button.classList.add('text-[#bdbbbc]', 'hover:bg-[#f4f4f4]');
+                }
+                calendarDays.append(button);
+            }
+        };
+
+        const positionCalendar = () => {
+            if (!profileCalendar || !birthdayInput) return;
+
+            const rect = birthdayInput.getBoundingClientRect();
+            const calendarHeight = 268;
+            const gap = 12;
+            const roomBelow = window.innerHeight - rect.bottom;
+            const roomAbove = rect.top;
+            const placement = roomBelow >= calendarHeight + gap || roomBelow >= roomAbove
+                ? 'below'
+                : 'above';
+            const top = Math.max(8, Math.min(
+                placement === 'below' ? rect.bottom + gap : rect.top - calendarHeight - gap,
+                window.innerHeight - calendarHeight - 8
+            ));
+            const left = Math.max(8, Math.min(rect.left + rect.width / 2 - 130.5, window.innerWidth - 269));
+            profileCalendar.style.left = `${left}px`;
+            profileCalendar.style.top = `${top}px`;
+
+            const topArrow = profileCalendar.querySelector('[data-calendar-arrow="top"]');
+            const bottomArrow = profileCalendar.querySelector('[data-calendar-arrow="bottom"]');
+            topArrow.classList.toggle('hidden', placement !== 'below');
+            bottomArrow.classList.toggle('hidden', placement !== 'above');
+            const arrow = placement === 'below' ? topArrow : bottomArrow;
+            arrow.style.left = `${Math.max(12, Math.min(rect.left + rect.width / 2 - left, 249))}px`;
+        };
+
+        const closeCalendar = () => profileCalendar?.classList.add('hidden');
+
+        if (birthdayInput && profileCalendar) {
+            birthdayInput.addEventListener('click', () => {
+                const selectedDate = parseBirthday();
+                calendarMonth = selectedDate
+                    ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+                    : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                renderCalendar();
+                positionCalendar();
+                profileCalendar.classList.remove('hidden');
+            });
+
+            profileCalendar.querySelector('[data-calendar-prev]')?.addEventListener('click', () => {
+                calendarMonth.setMonth(calendarMonth.getMonth() - 1);
+                renderCalendar();
+            });
+            profileCalendar.querySelector('[data-calendar-next]')?.addEventListener('click', () => {
+                calendarMonth.setMonth(calendarMonth.getMonth() + 1);
+                renderCalendar();
+            });
+            calendarDays?.addEventListener('click', event => {
+                const day = event.target.closest('[data-calendar-date]');
+                if (!day || day.disabled) return;
+                birthdayInput.value = day.dataset.calendarDate;
+                birthdayClearButton?.classList.remove('hidden');
+                birthdayInput.dispatchEvent(new Event('input', {bubbles: true}));
+                birthdayInput.dispatchEvent(new Event('change', {bubbles: true}));
+                closeCalendar();
+            });
+            birthdayClearButton?.addEventListener('click', () => {
+                birthdayInput.value = '';
+                birthdayClearButton.classList.add('hidden');
+                birthdayInput.dispatchEvent(new Event('input', {bubbles: true}));
+                birthdayInput.dispatchEvent(new Event('change', {bubbles: true}));
+                closeCalendar();
+            });
+            document.addEventListener('click', event => {
+                if (!profileCalendar.contains(event.target) && event.target !== birthdayInput) closeCalendar();
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeCalendar();
+            });
+            window.addEventListener('resize', positionCalendar);
+            window.addEventListener('scroll', positionCalendar, true);
+        }
+    }
+
     /*
      * AJAX-добавление товара из всех трёх карточек:
      * слайдера, списка вариантов и страницы варианта товара.

@@ -70,6 +70,7 @@ class OrderController extends Controller
             'address_id' => 'nullable|exists:addresses,id',
             'address'    => 'nullable|required_without:address_id|string|max:500',
             'name'       => 'required|string|max:255',
+            'last_name'  => 'nullable|string|max:255',
             'email'      => 'required|email',
             'phone'      => 'required|string|max:50',
         ]);

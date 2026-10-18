@@ -79,6 +79,15 @@
                     </div>
 
                     <div>
+                        <label class="block font-medium mb-1">Фамилия</label>
+                        <input type="text" name="last_name" value="{{ old('last_name', auth()->user()?->last_name) }}"
+                               class="w-full border-gray-300 rounded-lg border @error('last_name') border-red-500 @enderror px-3">
+                        @error('last_name')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label class="block font-medium mb-1">Телефон</label>
                         <input type="text" name="phone" value="{{ old('phone', auth()->user()?->phone) }}"
                                class="w-full border-gray-300 rounded-lg border @error('phone') border-red-500 @enderror px-3">

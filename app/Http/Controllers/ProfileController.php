@@ -19,13 +19,15 @@ class ProfileController extends Controller
 
     public function updateProfile(Request $request)
     {
+        $user = Auth::user();
         $data = $request->validate([
             'name'  => 'required|string|max:255',
-            'email' => 'required|email',
+            'last_name' => 'nullable|string|max:255',
+            'gender' => 'required|in:male,female',
+            'birth_date' => 'nullable|date|before_or_equal:today',
             'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $user = Auth::user();
         if ($request->hasFile('avatar')) {
 
             // удалить старый файл
@@ -36,6 +38,10 @@ class ProfileController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
         $user->update($data);
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Данные успешно обновлены']);
+        }
 
         return back()->with('success', 'Профиль обновлён');
     }

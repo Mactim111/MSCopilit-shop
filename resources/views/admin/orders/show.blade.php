@@ -4,6 +4,7 @@
     <h1>Заказ №{{ $order->id }}</h1>
 
     <p><b>Имя:</b> {{ $order->name }}</p>
+    <p><b>Фамилия:</b> {{ $order->last_name ?: '—' }}</p>
     <p><b>Email:</b> {{ $order->email }}</p>
     <p><b>Телефон:</b> {{ $order->phone }}</p>
     <p><b>Адрес:</b> {{ $order->address }}</p>
