@@ -15,7 +15,7 @@
 
 
 {{-- Основная двухколоночная часть --}}
-<div class="max-w-[1500px] mx-auto flex flex-col gap-6 mt-6 mb-[70px] md:flex-row md:gap-8">
+<div class="max-w-[1500px] mx-auto flex flex-col gap-6 mt-6 mb-[70px] md:flex-row">
 
         <x-profile-sidebar active="favorites" />
 

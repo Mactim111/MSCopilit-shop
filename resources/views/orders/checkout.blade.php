@@ -28,7 +28,7 @@
                             @checked(old('address_id', $defaultAddressId) == $addr->id)>
                         <div>
                             <div class="font-medium">{{ $addr->label ?? 'Адрес' }}</div>
-                            <div class="text-gray-600 text-sm">{{ $addr->address_line }}</div>
+                            <div class="text-gray-600 text-sm">{{ $addr->country }}, {{ $addr->city }}, {{ $addr->address_line }}</div>
                         </div>
                     </label>
                 @endforeach
