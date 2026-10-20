@@ -74,6 +74,10 @@ Route::get('/thanks/{order}', [OrderController::class, 'thanks'])->name('orders.
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+
+    // Добавил СЕГОДНЯ!!! маршрут для просмотра юзером СВОИХ ОТЗЫВОВ в СВОЕМ ПРОФИЛЕ
+    Route::get('/profile/reviews', [ProfileController::class, 'reviews'])->name('profile.reviews');
+
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
     Route::post('/favorites/{variant}/toggle', [FavoriteController::class, 'toggle'])

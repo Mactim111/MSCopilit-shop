@@ -72,6 +72,13 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function reviews()
+    {
+        return view('profile.reviews', [
+            'reviews' => auth()->user()->reviews()->latest()->get()
+        ]);
+    }
+
     public function order(Order $order)
     {
         $order->load('items.variant');

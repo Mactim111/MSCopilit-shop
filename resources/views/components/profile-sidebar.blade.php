@@ -9,12 +9,12 @@
         ['key' => 'store', 'label' => 'Любимый магазин', 'href' => '#store', 'icon' => 'store'],
         ['key' => 'addresses', 'label' => 'Адрес доставки', 'href' => '#addresses', 'icon' => 'pin'],
         ['key' => 'favorites', 'label' => 'Избранное', 'href' => route('profile.favorites'), 'icon' => 'heart'],
-        ['key' => 'reviews', 'label' => 'Мои отзывы', 'href' => '#reviews', 'icon' => 'review'],
+        ['key' => 'reviews', 'label' => 'Мои отзывы', 'href' => route('profile.reviews'), 'icon' => 'review'],
     ];
 @endphp
 
 <aside class="w-full shrink-0 p-1 md:w-[315px]">
-    <nav class="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.20)]"
+    <nav class="overflow-hidden rounded-[10px] border border-gray-100 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.20)]"
          aria-label="Разделы профиля">
         <ul class="flex flex-col">
             @foreach($items as $item)
@@ -26,7 +26,7 @@
                     <a href="{{ $item['href'] }}"
                        @if($isLocalTab) data-profile-tab="{{ $item['key'] }}" @endif
                        @if($isActive) aria-current="page" @endif
-                       class="relative flex min-h-[47px] w-full items-center gap-3 border-b border-dashed border-gray-200 pl-[15px] pr-[10px] py-3 text-left text-[15px] text-[#231f20] transition-colors duration-200 {{ $isActive ? 'bg-[#f4f4f4] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-[#dc092e]' : 'hover:bg-[#f4f4f4]' }}">
+                       class="relative flex min-h-[57px] w-full items-center gap-3 border-b border-dashed border-gray-200 pl-[15px] pr-[10px] py-3 text-left text-[15px] text-[#231f20] transition-colors duration-200 {{ $isActive ? 'bg-[#f4f4f4] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-[#dc092e]' : 'hover:bg-[#f4f4f4]' }}">
                         <svg class="h-[22px] w-[22px] shrink-0 text-[#595758]"
                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
