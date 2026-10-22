@@ -66,7 +66,10 @@
                     <div class="max-w-[350px]">
                         <div class="mb-2 flex items-center justify-between text-[13px] text-[#231f20]">
                             <label for="profile-phone" class="font-semibold">Телефон <span class="text-[#DC092E] font-semibold">*</span></label>
-                            <a href="#" class="text-[14px] text-[#007EFF] transition-all duration-200 hover:text-[#0064cc] cursor-pointer">Изменить</a>
+                            <button type="button" data-open-contact-modal="phone"
+                                    class="cursor-pointer text-[14px] text-[#007EFF] transition-all duration-200 hover:text-[#0064cc]">
+                                Изменить
+                            </button>
                         </div>
                         <div class="relative">
                             <input id="profile-phone" value="{{ $user->phone }}" readonly
@@ -94,8 +97,8 @@
                         </div>
                         <div class="relative">
                             <input id="profile-birth-date" name="birth_date" readonly
-                                    value="{{ old('birth_date', $user->birth_date?->format('Y-m-d')) }}"
-                                    placeholder="дд.мм.гггг"
+                                    value="{{ old('birth_date') ? \Illuminate\Support\Carbon::parse(old('birth_date'))->format('d.m.Y') : $user->birth_date?->format('d.m.Y') }}"
+                                    placeholder="ДД.ММ.ГГГГ"
                                     class="h-[47px] w-full cursor-pointer rounded-[10px] border border-[#bdbbbc] bg-white px-4 pt-[14px] pb-3 text-left text-[14px] text-[#231f20] placeholder:text-[#9f9d9e] outline-none focus:border-black"
                                     data-birthday-input data-profile-editable>
                             <span class="pointer-events-none absolute right-[14px] top-1/2 -translate-y-1/2">
@@ -108,7 +111,10 @@
                     <div class="max-w-[350px]">
                         <div class="mb-2 flex items-center justify-between text-[13px] text-[#231f20]">
                             <label for="profile-email" class="font-semibold">Email <span class="text-[#DC092E] font-semibold">*</span></label>
-                            <a href="#" class="text-[14px] text-[#007EFF] transition-all duration-200 hover:text-[#0064cc] cursor-pointer">Изменить</a>
+                            <button type="button" data-open-contact-modal="email"
+                                    class="cursor-pointer text-[14px] text-[#007EFF] transition-all duration-200 hover:text-[#0064cc]">
+                                Изменить
+                            </button>
                         </div>
                         <div class="relative">
                             <input id="profile-email" value="{{ $user->email }}" readonly
@@ -142,6 +148,94 @@
     </main>
 </div>
 
+<div class="fixed inset-0 z-[1300] {{ $errors->has('phone') ? 'flex' : 'hidden' }} items-center justify-center bg-[#231f20bf] px-4 py-4"
+        role="dialog" aria-modal="true" aria-labelledby="change-phone-title"
+        aria-hidden="{{ $errors->has('phone') ? 'false' : 'true' }}"
+        data-contact-modal="phone" data-open-on-load="{{ $errors->has('phone') ? 'true' : 'false' }}">
+    <form action="{{ route('profile.phone.update') }}" method="POST"
+            class="relative w-full max-w-[415px] rounded-[10px] bg-white px-6 py-8 text-left sm:px-[50px]"
+            data-contact-form="phone">
+        @csrf
+        <button type="button" data-contact-modal-close aria-label="Закрыть окно"
+                class="absolute right-[10px] top-[10px] flex h-[31px] w-[31px] cursor-pointer items-center justify-center text-[#231f20] hover:text-[#dc092e]">
+            <svg class="h-[26.6px] w-[26.6px]" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M3 3l14 14M17 3L3 17" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+        </button>
+        <div class="flex flex-col gap-6">
+            <h2 id="change-phone-title" class="pr-8 text-[24px] font-bold text-nowrap text-[#231f20]">
+                Привязать новый телефон
+            </h2>
+            <div>
+                <label for="change-phone" class="mb-2 block text-[15px] text-[#231f20]">
+                    Телефон <span class="font-bold text-[#dc092e]">*</span>
+                </label>
+                <input id="change-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"
+                        value="{{ old('phone') }}" placeholder="+375 (__) ___-__-__"
+                        maxlength="19" required
+                        pattern="\+375 \([0-9]{2}\) [0-9]{3}-[0-9]{2}-[0-9]{2}"
+                        class="h-[50px] w-full rounded-[10px] border border-[#bdbbbc] bg-white px-4 text-left text-[14px] text-[#231f20] outline-none transition-colors placeholder:text-[#bdbbbc] focus:border-[#231f20]"
+                        data-contact-input="phone">
+            </div>
+            <div class="mt-2">
+                <button type="submit" disabled
+                        class="h-[50px] w-full cursor-not-allowed rounded-[10px] border border-[#bdbbbc] bg-[#bdbbbc] text-center text-[15px] font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#a80723]"
+                        data-contact-submit>
+                    OK
+                </button>
+                <p class="mt-6 text-[14px] text-[#231f20]">
+                    <span class="font-bold text-[#dc092e]">*</span>
+                    Поля обязательные для заполнения
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="fixed inset-0 z-[1300] {{ $errors->has('email') ? 'flex' : 'hidden' }} items-center justify-center bg-[#231f20bf] px-4 py-4"
+        role="dialog" aria-modal="true" aria-labelledby="change-email-title"
+        aria-hidden="{{ $errors->has('email') ? 'false' : 'true' }}"
+        data-contact-modal="email" data-open-on-load="{{ $errors->has('email') ? 'true' : 'false' }}">
+    <form action="{{ route('profile.email.update') }}" method="POST"
+            class="relative w-full max-w-[512px] rounded-[10px] bg-white px-6 py-8 text-left sm:px-[50px]"
+            data-contact-form="email">
+        @csrf
+        <button type="button" data-contact-modal-close aria-label="Закрыть окно"
+                class="absolute right-[10px] top-[10px] flex h-[31px] w-[31px] cursor-pointer items-center justify-center text-[#231f20] hover:text-[#dc092e]">
+            <svg class="h-[26.6px] w-[26.6px]" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M3 3l14 14M17 3L3 17" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+        </button>
+        <div class="flex flex-col gap-6">
+            <div>
+                <h2 id="change-email-title" class="mb-5 pr-8 text-[24px] font-bold text-nowrap text-[#231f20]">
+                    Привязать новый Email
+                </h2>
+            </div>
+            <div>
+                <label for="change-email" class="mb-2 block text-[15px] text-[#231f20]">
+                    Email <span class="font-bold text-[#dc092e]">*</span>
+                </label>
+                <input id="change-email" name="email" type="email" inputmode="email" autocomplete="email"
+                        value="{{ old('email') }}" required
+                        pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                        class="h-[50px] w-full rounded-[10px] border border-[#bdbbbc] bg-white px-4 text-left text-[14px] text-[#231f20] outline-none transition-colors focus:border-[#231f20]"
+                        data-contact-input="email">
+            </div>
+            <div class="mt-2">
+                <button type="submit" disabled
+                        class="h-[50px] w-full cursor-not-allowed rounded-[10px] border border-[#bdbbbc] bg-[#bdbbbc] text-center text-[15px] font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#a80723]"
+                        data-contact-submit>
+                    OK
+                </button>
+                <p class="mt-6 text-[14px] text-[#231f20]">
+                    <span class="font-bold text-[#dc092e]">*</span>
+                    Поля обязательные для заполнения
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
 
 <div class="fixed inset-0 z-[1200] hidden items-center justify-center bg-[#231f20bf] px-4 py-4"
         role="dialog" aria-modal="true" aria-labelledby="profile-save-success-title" data-profile-success-modal>
@@ -170,25 +264,25 @@
     <span class="absolute -bottom-[7px] left-1/2 hidden h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#d6d6d6] bg-white"
             data-calendar-arrow="bottom"></span>
     <div class="relative z-[1] bg-white">
-        <div class="mb-2 flex h-8 items-center justify-between">
+        <div class="mb-2 flex h-8 items-center justify-between gap-2">
             <button type="button" aria-label="Предыдущий месяц" data-calendar-prev
                     class="flex h-7 w-7 items-center justify-center text-[#8c8c8c] hover:text-[#231f20]">
                 @include('products.icons.chevron-left-thin')
             </button>
-            <div class="flex items-center gap-3 text-[12px]">
-                <span data-calendar-month></span><span data-calendar-year></span>
+            <div class="flex min-w-0 flex-1 items-center justify-center gap-12 text-[12px]">
+                <button type="button" data-calendar-month
+                        class="min-w-[72px] rounded-[4px] px-2 py-2 text-center hover:bg-[#f6f6f6]">
+                </button>
+                <button type="button" data-calendar-year
+                        class="min-w-[48px] rounded-[4px] px-2 py-2 text-center hover:bg-[#f6f6f6]">
+                </button>
             </div>
             <button type="button" aria-label="Следующий месяц" data-calendar-next
                     class="flex h-7 w-7 items-center justify-center text-[#8c8c8c] hover:text-[#231f20]">
                 @include('products.icons.chevron-right-thin')
             </button>
         </div>
-        <div class="mb-1 grid grid-cols-7 text-center text-[10px] font-semibold text-[#231f20]">
-            @foreach(['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'] as $weekday)
-                <span class="py-1">{{ $weekday }}</span>
-            @endforeach
-        </div>
-        <div class="grid grid-cols-7 text-center" data-calendar-days></div>
+        <div class="h-[210px]" data-calendar-content></div>
     </div>
 </div>
 

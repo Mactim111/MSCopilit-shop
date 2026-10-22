@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use App\Models\Order;
 
 class ProfileController extends Controller
@@ -44,6 +45,35 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', 'Профиль обновлён');
+    }
+
+    public function updatePhone(Request $request)
+    {
+        $data = $request->validate([
+            'phone' => ['required', 'regex:/^\+375 \(\d{2}\) \d{3}-\d{2}-\d{2}$/'],
+        ]);
+
+        Auth::user()->update(['phone' => $data['phone']]);
+
+        return back()->with('success', 'Номер телефона успешно обновлён.');
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $user = Auth::user();
+        $data = $request->validate([
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'regex:/^[^@\s]+@[^@\s]+\.[^@\s]+$/u',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+        ]);
+
+        $user->update(['email' => $data['email']]);
+
+        return back()->with('success', 'Email успешно обновлён.');
     }
 
     public function updatePassword(Request $request)

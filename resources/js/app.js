@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const profileError = profileForm?.querySelector('[data-profile-form-error]');
         const profileSuccessModal = document.querySelector('[data-profile-success-modal]');
         const profileCalendar = document.querySelector('[data-birthday-calendar]');
+        const contactModals = [...document.querySelectorAll('[data-contact-modal]')];
         const birthdayInput = profileForm?.querySelector('[data-birthday-input]');
         const birthdayClearButton = profileForm?.querySelector('[data-birthday-clear]');
         const tabLinks = [...document.querySelectorAll('[data-profile-tab]')];
@@ -37,9 +38,118 @@ document.addEventListener('DOMContentLoaded', () => {
         const breadcrumbLabel = document.querySelector('[data-profile-breadcrumb]');
         const monthLabel = profileCalendar?.querySelector('[data-calendar-month]');
         const yearLabel = profileCalendar?.querySelector('[data-calendar-year]');
-        const calendarDays = profileCalendar?.querySelector('[data-calendar-days]');
+        const calendarContent = profileCalendar?.querySelector('[data-calendar-content]');
+        const calendarStopIcon = profileCalendar?.querySelector('[data-calendar-stop-icon]');
         let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        let calendarMode = 'days';
         let initialProfileState = null;
+
+        const setContactSubmitState = (form, isValid) => {
+            const button = form.querySelector('[data-contact-submit]');
+            if (!button) return;
+
+            button.disabled = !isValid;
+            button.classList.toggle('cursor-not-allowed', !isValid);
+            button.classList.toggle('border-[#bdbbbc]', !isValid);
+            button.classList.toggle('bg-[#bdbbbc]', !isValid);
+            button.classList.toggle('cursor-pointer', isValid);
+            button.classList.toggle('border-[#dc092e]', isValid);
+            button.classList.toggle('bg-[#dc092e]', isValid);
+        };
+
+        const formatPhone = value => {
+            let digits = value.replace(/\D/g, '');
+            if (digits.startsWith('375')) digits = digits.slice(3);
+            digits = digits.slice(0, 9);
+            if (!digits) return '';
+
+            let formatted = `+375 (${digits.slice(0, 2)}`;
+            if (digits.length >= 2) formatted += ')';
+            if (digits.length > 2) formatted += ` ${digits.slice(2, 5)}`;
+            if (digits.length > 5) formatted += `-${digits.slice(5, 7)}`;
+            if (digits.length > 7) formatted += `-${digits.slice(7, 9)}`;
+            return formatted;
+        };
+
+        const phonePattern = /^\+375 \(\d{2}\) \d{3}-\d{2}-\d{2}$/;
+        const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+        contactModals.forEach(modal => {
+            const type = modal.dataset.contactModal;
+            const form = modal.querySelector(`[data-contact-form="${type}"]`);
+            const input = form?.querySelector(`[data-contact-input="${type}"]`);
+            if (!form || !input) return;
+
+            const updateContactInputState = () => {
+                if (type === 'phone') {
+                    const isValid = phonePattern.test(input.value);
+                    input.classList.toggle('bg-[#e8f0fe]', isValid);
+                    input.classList.toggle('bg-white', !isValid);
+                    setContactSubmitState(form, isValid);
+                    return;
+                }
+
+                const isValid = input.validity.valid && emailPattern.test(input.value);
+                input.classList.toggle('bg-[#e8f0fe]', isValid);
+                input.classList.toggle('bg-white', !isValid);
+                setContactSubmitState(form, isValid);
+            };
+
+            if (type === 'phone') {
+                input.value = formatPhone(input.value);
+                input.addEventListener('input', () => {
+                    input.value = formatPhone(input.value);
+                    input.setSelectionRange(input.value.length, input.value.length);
+                    updateContactInputState();
+                });
+            }
+            input.addEventListener('input', updateContactInputState);
+            input.addEventListener('change', updateContactInputState);
+            updateContactInputState();
+
+            const closeContactModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modal.setAttribute('aria-hidden', 'true');
+                if (!contactModals.some(other => other !== modal && !other.classList.contains('hidden'))) {
+                    document.body.classList.remove('overflow-hidden');
+                }
+            };
+
+            modal.querySelector('[data-contact-modal-close]')?.addEventListener('click', closeContactModal);
+            modal.addEventListener('click', event => {
+                if (event.target === modal) closeContactModal();
+            });
+            modal.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeContactModal();
+            });
+
+            if (modal.dataset.openOnLoad === 'true') {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('overflow-hidden');
+                input.focus();
+            }
+        });
+
+        document.querySelectorAll('[data-open-contact-modal]').forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = contactModals.find(item => item.dataset.contactModal === button.dataset.openContactModal);
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('overflow-hidden');
+                modal.querySelector('input')?.focus();
+            });
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key !== 'Escape') return;
+            const activeModal = contactModals.find(modal => !modal.classList.contains('hidden'));
+            activeModal?.querySelector('[data-contact-modal-close]')?.click();
+        });
 
         const getProfileState = () => {
             if (!profileForm) return {};
@@ -145,6 +255,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileSaveButton.disabled = true;
 
                 try {
+                    const formData = new FormData(profileForm);
+                    const birthday = parseBirthday();
+                    formData.set('birth_date', birthday
+                        ? [
+                            birthday.getFullYear(),
+                            String(birthday.getMonth() + 1).padStart(2, '0'),
+                            String(birthday.getDate()).padStart(2, '0'),
+                        ].join('-')
+                        : '');
+
                     const response = await fetch(profileForm.action, {
                         method: 'POST',
                         headers: {
@@ -153,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                         },
                         credentials: 'same-origin',
-                        body: new FormData(profileForm),
+                        body: formData,
                     });
                     const contentType = response.headers.get('content-type') || '';
                     if (!contentType.includes('application/json')) {
@@ -212,19 +332,114 @@ document.addEventListener('DOMContentLoaded', () => {
         ].join('.');
 
         const renderCalendar = () => {
-            if (!profileCalendar || !monthLabel || !yearLabel || !calendarDays) return;
+            if (!profileCalendar || !monthLabel || !yearLabel || !calendarContent) return;
 
             const year = calendarMonth.getFullYear();
             const month = calendarMonth.getMonth();
-            const monthNames = ['янв.', 'февр.', 'мар.', 'апр.', 'май', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+            const monthNames = ['Янв.', 'Февр.', 'Март', 'Апр.', 'Май', 'Июнь', 'Июль', 'Авг.', 'Сент.', 'Окт.', 'Нояб.', 'Дек.'];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+
             monthLabel.textContent = monthNames[month];
             yearLabel.textContent = String(year);
-            calendarDays.replaceChildren();
+            monthLabel.setAttribute('aria-label', 'Выбрать месяц');
+            yearLabel.setAttribute('aria-label', 'Выбрать год');
+
+            profileCalendar.querySelector('[data-calendar-prev]')?.classList.toggle('invisible', calendarMode !== 'days');
+            profileCalendar.querySelector('[data-calendar-next]')?.classList.toggle('invisible', calendarMode !== 'days');
+            calendarContent.replaceChildren();
+
+            const addSelectionStyle = (button, isSelected, isCurrent) => {
+                if (isSelected) {
+                    button.classList.add('border', 'border-[#dc092e]', 'bg-[#dc092e]', 'text-white');
+                } else if (isCurrent) {
+                    button.classList.add('border', 'border-[#dc092e]', 'text-[#231f20]');
+                } else {
+                    button.classList.add('text-[#231f20]', 'hover:bg-[#f4f4f4]');
+                }
+            };
+
+            if (calendarMode === 'months') {
+                const monthGrid = document.createElement('div');
+                monthGrid.className = 'grid h-full grid-cols-3 grid-rows-4 text-center';
+
+                monthNames.forEach((name, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.calendarMonthOption = String(index);
+                    button.textContent = name;
+                    button.className = 'mx-auto flex h-[42px] w-full items-center justify-center rounded-[4px] text-[11px] transition-colors';
+                    addSelectionStyle(
+                        button,
+                        index === month,
+                        year === currentYear && index === currentMonth
+                    );
+                    monthGrid.append(button);
+                });
+
+                calendarContent.append(monthGrid);
+                return;
+            }
+
+            if (calendarMode === 'years') {
+                const yearGrid = document.createElement('div');
+                yearGrid.className = 'relative grid h-full grid-cols-3 content-start overflow-y-auto pb-[110px] text-center';
+                yearGrid.dataset.calendarYears = '';
+
+                for (let value = 1900; value <= currentYear; value++) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.calendarYearOption = String(value);
+                    button.textContent = String(value);
+                    button.className = 'mx-auto flex h-[26px] w-full items-center justify-center rounded-[4px] text-[11px] transition-colors';
+                    addSelectionStyle(button, value === year, value === currentYear);
+                    yearGrid.append(button);
+                }
+
+                const trailingCells = (3 - ((currentYear - 1900 + 1) % 3)) % 3;
+                for (let index = 0; index < trailingCells; index++) {
+                    const disabledYear = document.createElement('button');
+                    disabledYear.type = 'button';
+                    disabledYear.disabled = true;
+                    disabledYear.setAttribute('aria-label', `${currentYear + index + 1}, будущий год недоступен`);
+                    disabledYear.textContent = String(currentYear + index + 1);
+                    disabledYear.className = 'relative mx-auto flex h-[26px] w-full cursor-not-allowed items-center justify-center rounded-[4px] border border-[#e5e5e5] bg-[#f6f6f6] text-[11px] text-[#bdbbbc]';
+                    if (calendarStopIcon) {
+                        const icon = document.createElement('span');
+                        icon.className = 'absolute right-1 flex items-center';
+                        icon.append(calendarStopIcon.content.cloneNode(true));
+                        disabledYear.append(icon);
+                    }
+                    yearGrid.append(disabledYear);
+                }
+
+                calendarContent.append(yearGrid);
+                const selectedYear = yearGrid.querySelector(`[data-calendar-year-option="${year}"]`);
+                if (selectedYear) {
+                    const selectedRect = selectedYear.getBoundingClientRect();
+                    const gridRect = yearGrid.getBoundingClientRect();
+                    yearGrid.scrollTop += selectedRect.top - gridRect.top
+                        - (yearGrid.clientHeight - selectedYear.offsetHeight) / 2;
+                }
+                return;
+            }
+
+            const weekdays = document.createElement('div');
+            weekdays.className = 'mb-1 grid h-5 grid-cols-7 text-center text-[10px] font-semibold text-[#231f20]';
+            ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].forEach(day => {
+                const label = document.createElement('span');
+                label.textContent = day;
+                weekdays.append(label);
+            });
+            calendarContent.append(weekdays);
+
+            const dayGrid = document.createElement('div');
+            dayGrid.className = 'grid grid-cols-7 grid-rows-6 text-center';
 
             const offset = (new Date(year, month, 1).getDay() + 6) % 7;
             const selectedDate = parseBirthday();
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
 
             for (let index = 0; index < 42; index++) {
                 const date = new Date(year, month, index - offset + 1);
@@ -239,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.dataset.calendarDate = formatBirthday(date);
                 button.textContent = String(date.getDate());
                 button.disabled = date > today;
-                button.className = 'mx-auto flex h-8 w-8 items-center justify-center rounded-[4px] text-[11px] transition-colors disabled:cursor-not-allowed disabled:text-[#d6d6d6]';
+                button.className = 'mx-auto flex h-[30px] w-8 items-center justify-center rounded-[4px] text-[11px] transition-colors disabled:cursor-not-allowed disabled:text-[#d6d6d6]';
                 if (isSelected) {
                     button.classList.add('border', 'border-[#dc092e]', 'bg-[#dc092e]', 'text-white');
                 } else if (date.getTime() === today.getTime()) {
@@ -249,8 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     button.classList.add('text-[#bdbbbc]', 'hover:bg-[#f4f4f4]');
                 }
-                calendarDays.append(button);
+                dayGrid.append(button);
             }
+
+            calendarContent.append(dayGrid);
         };
 
         const positionCalendar = () => {
@@ -288,6 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 calendarMonth = selectedDate
                     ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
                     : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                calendarMode = 'days';
                 renderCalendar();
                 positionCalendar();
                 profileCalendar.classList.remove('hidden');
@@ -301,7 +519,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 calendarMonth.setMonth(calendarMonth.getMonth() + 1);
                 renderCalendar();
             });
-            calendarDays?.addEventListener('click', event => {
+            monthLabel?.addEventListener('click', () => {
+                calendarMode = 'months';
+                renderCalendar();
+            });
+            yearLabel?.addEventListener('click', () => {
+                calendarMode = 'years';
+                renderCalendar();
+            });
+            calendarContent?.addEventListener('click', event => {
+                event.stopPropagation();
+                const monthOption = event.target.closest('[data-calendar-month-option]');
+                if (monthOption) {
+                    calendarMonth.setMonth(Number(monthOption.dataset.calendarMonthOption));
+                    calendarMode = 'days';
+                    renderCalendar();
+                    return;
+                }
+
+                const yearOption = event.target.closest('[data-calendar-year-option]');
+                if (yearOption) {
+                    calendarMonth.setFullYear(Number(yearOption.dataset.calendarYearOption));
+                    calendarMode = 'days';
+                    renderCalendar();
+                    return;
+                }
+
                 const day = event.target.closest('[data-calendar-date]');
                 if (!day || day.disabled) return;
                 birthdayInput.value = day.dataset.calendarDate;
