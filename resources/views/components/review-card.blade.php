@@ -4,7 +4,7 @@
     $authorInitial = \Illuminate\Support\Str::substr($review->user->name, 0, 1);
 @endphp
 
-<article class="border-b border-[#f2f2f2] pt-6 text-left"
+<article class="border-b border-[#e5e5e5] pt-6 text-left"
          data-review-card
          data-review-id="{{ $review->id }}">
     {{-- Заголовок: автор и реакции в первой строке; рейтинг, вариант и фото ниже. --}}
@@ -155,7 +155,7 @@
                    data-product-title="{{ $review->variant->title }}"
                    data-product-image="{{ $review->variant->mainImage() }}"
                    class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
-                    Дополнить отзыв
+                    Дополнить
                 </a>
             @else
                 <span class="text-[13px] text-gray-500">Отзыв дополнен</span>
@@ -176,16 +176,15 @@
 
     {{-- Ответ магазина и разделитель существуют только при наличии ответа. --}}
     @if($review->reply)
-        <div class="border-b border-dashed border-gray-300"></div>
-        <section class="w-full pt-[4px] pl-5 text-left">
-            <div class="mb-[5px] flex h-[38px] items-center gap-[7px] pl-1 pt-[7px]">
-                <time class="text-[15px] text-[#8c8c8c]"
+        <section class="w-full border-t border-dashed border-gray-300 pt-[4px] pl-5 text-left">
+            <div class="mb-[5px] flex h-[38px] items-center pl-1 pt-[7px]">
+                <span class="flex pt-[7px] items-center">
+                    @include('products.icons.my-shop')
+                </span>
+                <time class="text-[15px] pt-[7px] text-[#8c8c8c]"
                       datetime="{{ $review->reply->created_at->toIso8601String() }}">
                     {{ $review->reply->created_at->locale('ru')->diffForHumans() }}
                 </time>
-                <span class="flex items-center">
-                    @include('products.icons.my-shop')
-                </span>
             </div>
             <div class="pb-[2px] pl-1">
                 <p class="mb-[13px] text-[15px] text-black">

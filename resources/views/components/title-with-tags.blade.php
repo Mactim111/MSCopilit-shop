@@ -9,12 +9,12 @@
     $activeTagId = $activeTagId ?? null;
 @endphp
 
-<div class="{{ $tagContainerClass }} h-[56px] flex items-end mb-[8px] pr-[6px]">
+<div class="{{ $tagContainerClass }} h-[56px] flex items-end {{ $favoritesMode ? 'mb-[32px]' : 'mb-[8px]' }} pr-[6px]">
 
     {{-- БЛОК 1: ЗАГОЛОВОК (Отображается, если передан title) --}}
     @if(isset($slider_title))
         <div class="pb-[16px] pr-[24px] flex-shrink-0">
-            <h2 class="text-[28px] font-bold text-[#231f20] leading-none flex items-center gap-2">
+            <h2 class="text-[26px] font-semibold text-[#231f20] leading-none flex items-center gap-2">
                 {{ $slider_title }}
                 @if($slider_title == 'Хиты продаж') 
                     <span class="text-[24px]">🔥</span> 
@@ -25,7 +25,7 @@
 
     {{-- БЛОК 2: ТЕКСТОВЫЙ СЛАЙДЕР ТЕГОВ (Отображается, если передана переменная slider_tags) --}}
     @if(isset($slider_tags))
-        <div class="js-tag-container relative flex-1 h-full pl-[18px] pb-[10px] overflow-hidden group">
+        <div class="js-tag-container relative flex-1 h-full {{ $favoritesMode ? 'pl-0' : 'pl-[18px] pb-[10px]' }} overflow-hidden group">
             
             {{-- Кнопка НАЗАД --}}
             <div class="js-tag-prev-wrapper absolute left-[18px] top-0 bottom-[10px] w-[60px] z-30 
@@ -54,14 +54,14 @@
                  class="js-tag-track flex items-center overflow-x-auto no-scrollbars scroll-smooth h-full whitespace-nowrap">
                 
                 <div class="px-[6px] py-[6px] flex-shrink-0 relative" data-favorite-tag="all">
-                    <div class="border {{ !$favoritesMode || !$activeTagId ? 'border-black bg-white' : 'border-[#F4F4F4] bg-[#F4F4F4]' }} rounded-[5px] px-[12px] py-[5px]
+                    <div class="border {{ !$favoritesMode || !$activeTagId ? 'border-black bg-white' : 'border-[#F4F4F4] bg-[#F4F4F4]' }} rounded-[5px] {{ $favoritesMode ? 'px-[7px]' : 'px-[12px]' }} py-[5px]
                                 text-[15px] font-semibold text-[#232F20] cursor-pointer transition-all"
                          data-favorite-category="all">
                         {{ $favoritesMode ? 'Все товары' : 'Все' }}
                         @if($favoritesMode)
                             <span class="ml-[4px] text-[14px] font-normal text-[#8c8c8c]">{{ $favoriteTotal ?? 0 }}</span>
                             <button type="button"
-                                    class="ml-[16px] inline-flex items-center text-[#DC092E] hover:text-[#a80723] transition-colors align-middle cursor-pointer"
+                                    class="inline-flex items-center text-[#DC092E] hover:text-[#a80723] transition-colors align-middle cursor-pointer"
                                     data-favorite-category-remove
                                     data-category-title="Все товары"
                                     data-delete-url="{{ route('favorites.delete-all') }}"
@@ -81,13 +81,13 @@
                                     text-[15px] text-[#232F20] cursor-pointer transition-all duration-300
                                     {{ $favoritesMode && (int) $activeTagId === (int) $tag->id
                                         ? ''
-                                        : 'hover:bg-white hover:border-gray-100 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]' }}"
+                                        : 'hover:border-gray-50 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]' }}"
                              data-favorite-category="{{ $tag->id }}">
                             {{ $tag->title }}
                             @if($favoritesMode)
                                 <span class="ml-[4px] text-[14px] text-[#8c8c8c]">{{ $tag->favorite_count }}</span>
                                 <button type="button"
-                                        class="ml-[16px] inline-flex items-center text-[#DC092E] hover:text-[#a80723] transition-colors align-middle cursor-pointer"
+                                        class="inline-flex items-center text-[#DC092E] hover:text-[#a80723] transition-colors align-middle cursor-pointer"
                                         data-favorite-category-remove
                                         data-category-id="{{ $tag->id }}"
                                         data-category-title="{{ $tag->title }}"

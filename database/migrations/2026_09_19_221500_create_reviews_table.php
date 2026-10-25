@@ -22,6 +22,7 @@ return new class extends Migration
             $table->timestamp('addition_updated_at')->nullable();
             $table->boolean('addition_is_published')->default(false);
             $table->boolean('is_published')->default(false);
+            $table->string('moderation_status', 20)->default('pending');
             $table->softDeletes();
             $table->timestamps();
 
@@ -33,6 +34,7 @@ return new class extends Migration
                 'reviews_one_active_per_user_variant_unique'
             );
             $table->index(['product_variant_id', 'is_published']);
+            $table->index(['user_id', 'moderation_status']);
         });
     }
 

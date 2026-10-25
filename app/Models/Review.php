@@ -14,15 +14,26 @@ class Review extends Model
     use HasFactory;
     use SoftDeletes;
 
+    public const MODERATION_PENDING = 'pending';
+    public const MODERATION_APPROVED = 'approved';
+    public const MODERATION_REJECTED = 'rejected';
+    public const MODERATION_STATUSES = [
+        self::MODERATION_PENDING,
+        self::MODERATION_APPROVED,
+        self::MODERATION_REJECTED,
+    ];
+
     protected $fillable = [
         'user_id',
         'product_variant_id',
+        'moderation_status',
         'rating',
         'advantages',
         'disadvantages',
         'comment',
         'addition',
         'addition_updated_at',
+        'addition_moderation_status',
         'addition_is_published',
         'is_published',
     ];
@@ -32,6 +43,10 @@ class Review extends Model
         'is_published' => 'boolean',
         'addition_is_published' => 'boolean',
         'addition_updated_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'moderation_status' => self::MODERATION_PENDING,
     ];
 
     public function user(): BelongsTo

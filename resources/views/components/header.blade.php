@@ -100,7 +100,7 @@
                         Избранное
                     </a>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
+                    <a href="{{ route('profile.reviews') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
                         <i data-lucide="settings"></i>
                         Мои отзывы
                     </a>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryAdminController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\Admin\ProductAdminController;
 use App\Http\Controllers\Admin\ReviewImageAdminController;
+use App\Http\Controllers\Admin\ReviewModerationAdminController;
 use App\Http\Controllers\Admin\ReviewReplyAdminController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -121,6 +122,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', CategoryAdminController::class);
 
     Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'update']);
+    Route::patch('/reviews/{review}/moderation', [ReviewModerationAdminController::class, 'update'])
+        ->name('reviews.moderation.update');
+    Route::patch('/reviews/{review}/addition/moderation', [ReviewModerationAdminController::class, 'updateAddition'])
+        ->name('reviews.addition-moderation.update');
     Route::post('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'store'])->name('reviews.reply.store');
     Route::put('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'update'])->name('reviews.reply.update');
     Route::delete('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'destroy'])->name('reviews.reply.destroy');

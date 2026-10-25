@@ -84,20 +84,52 @@
                 </button>
             </div>
 
-            {{-- Сортировка и кнопка отзыва; сортировка пока только визуальная. --}}
+            {{-- Сортировка отзывов и кнопка добавления отзыва. --}}
             <div class="flex h-10 items-center justify-between">
-                <button type="button"
-                        class="flex items-center rounded-lg border border-black px-[42px] py-2 text-[15px] text-black">
-                    <svg class="mr-[18px] h-5 w-5 shrink-0"
-                         viewBox="0 0 20 20"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.5"
-                         aria-hidden="true">
-                        <path d="M6 16V4m0 0L3.5 6.5M6 4l2.5 2.5M14 4v12m0 0l-2.5-2.5M14 16l2.5-2.5"/>
-                    </svg>
-                    По дате добавления
-                </button>
+                <div class="relative w-[266px] max-w-full" data-review-sort-control>
+                    <button type="button"
+                            data-review-sort-toggle
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-controls="review-sort-menu"
+                            class="flex h-10 w-full cursor-pointer items-center justify-center rounded-[10px] border border-black bg-white px-4 py-2 text-[15px] text-black focus:text-white">
+                        <svg class="mr-[18px] h-5 w-5 shrink-0"
+                             viewBox="0 0 20 20"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.5"
+                             aria-hidden="true">
+                            <path d="M6 16V4m0 0L3.5 6.5M6 4l2.5 2.5M14 4v12m0 0l-2.5-2.5M14 16l2.5-2.5"/>
+                        </svg>
+                        <span data-review-sort-label>По дате добавления</span>
+                    </button>
+
+                    <div id="review-sort-menu"
+                         class="absolute left-0 top-0 z-20 hidden min-h-[120px] w-full flex-col justify-between rounded-[10px] bg-white p-[15px] shadow-[0_2px_8px_rgba(0,0,0,0.20)]"
+                         data-review-sort-menu
+                         role="radiogroup"
+                         aria-label="Сортировка отзывов">
+                        @foreach([
+                            'date' => 'По дате добавления',
+                            'rating' => 'По рейтингу',
+                            'useful' => 'По полезности',
+                        ] as $sortKey => $sortLabel)
+                            <button type="button"
+                                    data-review-sort-option="{{ $sortKey }}"
+                                    role="radio"
+                                    aria-checked="{{ $sortKey === 'date' ? 'true' : 'false' }}"
+                                    tabindex="{{ $sortKey === 'date' ? '0' : '-1' }}"
+                                    class="flex min-h-[25px] w-full cursor-pointer items-center text-left text-[15px] text-[#231f20]">
+                                <span class="mr-[6px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full border {{ $sortKey === 'date' ? 'border-[#dc092e] bg-[#dc092e]' : 'border-[#e5e5e5] bg-white' }}"
+                                      data-review-sort-radio>
+                                    <span class="{{ $sortKey === 'date' ? '' : 'hidden' }} h-[6px] w-[6px] rounded-full bg-white"
+                                          data-review-sort-radio-dot></span>
+                                </span>
+                                <span class="pl-[10px]">{{ $sortLabel }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
 
                 @include('variants.partials.reviews-add-button', [
                     'isReviewRestricted' => $isReviewRestricted,
@@ -231,10 +263,20 @@
         const list = document.querySelector('[data-review-list]');
         const scopes = document.querySelector('[data-review-scopes]');
         const pagination = document.querySelector('[data-reviews-pagination]');
+        const sortControl = document.querySelector('[data-review-sort-control]');
+        const sortToggle = sortControl?.querySelector('[data-review-sort-toggle]');
+        const sortMenu = sortControl?.querySelector('[data-review-sort-menu]');
+        const sortLabel = sortControl?.querySelector('[data-review-sort-label]');
         const loadMoreButton = pagination?.querySelector('[data-reviews-load-more]');
         const countLabel = pagination?.querySelector('[data-reviews-count-label]');
         const endpoint = list?.dataset.reviewsUrl;
+        const sortLabels = {
+            date: 'По дате добавления',
+            rating: 'По рейтингу',
+            useful: 'По полезности',
+        };
         let scope = 'all';
+        let sort = 'date';
         let loadedCount = 0;
         let totalCount = Number(list?.dataset.totalReviews || 0);
         let isLoading = false;
@@ -262,17 +304,51 @@
             loadMoreButton?.classList.toggle('hidden', !hasMore);
         };
 
+        const setSortMenuOpen = isOpen => {
+            if (!sortMenu || !sortToggle) return;
+
+            sortMenu.classList.toggle('hidden', !isOpen);
+            sortMenu.classList.toggle('flex', isOpen);
+            sortToggle.setAttribute('aria-expanded', String(isOpen));
+        };
+
+        const updateSortSelection = selectedSort => {
+            sort = selectedSort;
+            if (sortLabel) sortLabel.textContent = sortLabels[sort];
+
+            sortMenu?.querySelectorAll('[data-review-sort-option]').forEach(option => {
+                const isSelected = option.dataset.reviewSortOption === sort;
+                const radio = option.querySelector('[data-review-sort-radio]');
+                const dot = option.querySelector('[data-review-sort-radio-dot]');
+
+                option.setAttribute('aria-checked', String(isSelected));
+                option.tabIndex = isSelected ? 0 : -1;
+                radio?.classList.toggle('border-[#dc092e]', isSelected);
+                radio?.classList.toggle('bg-[#dc092e]', isSelected);
+                radio?.classList.toggle('border-[#e5e5e5]', !isSelected);
+                radio?.classList.toggle('bg-white', !isSelected);
+                dot?.classList.toggle('hidden', !isSelected);
+            });
+        };
+
+        updateSortSelection(sort);
+
         const fetchReviews = async ({reset = false} = {}) => {
-            if (!list || !endpoint || isLoading) return;
+            if (!list || !endpoint || isLoading) return false;
             isLoading = true;
             if (loadMoreButton) loadMoreButton.disabled = true;
             scopes?.querySelectorAll('[data-review-scope]').forEach(button => {
                 button.disabled = true;
             });
+            sortToggle?.setAttribute('disabled', 'disabled');
+            sortMenu?.querySelectorAll('[data-review-sort-option]').forEach(option => {
+                option.disabled = true;
+            });
 
             const offset = reset ? 0 : loadedCount;
             const url = new URL(endpoint, window.location.origin);
             url.searchParams.set('scope', scope);
+            url.searchParams.set('sort', sort);
             url.searchParams.set('offset', String(offset));
 
             try {
@@ -305,11 +381,17 @@
                     button.classList.toggle('bg-white', !isActive);
                     button.classList.toggle('text-gray-700', !isActive);
                 });
+                return true;
             } catch (error) {
                 notifyError(error.message || 'Не удалось загрузить отзывы.');
+                return false;
             } finally {
                 isLoading = false;
                 if (loadMoreButton) loadMoreButton.disabled = false;
+                sortToggle?.removeAttribute('disabled');
+                sortMenu?.querySelectorAll('[data-review-sort-option]').forEach(option => {
+                    option.disabled = false;
+                });
                 scopes?.querySelectorAll('[data-review-scope]').forEach(button => {
                     button.disabled = false;
                 });
@@ -318,10 +400,64 @@
 
         scopes?.querySelectorAll('[data-review-scope]').forEach(button => {
             button.addEventListener('click', () => {
-                if (scope === button.dataset.reviewScope) return;
+                if (isLoading || scope === button.dataset.reviewScope) return;
                 scope = button.dataset.reviewScope;
                 fetchReviews({reset: true});
             });
+        });
+
+        sortToggle?.addEventListener('click', () => {
+            if (isLoading) return;
+            setSortMenuOpen(sortMenu?.classList.contains('hidden'));
+        });
+
+        sortMenu?.querySelectorAll('[data-review-sort-option]').forEach(option => {
+            option.addEventListener('click', async () => {
+                if (isLoading) return;
+
+                const selectedSort = option.dataset.reviewSortOption;
+                if (selectedSort === sort) {
+                    setSortMenuOpen(false);
+                    return;
+                }
+
+                const previousSort = sort;
+                updateSortSelection(selectedSort);
+                setSortMenuOpen(false);
+                if (!await fetchReviews({reset: true})) {
+                    updateSortSelection(previousSort);
+                }
+                sortToggle?.focus();
+            });
+        });
+
+        sortMenu?.addEventListener('keydown', event => {
+            if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+            const options = [...sortMenu.querySelectorAll('[data-review-sort-option]')];
+            const currentIndex = options.indexOf(event.target.closest('[data-review-sort-option]'));
+            const nextIndex = event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                    ? options.length - 1
+                    : (currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+
+            event.preventDefault();
+            options[nextIndex]?.focus();
+            options[nextIndex]?.click();
+        });
+
+        document.addEventListener('click', event => {
+            if (sortControl && !sortControl.contains(event.target)) {
+                setSortMenuOpen(false);
+            }
+        });
+
+        sortControl?.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !sortMenu?.classList.contains('hidden')) {
+                setSortMenuOpen(false);
+                sortToggle?.focus();
+            }
         });
 
         loadMoreButton?.addEventListener('click', () => fetchReviews());

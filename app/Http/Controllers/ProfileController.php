@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use App\Models\Order;
-
 class ProfileController extends Controller
 {
     public function index()
@@ -104,9 +104,46 @@ class ProfileController extends Controller
 
     public function reviews()
     {
-        return view('profile.reviews', [
-            'reviews' => auth()->user()->reviews()->latest()->get()
+        $data = request()->validate([
+            'filter' => ['sometimes', Rule::in(['all', 'approved', 'rejected'])],
         ]);
+        $filter = $data['filter'] ?? 'all';
+        $userReviews = Auth::user()->reviews();
+
+        $reviewCounts = [
+            'all' => (clone $userReviews)->count(),
+            'approved' => (clone $userReviews)
+                ->where('moderation_status', Review::MODERATION_APPROVED)
+                ->count(),
+            'rejected' => (clone $userReviews)
+                ->where('moderation_status', Review::MODERATION_REJECTED)
+                ->count(),
+        ];
+
+        $reviewsQuery = $userReviews
+            ->with(['variant.images', 'images', 'reply.admin'])
+            ->withCount([
+                'votes as likes_count' => fn ($votes) => $votes->where('type', 'like'),
+                'votes as dislikes_count' => fn ($votes) => $votes->where('type', 'dislike'),
+            ]);
+        if ($filter !== 'all') {
+            $status = $filter === 'approved'
+                ? Review::MODERATION_APPROVED
+                : Review::MODERATION_REJECTED;
+            $reviewsQuery->where('moderation_status', $status);
+        }
+
+        $reviews = $reviewsQuery->latest()->get();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'html' => view('profile.partials.reviews-list', compact('reviews', 'filter'))->render(),
+                'counts' => $reviewCounts,
+                'filter' => $filter,
+            ]);
+        }
+
+        return view('profile.reviews', compact('reviews', 'reviewCounts', 'filter'));
     }
 
     public function order(Order $order)

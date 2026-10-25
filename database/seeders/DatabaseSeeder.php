@@ -134,6 +134,8 @@ class DatabaseSeeder extends Seeder
             FrontendImagesSeeder::class,
             PageSectionSeeder::class,
             AdressSeeder::class,
+            DemoOrdersSeeder::class,
+            ReviewsSeeder::class,
         ]);
     }
 }

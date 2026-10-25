@@ -137,7 +137,6 @@
             'notifications' => 'Настройки уведомлений',
             'store' => 'Любимый магазин',
             'addresses' => 'Адрес доставки',
-            'reviews' => 'Мои отзывы',
         ] as $tab => $title)
             <section data-profile-panel="{{ $tab }}"
                         class="hidden w-full rounded-[10px] border border-[#e5e5e5] p-8 text-left">

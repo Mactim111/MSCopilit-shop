@@ -18,10 +18,12 @@ class ReviewController extends Controller
         $filters = $request->validate([
             'scope' => ['sometimes', 'in:all,variant'],
             'offset' => ['sometimes', 'integer', 'min:0'],
+            'sort' => ['sometimes', 'in:date,rating,useful'],
         ]);
 
         $scope = $filters['scope'] ?? 'all';
         $offset = $filters['offset'] ?? 0;
+        $sort = $filters['sort'] ?? 'date';
         $query = $variant->product->publishedReviews()
             ->with(['user', 'variant', 'images', 'reply.admin'])
             ->withCount([
@@ -40,12 +42,20 @@ class ReviewController extends Controller
         }
 
         $total = (clone $query)->count();
-        $reviews = $query
-            ->latest('reviews.created_at')
-            ->orderByDesc('reviews.id')
-            ->offset($offset)
-            ->limit(5)
-            ->get();
+        switch ($sort) {
+            case 'rating':
+                $query->orderByDesc('reviews.rating');
+                break;
+            case 'useful':
+                $query->orderByDesc('likes_count')->orderBy('dislikes_count');
+                break;
+            default:
+                $query->orderByDesc('reviews.created_at');
+                break;
+        }
+        $query->orderByDesc('reviews.created_at')->orderByDesc('reviews.id');
+
+        $reviews = $query->offset($offset)->limit(5)->get();
 
         return response()->json([
             'html' => view('variants.partials.review-cards', [
@@ -60,6 +70,7 @@ class ReviewController extends Controller
                 ->where('reviews.product_variant_id', $variant->id)
                 ->count(),
             'scope' => $scope,
+            'sort' => $sort,
         ]);
     }
 
@@ -112,6 +123,7 @@ class ReviewController extends Controller
                     ...$data,
                     'product_variant_id' => $variant->id,
                     'is_published' => false,
+                    'moderation_status' => Review::MODERATION_PENDING,
                 ]);
 
                 $position = 1;
@@ -183,6 +195,7 @@ class ReviewController extends Controller
             $lockedReview->update([
                 'addition' => $data['addition'],
                 'addition_updated_at' => now(),
+                'addition_moderation_status' => Review::MODERATION_PENDING,
                 'addition_is_published' => false,
             ]);
 

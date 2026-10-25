@@ -57,6 +57,89 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.toggle('bg-[#dc092e]', isValid);
         };
 
+        const reviewFilterNav = document.querySelector('[data-review-filter-nav]');
+        const reviewFilterResults = document.querySelector('[data-review-filter-results]');
+        let reviewFilterRequest = null;
+
+        const loadReviewFilter = async (url, updateHistory = false) => {
+            if (!reviewFilterNav || !reviewFilterResults) return;
+
+            reviewFilterRequest?.abort();
+            const controller = new AbortController();
+            reviewFilterRequest = controller;
+            reviewFilterNav.setAttribute('aria-busy', 'true');
+
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                    signal: controller.signal,
+                });
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error('Сервер вернул неожиданный ответ при загрузке отзывов.');
+                }
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.message || 'Не удалось загрузить отзывы.');
+                }
+
+                reviewFilterResults.innerHTML = payload.html;
+                reviewFilterNav.querySelectorAll('[data-review-filter]').forEach(link => {
+                    const isActive = link.dataset.reviewFilter === payload.filter;
+                    if (isActive) {
+                        link.setAttribute('aria-current', 'page');
+                    } else {
+                        link.removeAttribute('aria-current');
+                    }
+                    link.classList.toggle('rounded-[4px]', isActive);
+                    link.classList.toggle('border-black', isActive);
+                    link.classList.toggle('bg-white', isActive);
+                    link.classList.toggle('font-semibold', isActive);
+                    link.classList.toggle('rounded-[10px]', !isActive);
+                    link.classList.toggle('border-[#f4f4f4]', !isActive);
+                    link.classList.toggle('bg-[#f4f4f4]', !isActive);
+                    link.classList.toggle('hover:border-gray-200', !isActive);
+                    link.classList.toggle('hover:bg-white', !isActive);
+                    link.classList.toggle('hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]', !isActive);
+                    const count = link.querySelector('[data-review-filter-count]');
+                    if (count) count.textContent = String(payload.counts[link.dataset.reviewFilter] ?? 0);
+                });
+
+                if (updateHistory) {
+                    window.history.pushState({reviewFilter: payload.filter}, '', url);
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    window.alert(error.message || 'Не удалось загрузить отзывы.');
+                }
+            } finally {
+                if (reviewFilterRequest === controller) {
+                    reviewFilterNav.removeAttribute('aria-busy');
+                }
+            }
+        };
+
+        reviewFilterNav?.addEventListener('click', event => {
+            const link = event.target.closest('[data-review-filter]');
+            if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+
+            event.preventDefault();
+            loadReviewFilter(link.href, true);
+        });
+
+        if (reviewFilterNav) {
+            window.addEventListener('popstate', () => {
+                if (window.location.pathname === new URL(reviewFilterNav.querySelector('a').href).pathname) {
+                    loadReviewFilter(window.location.href);
+                }
+            });
+        }
+
         const formatPhone = value => {
             let digits = value.replace(/\D/g, '');
             if (digits.startsWith('375')) digits = digits.slice(3);
