@@ -83,6 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
+    Route::post('/profile/orders/{order}/request-cancellation', [ProfileController::class, 'requestOrderCancellation'])
+        ->name('profile.orders.request-cancellation')
+        ->middleware('can:view,order');
     Route::post('/favorites/{variant}/toggle', [FavoriteController::class, 'toggle'])
         ->name('favorites.toggle')
         ->withTrashed();

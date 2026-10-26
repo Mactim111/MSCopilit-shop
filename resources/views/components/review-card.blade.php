@@ -113,7 +113,7 @@
     </header>
 
     {{-- Текстовые части отзыва выводятся только если автор их заполнил. --}}
-    <div class="w-full pb-[2px] pt-[17px] text-[15px]">
+    <div class="w-full min-w-0 wrap-anywhere pb-[2px] pt-[17px] text-[15px]">
         @php
             $reviewParts = collect([
                 ['label' => 'Преимущества', 'text' => $review->advantages],
@@ -137,7 +137,7 @@
             <div class="mb-[10px] text-[15px] text-[#8c8c8c]">
                 Дополнен {{ $review->addition_updated_at->locale('ru')->diffForHumans() }}
             </div>
-            <div class="w-full text-[15px] text-black">
+            <div class="w-full min-w-0 wrap-anywhere text-[15px] text-black">
                 {{ $review->addition }}
             </div>
 

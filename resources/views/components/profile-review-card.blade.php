@@ -80,7 +80,7 @@
             </div>
         </header>
 
-        <div class="w-full pb-[2px] pt-[1px] text-[15px] text-black">
+        <div class="w-full min-w-0 wrap-anywhere pb-[2px] pt-[1px] text-[15px] text-black">
             <p class="mb-[8px]">
                 <strong>Преимущества:</strong>
                 {{ $review->advantages }}
@@ -131,7 +131,7 @@
                         {{ $additionStatus['label'] }}
                     </span>
                 </div>
-                <div class="w-full text-[15px] text-black">
+                <div class="w-full min-w-0 wrap-anywhere text-[15px] text-black">
                     {{ $review->addition }}
                 </div>
             </section>
