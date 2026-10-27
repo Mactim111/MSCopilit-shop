@@ -36,7 +36,7 @@
                             'rejected' => 'Отклонённые',
                         ] as $filterKey => $filterLabel)
                             @php($isActiveFilter = $filter === $filterKey)
-                            <div class="p-1.5">
+                            <div class="p-1.5 {{ $reviewCounts[$filterKey] === 0 ? 'hidden' : '' }}">
                                 <a href="{{ route('profile.reviews', ['filter' => $filterKey]) }}"
                                 data-review-filter="{{ $filterKey }}"
                                 @if($isActiveFilter) aria-current="page" @endif

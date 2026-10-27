@@ -17,6 +17,14 @@
             'label' => 'Создан',
             'classes' => 'border-[#2c9cdd] bg-[#2c9cdd]',
         ],
+        \App\Models\Order::ORDER_PROCESSING => [
+            'label' => 'Комплектация',
+            'classes' => 'border-[#2c9cdd] bg-[#2c9cdd]',
+        ],
+        \App\Models\Order::ORDER_READY_FOR_PICKUP => [
+            'label' => 'Готов к выдаче',
+            'classes' => 'border-[#2c9cdd] bg-[#2c9cdd]',
+        ],
         \App\Models\Order::ORDER_CANCELLED => [
             'label' => 'Отменен',
             'classes' => 'border-[#979797] bg-[#979797]',

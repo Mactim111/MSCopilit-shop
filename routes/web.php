@@ -124,7 +124,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::resource('categories', CategoryAdminController::class);
 
-    Route::resource('orders', OrderAdminController::class)->only(['index', 'show', 'update']);
+    Route::resource('orders', OrderAdminController::class)->only(['index', 'show']);
+    Route::patch('/orders/{order}/transition', [OrderAdminController::class, 'transition'])
+        ->name('orders.transition');
     Route::patch('/reviews/{review}/moderation', [ReviewModerationAdminController::class, 'update'])
         ->name('reviews.moderation.update');
     Route::patch('/reviews/{review}/addition/moderation', [ReviewModerationAdminController::class, 'updateAddition'])

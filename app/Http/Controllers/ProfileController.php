@@ -105,6 +105,8 @@ class ProfileController extends Controller
                 Order::ORDER_COMPLETED,
                 Order::ORDER_CANCELLED,
                 Order::ORDER_CREATED,
+                Order::ORDER_PROCESSING,
+                Order::ORDER_READY_FOR_PICKUP,
                 Order::ORDER_CANCELLATION,
             ])],
         ]);
@@ -114,7 +116,7 @@ class ProfileController extends Controller
         $orderCounts = [
             'all' => (clone $userOrders)->count(),
             Order::ORDER_COMPLETED => (clone $userOrders)
-                ->whereIn('status', [Order::STATUS_PAID, Order::STATUS_SHIPPED])
+                ->where('status', Order::STATUS_COMPLETED)
                 ->count(),
             Order::ORDER_CANCELLED => (clone $userOrders)
                 ->where('status', Order::STATUS_CANCELLED)
@@ -123,8 +125,20 @@ class ProfileController extends Controller
                 ->where('status', Order::STATUS_NEW)
                 ->whereNull('cancellation_requested_at')
                 ->count(),
+            Order::ORDER_PROCESSING => (clone $userOrders)
+                ->where('status', Order::STATUS_PROCESSING)
+                ->whereNull('cancellation_requested_at')
+                ->count(),
+            Order::ORDER_READY_FOR_PICKUP => (clone $userOrders)
+                ->where('status', Order::STATUS_READY_FOR_PICKUP)
+                ->whereNull('cancellation_requested_at')
+                ->count(),
             Order::ORDER_CANCELLATION => (clone $userOrders)
-                ->where('status', Order::STATUS_NEW)
+                ->whereIn('status', [
+                    Order::STATUS_NEW,
+                    Order::STATUS_PROCESSING,
+                    Order::STATUS_READY_FOR_PICKUP,
+                ])
                 ->whereNotNull('cancellation_requested_at')
                 ->count(),
         ];
@@ -132,10 +146,7 @@ class ProfileController extends Controller
         $ordersQuery = $userOrders->with(['items.variant.images']);
         switch ($filter) {
             case Order::ORDER_COMPLETED:
-                $ordersQuery->whereIn(
-                    'status',
-                    [Order::STATUS_PAID, Order::STATUS_SHIPPED]
-                );
+                $ordersQuery->where('status', Order::STATUS_COMPLETED);
                 break;
             case Order::ORDER_CANCELLED:
                 $ordersQuery->where('status', Order::STATUS_CANCELLED);
@@ -144,8 +155,20 @@ class ProfileController extends Controller
                 $ordersQuery->where('status', Order::STATUS_NEW)
                     ->whereNull('cancellation_requested_at');
                 break;
+            case Order::ORDER_PROCESSING:
+                $ordersQuery->where('status', Order::STATUS_PROCESSING)
+                    ->whereNull('cancellation_requested_at');
+                break;
+            case Order::ORDER_READY_FOR_PICKUP:
+                $ordersQuery->where('status', Order::STATUS_READY_FOR_PICKUP)
+                    ->whereNull('cancellation_requested_at');
+                break;
             case Order::ORDER_CANCELLATION:
-                $ordersQuery->where('status', Order::STATUS_NEW)
+                $ordersQuery->whereIn('status', [
+                    Order::STATUS_NEW,
+                    Order::STATUS_PROCESSING,
+                    Order::STATUS_READY_FOR_PICKUP,
+                ])
                     ->whereNotNull('cancellation_requested_at');
                 break;
         }
@@ -171,9 +194,13 @@ class ProfileController extends Controller
                 ->firstOrFail();
 
             abort_unless(
-                $lockedOrder->status === Order::STATUS_NEW,
+                in_array($lockedOrder->status, [
+                    Order::STATUS_NEW,
+                    Order::STATUS_PROCESSING,
+                    Order::STATUS_READY_FOR_PICKUP,
+                ], true),
                 422,
-                'Запросить отмену можно только для нового заказа.'
+                'Для завершённого или уже отменённого заказа нельзя запросить отмену.'
             );
 
             if ($lockedOrder->cancellation_requested_at !== null) {

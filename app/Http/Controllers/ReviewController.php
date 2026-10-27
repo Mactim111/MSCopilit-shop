@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Models\Review;
 use Illuminate\Http\JsonResponse;
@@ -79,7 +80,7 @@ class ReviewController extends Controller
         $user = $request->user();
 
         $hasPurchasedVariant = $user->orders()
-            ->whereIn('status', ['paid', 'shipped'])
+            ->where('status', Order::STATUS_COMPLETED)
             ->whereHas('items', fn ($query) => $query->where('product_variant_id', $variant->id))
             ->exists();
 

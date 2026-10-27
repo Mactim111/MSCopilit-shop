@@ -96,18 +96,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         link.removeAttribute('aria-current');
                     }
-                    link.classList.toggle('rounded-[4px]', isActive);
+                    link.classList.add('rounded-[4px]');
+                    link.classList.remove('rounded-[10px]');
                     link.classList.toggle('border-black', isActive);
                     link.classList.toggle('bg-white', isActive);
                     link.classList.toggle('font-semibold', isActive);
-                    link.classList.toggle('rounded-[10px]', !isActive);
                     link.classList.toggle('border-[#f4f4f4]', !isActive);
                     link.classList.toggle('bg-[#f4f4f4]', !isActive);
                     link.classList.toggle('hover:border-gray-200', !isActive);
                     link.classList.toggle('hover:bg-white', !isActive);
                     link.classList.toggle('hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]', !isActive);
                     const count = link.querySelector('[data-review-filter-count]');
-                    if (count) count.textContent = String(payload.counts[link.dataset.reviewFilter] ?? 0);
+                    if (count) {
+                        const filterCount = Number(payload.counts[link.dataset.reviewFilter] ?? 0);
+                        count.textContent = String(filterCount);
+                        link.parentElement?.classList.toggle('hidden', filterCount === 0);
+                    }
                 });
 
                 if (updateHistory) {

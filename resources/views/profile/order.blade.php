@@ -14,12 +14,29 @@
             <h2 class="text-xl font-semibold mb-4">Статус заказа</h2>
 
             <div class="flex items-center gap-3">
-            <span class="px-4 py-2 rounded-full text-sm font-medium
-                @if($order->status === 'new') bg-blue-100 text-blue-700
-                @elseif($order->status === 'paid') bg-green-100 text-green-700
-                @elseif($order->status === 'canceled') bg-red-100 text-red-700
-                @else bg-gray-100 text-gray-700 @endif">
-                {{ ucfirst($order->status) }}
+            @php
+                $profileStatus = $order->profile_status;
+                $statusLabels = [
+                    \App\Models\Order::ORDER_CREATED => 'Создан',
+                    \App\Models\Order::ORDER_PROCESSING => 'Комплектация',
+                    \App\Models\Order::ORDER_READY_FOR_PICKUP => 'Готов к выдаче',
+                    \App\Models\Order::ORDER_CANCELLATION => 'Отправлен на отмену',
+                    \App\Models\Order::ORDER_COMPLETED => 'Завершён',
+                    \App\Models\Order::ORDER_CANCELLED => 'Отменён',
+                ];
+                $statusClasses = in_array($profileStatus, [
+                    \App\Models\Order::ORDER_CREATED,
+                    \App\Models\Order::ORDER_PROCESSING,
+                    \App\Models\Order::ORDER_READY_FOR_PICKUP,
+                    \App\Models\Order::ORDER_CANCELLATION,
+                ], true)
+                    ? 'bg-blue-100 text-blue-700'
+                    : ($profileStatus === \App\Models\Order::ORDER_COMPLETED
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-700');
+            @endphp
+            <span class="px-4 py-2 rounded-full text-sm font-medium {{ $statusClasses }}">
+                {{ $statusLabels[$profileStatus] }}
             </span>
             </div>
         </div>
@@ -35,7 +52,7 @@
                         $review = $variant
                             ? $reviewsByVariant->get($variant->id)
                             : null;
-                        $canReviewOrderItem = in_array($order->status, ['paid', 'shipped'], true)
+                        $canReviewOrderItem = $order->status === \App\Models\Order::STATUS_COMPLETED
                             && $variant !== null;
                     @endphp
                     <div class="flex items-center gap-6 pb-6 border-b last:border-b-0">

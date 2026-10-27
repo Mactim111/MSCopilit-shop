@@ -49,7 +49,7 @@ class OrderService
                 'phone' => $data['phone'],
                 'address' => $addressText,
                 'total' => $items->sum(fn ($item) => $item->variant->price * $item->quantity),
-                'status' => 'new',
+                'status' => Order::STATUS_NEW,
             ]);
 
             foreach ($items as $item) {

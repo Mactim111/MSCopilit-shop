@@ -37,16 +37,19 @@ class DemoOrdersSeeder extends Seeder
 
         DB::transaction(function () use ($customers, $quantityPerVariant): void {
             $variants = ProductVariant::query()
-                ->whereIn('id', [1, 2])
+                ->whereIn('id', [1, 2, 3])
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
 
-            if ($variants->count() !== 2) {
-                throw new RuntimeException('Demo orders require product variants with IDs 1 and 2.');
+            if ($variants->count() !== 3) {
+                throw new RuntimeException('Demo orders require product variants with IDs 1, 2, and 3.');
             }
 
-            foreach ($variants as $variant) {
+            $completedVariants = $variants->only([1, 2]);
+            $cancelledVariant = $variants->get(3);
+
+            foreach ($completedVariants as $variant) {
                 if ($variant->stock - $variant->reserved < $quantityPerVariant) {
                     throw new RuntimeException(
                         "Variant {$variant->id} does not have enough available stock for demo orders."
@@ -55,7 +58,7 @@ class DemoOrdersSeeder extends Seeder
             }
 
             foreach ($customers as $customer) {
-                foreach ($variants as $variant) {
+                foreach ($completedVariants as $variant) {
                     $address = $customer->addresses->first();
 
                     $order = Order::create([
@@ -67,7 +70,8 @@ class DemoOrdersSeeder extends Seeder
                         'phone' => $customer->phone,
                         'address' => $address?->address_line,
                         'total' => $variant->price,
-                        'status' => 'paid',
+                        'status' => Order::STATUS_COMPLETED,
+                        'payment_status' => Order::PAYMENT_PAID,
                     ]);
 
                     $order->items()->create([
@@ -78,13 +82,35 @@ class DemoOrdersSeeder extends Seeder
                         'subtotal' => $variant->price,
                     ]);
                 }
+
+                $address = $customer->addresses->first();
+                $cancelledOrder = Order::create([
+                    'user_id' => $customer->id,
+                    'address_id' => $address?->id,
+                    'name' => $customer->name,
+                    'last_name' => $customer->last_name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'address' => $address?->address_line,
+                    'total' => $cancelledVariant->price,
+                    'status' => Order::STATUS_CANCELLED,
+                    'payment_status' => Order::PAYMENT_UNRECORDED,
+                ]);
+
+                $cancelledOrder->items()->create([
+                    'product_variant_id' => $cancelledVariant->id,
+                    'title' => $cancelledVariant->title,
+                    'price' => $cancelledVariant->price,
+                    'quantity' => 1,
+                    'subtotal' => $cancelledVariant->price,
+                ]);
             }
 
-            foreach ($variants as $variant) {
+            foreach ($completedVariants as $variant) {
                 $variant->decrement('stock', $quantityPerVariant);
             }
         });
 
-        $this->command?->info('Created 14 paid demo orders and deducted 7 units from each variant.');
+        $this->command?->info('Created 14 completed and 7 cancelled demo orders; deducted 7 units from variants 1 and 2.');
     }
 }

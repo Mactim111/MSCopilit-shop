@@ -4,58 +4,131 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\ProductVariant;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrderAdminController extends Controller
 {
     public function index()
     {
         $orders = Order::latest()->paginate(20);
+
         return view('admin.orders.index', compact('orders'));
     }
 
     public function show(Order $order)
     {
         $order->load('items.product');
+
         return view('admin.orders.show', compact('order'));
     }
 
-    // доработали метод - теперь именно тут происходит «магия» списания или возврата вариантов товаров на склад, управление их остатками
-    public function update(Request $request, Order $order)
+    public function transition(Request $request, Order $order): RedirectResponse
     {
         $data = $request->validate([
-            'status' => 'required|in:new,paid,shipped,cancelled'
+            'action' => ['required', 'in:start_processing,mark_ready,complete,cancel'],
         ]);
 
-        $oldStatus = $order->status;
-        $newStatus = $data['status'];
+        DB::transaction(function () use ($order, $data): void {
+            $lockedOrder = Order::query()
+                ->whereKey($order->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        DB::transaction(function () use ($order, $oldStatus, $newStatus) {
-            $order->update(['status' => $newStatus]);
+            if ($lockedOrder->isFinalized()) {
+                throw ValidationException::withMessages([
+                    'status' => 'Завершённый или отменённый заказ нельзя изменить.',
+                ]);
+            }
 
-            // Логика обработки резервов и склада
-            foreach ($order->items as $item) {
-                $variant = $item->variant; // Убедись, что связь в OrderItem есть
+            $action = $data['action'];
+            $nextStatus = match ($action) {
+                'start_processing' => $this->requireCurrentStatus(
+                    $lockedOrder,
+                    Order::STATUS_NEW,
+                    Order::STATUS_PROCESSING
+                ),
+                'mark_ready' => $this->requireCurrentStatus(
+                    $lockedOrder,
+                    Order::STATUS_PROCESSING,
+                    Order::STATUS_READY_FOR_PICKUP
+                ),
+                'complete' => $this->requireCurrentStatus(
+                    $lockedOrder,
+                    Order::STATUS_READY_FOR_PICKUP,
+                    Order::STATUS_COMPLETED
+                ),
+                'cancel' => Order::STATUS_CANCELLED,
+            };
 
-                // Если заказ отменили — возвращаем из резерва в доступность
-                if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
-                    $variant->decrement('reserved', $item->quantity);
+            if (in_array($action, ['complete', 'cancel'], true)) {
+                $items = $lockedOrder->items()
+                    ->orderBy('product_variant_id')
+                    ->get();
+
+                if ($items->isEmpty()) {
+                    throw ValidationException::withMessages([
+                        'status' => 'Нельзя финализировать заказ без товарных позиций.',
+                    ]);
                 }
 
-                // Если заказ завершен/отправлен — списываем физически
-                if ($newStatus === 'shipped' || $newStatus === 'paid') {
-                    // Если мы перешли в этот статус из "new", значит вычитаем из резерва
-                    if ($oldStatus === 'new') {
-                        $variant->decrement('reserved', $item->quantity);
+                $variants = ProductVariant::withTrashed()
+                    ->whereIn('id', $items->pluck('product_variant_id')->unique())
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
+
+                foreach ($items as $item) {
+                    $variant = $variants->get($item->product_variant_id);
+
+                    if (! $variant) {
+                        throw ValidationException::withMessages([
+                            'status' => "Не найден вариант товара для позиции «{$item->title}».",
+                        ]);
                     }
-                    
-                    // Физическое списание со склада
-                    $variant->decrement('stock', $item->quantity);
+
+                    if ($variant->reserved < $item->quantity) {
+                        throw ValidationException::withMessages([
+                            'status' => "Недостаточно зарезервированного количества товара «{$item->title}».",
+                        ]);
+                    }
+
+                    if ($action === 'complete' && $variant->stock < $item->quantity) {
+                        throw ValidationException::withMessages([
+                            'status' => "Недостаточно складского остатка товара «{$item->title}» для завершения заказа.",
+                        ]);
+                    }
+
+                    $variant->reserved -= $item->quantity;
+                    if ($action === 'complete') {
+                        $variant->stock -= $item->quantity;
+                    }
+                    $variant->save();
                 }
             }
+
+            $lockedOrder->status = $nextStatus;
+            if ($action === 'cancel') {
+                $lockedOrder->cancellation_requested_at = null;
+            }
+            $lockedOrder->save();
         });
 
-        return back()->with('success', 'Статус заказа и складские остатки обновлены');
+        return back()->with('success', 'Этап заказа обновлён.');
+    }
+
+    private function requireCurrentStatus(Order $order, string $expected, string $next): string
+    {
+        if ($order->status !== $expected) {
+            throw ValidationException::withMessages([
+                'status' => 'Этот переход недоступен для текущего этапа заказа.',
+            ]);
+        }
+
+        return $next;
     }
 }

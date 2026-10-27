@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ProductVariant;
+use App\Models\Order;
 use App\Models\Review;
 use App\Models\ReviewImage;
 use App\Models\ReviewReply;
@@ -71,14 +72,14 @@ class ReviewsSeeder extends Seeder
                 }
 
                 $hasPaidOrder = $author->orders()
-                    ->whereIn('status', ['paid', 'shipped'])
+                    ->where('status', Order::STATUS_COMPLETED)
                     ->whereHas('items', fn ($query) => $query
                         ->where('product_variant_id', $variant->id))
                     ->exists();
 
                 if (! $hasPaidOrder) {
                     throw new RuntimeException(
-                        "Customer {$author->email} must have a paid order for variant {$variant->id}."
+                        "Customer {$author->email} must have a completed order for variant {$variant->id}."
                     );
                 }
 

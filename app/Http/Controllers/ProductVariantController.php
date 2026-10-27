@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Order;
 use App\Models\ProductVariant;
 use Illuminate\View\View;
 
@@ -104,7 +105,7 @@ class ProductVariantController extends Controller
 
         $canReview = auth()->check()
             && auth()->user()->orders()
-                ->whereIn('status', ['paid', 'shipped'])
+                ->where('status', Order::STATUS_COMPLETED)
                 ->whereHas('items', fn ($query) =>
                     $query->where('product_variant_id', $variant->id)
                 )

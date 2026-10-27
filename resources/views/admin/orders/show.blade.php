@@ -29,17 +29,57 @@
         @endforeach
     </table>
 
-    <h3>Обновить статус</h3>
+    <h3>Этап заказа</h3>
+    <p>
+        @switch($order->status)
+            @case(\App\Models\Order::STATUS_NEW) Создан @break
+            @case(\App\Models\Order::STATUS_PROCESSING) Комплектация @break
+            @case(\App\Models\Order::STATUS_READY_FOR_PICKUP) Готов к выдаче @break
+            @case(\App\Models\Order::STATUS_COMPLETED) Завершён @break
+            @case(\App\Models\Order::STATUS_CANCELLED) Отменён @break
+        @endswitch
+    </p>
 
-    <form action="{{ route('admin.orders.update', $order) }}" method="POST">
-        @csrf @method('PUT')
-        <select name="status">
-            <option value="new"      @selected($order->status=='new')>Новый</option>
-            <option value="paid"     @selected($order->status=='paid')>Оплачен</option>
-            <option value="shipped"  @selected($order->status=='shipped')>Отправлен</option>
-            <option value="cancelled"@selected($order->status=='cancelled')>Отменён</option>
-        </select>
-        <button>Сохранить</button>
-    </form>
+    <p>Состояние оплаты: {{ $order->payment_status }}</p>
+    @if($order->cancellation_requested_at)
+        <p>Покупатель запросил отмену {{ $order->cancellation_requested_at->format('d.m.Y H:i') }}.</p>
+    @endif
+
+    @unless($order->isFinalized())
+        <h3>Действия с заказом</h3>
+        @php
+            $availableActions = match ($order->status) {
+                \App\Models\Order::STATUS_NEW => [
+                    'start_processing' => 'Начать комплектацию',
+                    'cancel' => 'Подтвердить отмену',
+                ],
+                \App\Models\Order::STATUS_PROCESSING => [
+                    'mark_ready' => 'Отметить «Готов к выдаче»',
+                    'cancel' => 'Подтвердить отмену',
+                ],
+                \App\Models\Order::STATUS_READY_FOR_PICKUP => [
+                    'complete' => 'Подтвердить получение покупателем',
+                    'cancel' => 'Подтвердить отмену',
+                ],
+                default => [],
+            };
+        @endphp
+
+        @foreach($availableActions as $action => $label)
+            <form action="{{ route('admin.orders.transition', $order) }}"
+                  method="POST"
+                  class="inline-block"
+                  @if(in_array($action, ['complete', 'cancel'], true))
+                      onsubmit="return confirm('{{ $action === 'complete' ? 'Подтвердить фактическую выдачу заказа? Остатки будут списаны.' : 'Подтвердить отмену заказа? Резерв будет освобождён.' }}')"
+                  @endif>
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="action" value="{{ $action }}">
+                <button type="submit">{{ $label }}</button>
+            </form>
+        @endforeach
+    @else
+        <p>Заказ финализирован; изменить его статус через админ-панель нельзя.</p>
+    @endunless
 
 @endsection

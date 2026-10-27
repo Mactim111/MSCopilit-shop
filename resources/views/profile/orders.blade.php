@@ -35,10 +35,12 @@
                             'completed' => 'Завершен',
                             'cancelled' => 'Отменен',
                             'created' => 'Создан',
+                            'processing' => 'Комплектация',
+                            'ready_for_pickup' => 'Готов к выдаче',
                             'cancellation' => 'Отправлен на отмену',
                         ] as $filterKey => $filterLabel)
                             @php($isActiveFilter = $filter === $filterKey)
-                            <div class="p-1.5">
+                            <div class="p-1.5 {{ $orderCounts[$filterKey] === 0 ? 'hidden' : '' }}">
                                 <a href="{{ route('profile.orders', ['filter' => $filterKey]) }}"
                                 data-order-filter="{{ $filterKey }}"
                                 @if($isActiveFilter) aria-current="page" @endif
