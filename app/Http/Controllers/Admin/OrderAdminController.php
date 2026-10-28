@@ -29,7 +29,7 @@ class OrderAdminController extends Controller
     public function transition(Request $request, Order $order): RedirectResponse
     {
         $data = $request->validate([
-            'action' => ['required', 'in:start_processing,mark_ready,complete,cancel'],
+            'action' => ['required', 'in:start_processing,mark_ready,complete,cancel,reject_cancellation'],
         ]);
 
         DB::transaction(function () use ($order, $data): void {
@@ -45,6 +45,15 @@ class OrderAdminController extends Controller
             }
 
             $action = $data['action'];
+            if (
+                $lockedOrder->cancellation_requested_at !== null
+                && ! in_array($action, ['cancel', 'reject_cancellation'], true)
+            ) {
+                throw ValidationException::withMessages([
+                    'status' => 'Сначала подтвердите или отклоните запрос покупателя на отмену.',
+                ]);
+            }
+
             $nextStatus = match ($action) {
                 'start_processing' => $this->requireCurrentStatus(
                     $lockedOrder,
@@ -62,6 +71,7 @@ class OrderAdminController extends Controller
                     Order::STATUS_COMPLETED
                 ),
                 'cancel' => Order::STATUS_CANCELLED,
+                'reject_cancellation' => $this->rejectCancellationRequest($lockedOrder),
             };
 
             if (in_array($action, ['complete', 'cancel'], true)) {
@@ -112,7 +122,7 @@ class OrderAdminController extends Controller
             }
 
             $lockedOrder->status = $nextStatus;
-            if ($action === 'cancel') {
+            if (in_array($action, ['cancel', 'reject_cancellation'], true)) {
                 $lockedOrder->cancellation_requested_at = null;
             }
             $lockedOrder->save();
@@ -130,5 +140,16 @@ class OrderAdminController extends Controller
         }
 
         return $next;
+    }
+
+    private function rejectCancellationRequest(Order $order): string
+    {
+        if ($order->cancellation_requested_at === null) {
+            throw ValidationException::withMessages([
+                'status' => 'У заказа нет ожидающего запроса на отмену.',
+            ]);
+        }
+
+        return $order->status;
     }
 }

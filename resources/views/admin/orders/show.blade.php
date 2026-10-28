@@ -78,6 +78,18 @@
                 <button type="submit">{{ $label }}</button>
             </form>
         @endforeach
+
+        @if($order->cancellation_requested_at)
+            <form action="{{ route('admin.orders.transition', $order) }}"
+                  method="POST"
+                  class="inline-block"
+                  onsubmit="return confirm('Отклонить запрос покупателя на отмену? Заказ продолжит обрабатываться.')">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="action" value="reject_cancellation">
+                <button type="submit">Отклонить запрос отмены</button>
+            </form>
+        @endif
     @else
         <p>Заказ финализирован; изменить его статус через админ-панель нельзя.</p>
     @endunless

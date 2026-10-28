@@ -74,9 +74,108 @@
 
 </div>
 
+@include('profile.partials.order-cancellation-modal')
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     let activeRequest = null;
+    const cancellationModal = document.querySelector('[data-order-cancellation-modal]');
+    const cancellationConfirmation = cancellationModal?.querySelector('[data-order-cancellation-confirmation]');
+    const cancellationSuccess = cancellationModal?.querySelector('[data-order-cancellation-success]');
+    let activeCancellationForm = null;
+    let cancellationSubmitted = false;
+    let cancellationInFlight = false;
+
+    const closeCancellationModal = () => {
+        if (cancellationInFlight) return;
+
+        cancellationModal?.classList.add('hidden');
+        cancellationModal?.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+        if (cancellationSubmitted) {
+            window.location.reload();
+            return;
+        }
+        activeCancellationForm?.querySelector('button[type="submit"]')?.focus();
+        activeCancellationForm = null;
+    };
+
+    const openCancellationModal = form => {
+        activeCancellationForm = form;
+        cancellationSubmitted = false;
+        cancellationConfirmation?.classList.remove('hidden');
+        cancellationSuccess?.classList.add('hidden');
+        cancellationModal?.classList.remove('hidden');
+        cancellationModal?.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+        cancellationModal?.querySelector('[data-order-cancellation-dismiss]')?.focus();
+    };
+
+    document.addEventListener('submit', event => {
+        const form = event.target.closest('[data-order-cancellation-form]');
+        if (!form) return;
+
+        event.preventDefault();
+        openCancellationModal(form);
+    });
+
+    cancellationModal?.addEventListener('click', async event => {
+        if (event.target === cancellationModal
+            || event.target.closest('[data-order-cancellation-close], [data-order-cancellation-dismiss]')) {
+            closeCancellationModal();
+            return;
+        }
+
+        if (event.target.closest('[data-order-cancellation-acknowledge]')) {
+            closeCancellationModal();
+            return;
+        }
+
+        if (!event.target.closest('[data-order-cancellation-confirm]') || !activeCancellationForm) return;
+
+        const confirmButton = cancellationModal.querySelector('[data-order-cancellation-confirm]');
+        confirmButton.disabled = true;
+        cancellationInFlight = true;
+
+        try {
+            const response = await fetch(activeCancellationForm.action, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': activeCancellationForm.querySelector('input[name="_token"]').value,
+                },
+                credentials: 'same-origin',
+            });
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                throw new Error('Сервер вернул неожиданный ответ при отправке запроса.');
+            }
+
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.message || 'Не удалось отправить запрос на отмену заказа.');
+            }
+
+            cancellationSubmitted = true;
+            cancellationConfirmation?.classList.add('hidden');
+            cancellationSuccess?.classList.remove('hidden');
+            cancellationModal.querySelector('[data-order-cancellation-acknowledge]')?.focus();
+        } catch (error) {
+            if (typeof window.showFlashMessage === 'function') {
+                window.showFlashMessage(error.message || 'Не удалось отправить запрос на отмену заказа.', 'error');
+            } else {
+                window.alert(error.message || 'Не удалось отправить запрос на отмену заказа.');
+            }
+        } finally {
+            confirmButton.disabled = false;
+            cancellationInFlight = false;
+        }
+    });
+
+    cancellationModal?.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeCancellationModal();
+    });
 
     const loadOrdersPage = async (url, {pushHistory = true} = {}) => {
         activeRequest?.abort();
