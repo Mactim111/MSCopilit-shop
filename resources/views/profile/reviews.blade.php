@@ -21,8 +21,7 @@
 
         {{-- Правая колонка: фильтры и список отзывов пользователя --}}
         <main class="w-full max-w-[1152px] flex flex-col">
-            <div class="flex"
-                 id="reviews-heading">
+            <div class="flex" id="reviews-heading">
                 <h1 class="h-[42px] flex items-center mb-6 mr-5 text-[26px] font-semibold leading-none text-[#231f20]">
                     Мои отзывы
                 </h1>

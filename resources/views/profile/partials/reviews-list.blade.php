@@ -2,8 +2,8 @@
     @forelse($reviews as $review)
         <x-profile-review-card :review="$review" />
     @empty
-        <div class="text-left -mt-4">
-            <p class="text-[15px] font-semibold text-black">
+        <div class="text-left">
+            <p class="text-[15px] font-semibold text-black -mt-4">
                 Вы ещё не оставляли отзывы на товары
             </p>
         </div>

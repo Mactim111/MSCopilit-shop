@@ -21,7 +21,7 @@
 
         {{-- Правая колонка: заголовок с тегами + список вариантов + пагинация --}}
         <main class="w-full max-w-[1152px] flex flex-col">
-            <div id="favorites-heading">
+            <div class="flex" id="favorites-heading">
                 @if($favorites->total() > 0)
                     @include('components.title-with-tags', [
                         'slider_title' => 'Избранное',
@@ -32,11 +32,9 @@
                         'tagContainerClass' => 'w-full',
                     ])
                 @else
-                    <div class="h-[56px] flex items-end mb-[8px]">
-                        <h1 class="pb-[16px] text-[28px] font-bold text-[#231f20] leading-none">
-                            Избранное
-                        </h1>
-                    </div>
+                    <h1 class="h-[42px] flex items-center mb-6 mr-5 text-[26px] font-semibold leading-none text-[#231f20]">
+                        Мои отзывы
+                    </h1>
                 @endif
             </div>
 

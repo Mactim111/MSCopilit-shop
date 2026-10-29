@@ -1,4 +1,45 @@
+{{-- структурная верстка страницы просмотра конкретного заказа со статусом Комплектация в профиле юзера --}}
+
+@php
+    $status = $order->profile_status;
+    $statuses = [
+        \App\Models\Order::ORDER_CANCELLATION => [
+            'label' => 'Отправлен на отмену',
+            'classes' => 'bg-[#2c9cdd]',
+        ],
+        \App\Models\Order::ORDER_COMPLETED => [
+            'label' => 'Завершён',
+            'classes' => 'bg-[#8bc34a]',
+        ],
+        \App\Models\Order::ORDER_CREATED => [
+            'label' => 'Создан',
+            'classes' => 'bg-[#2c9cdd]',
+        ],
+        \App\Models\Order::ORDER_PROCESSING => [
+            'label' => 'Комплектация',
+            'classes' => 'bg-[#2c9cdd]',
+        ],
+        \App\Models\Order::ORDER_READY_FOR_PICKUP => [
+            'label' => 'Готов к выдаче',
+            'classes' => 'bg-[#2c9cdd]',
+        ],
+        \App\Models\Order::ORDER_CANCELLED => [
+            'label' => 'Отменён',
+            'classes' => 'bg-[#979797]',
+        ],
+    ];
+    $statusPresentation = $statuses[$status];
+    $canRequestCancellation = ! $order->isFinalized()
+        && $order->cancellation_requested_at === null;
+    $totalFormatted = number_format((float) $order->total, 2, '.', '');
+    [$whole, $fraction] = explode('.', $totalFormatted);
+    $previewItems = $order->items->take(5);
+    $fallbackImage = asset('storage/assets/img/photos_will_appear_soon.jpg');
+@endphp
+
 @extends('layouts.main')
+
+@section('title', 'Мои заказы')
 
 @section('content')
     <div class="w-full px-8 py-8">
@@ -93,7 +134,7 @@
                                 </span>
                             </p>
 
-                            @if($canReviewOrderItem)
+                            <!-- @if($canReviewOrderItem)
                                 @if($review)
                                     <div class="mt-1 flex items-center justify-between">
                                         @if($review->addition === null)
@@ -131,7 +172,7 @@
                                         Добавить отзыв
                                     </a>
                                 @endif
-                            @endif
+                            @endif -->
                         </div>
 
                         <!-- Сумма -->
@@ -167,9 +208,5 @@
         </div>
 
     </div>
-
-    @include('variants.partials.review-create-modal')
-    @include('variants.partials.review-addition-modal')
-    @include('variants.partials.review-action-result-modal')
 
 @endsection
