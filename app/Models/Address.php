@@ -16,4 +16,17 @@ class Address extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function fullAddress(): string
+    {
+        return collect([
+            $this->country,
+            $this->city,
+            $this->state,
+            $this->zip,
+            $this->address_line,
+        ])
+            ->filter(fn ($part) => filled($part))
+            ->implode(', ');
+    }
+
 }

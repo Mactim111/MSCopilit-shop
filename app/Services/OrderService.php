@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\CartOrderAvailabilityException;
+use App\Models\Address;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -37,7 +38,8 @@ class OrderService
             $addressText = $data['address'] ?? null;
 
             if ($user && !empty($data['address_id'])) {
-                $addressText = $user->addresses()->findOrFail($data['address_id'])->address_line;
+                $address = $user->addresses()->findOrFail($data['address_id']);
+                $addressText = $address->fullAddress();
             }
 
             $order = Order::create([

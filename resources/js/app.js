@@ -1264,7 +1264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reviewResultPanel.classList.toggle('w-[290px]', !isError);
         reviewResultPanel.classList.toggle('h-[164px]', isError);
         reviewResultPanel.classList.toggle('w-[422px]', isError);
-        reviewResultMessage.classList.toggle('whitespace-nowrap', !isError);
+        reviewResultMessage.classList.remove('whitespace-nowrap');
         reviewResultReload = reload;
         reviewResultModal.classList.remove('hidden');
         reviewResultModal.classList.add('flex');
@@ -1384,7 +1384,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 reviewAdditionModal.classList.add('hidden');
                 reviewAdditionModal.classList.remove('flex');
                 syncReviewModalScrollLock();
-                openReviewResult('Данные успешно обновлены', { reload: true });
+                openReviewResult(
+                    'Спасибо! Дополнение отправлено на модерацию. Оно появится после проверки и одобрения.',
+                    { reload: true }
+                );
             } catch (error) {
                 reviewAdditionSubmitting = false;
                 updateReviewAdditionSubmit();
@@ -1436,6 +1439,108 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const orderCancellationModal = document.querySelector('[data-order-cancellation-modal]');
+    const orderCancellationConfirmation = orderCancellationModal
+        ?.querySelector('[data-order-cancellation-confirmation]');
+    const orderCancellationSuccess = orderCancellationModal
+        ?.querySelector('[data-order-cancellation-success]');
+    let orderCancellationForm = null;
+    let orderCancellationSubmitted = false;
+    let orderCancellationInFlight = false;
+
+    const closeOrderCancellationModal = () => {
+        if (!orderCancellationModal || orderCancellationInFlight) return;
+
+        orderCancellationModal.classList.add('hidden');
+        orderCancellationModal.classList.remove('flex');
+        document.body.classList.remove('overflow-hidden');
+
+        if (orderCancellationSubmitted) {
+            window.location.reload();
+            return;
+        }
+
+        orderCancellationForm?.querySelector('button[type="submit"]')?.focus();
+        orderCancellationForm = null;
+    };
+
+    document.addEventListener('submit', event => {
+        const form = event.target.closest('[data-order-cancellation-form]');
+        if (!form || !orderCancellationModal) return;
+
+        event.preventDefault();
+        orderCancellationForm = form;
+        orderCancellationSubmitted = false;
+        orderCancellationConfirmation?.classList.remove('hidden');
+        orderCancellationSuccess?.classList.add('hidden');
+        orderCancellationModal.classList.remove('hidden');
+        orderCancellationModal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+        orderCancellationModal.querySelector('[data-order-cancellation-dismiss]')?.focus();
+    });
+
+    orderCancellationModal?.addEventListener('click', async event => {
+        if (event.target === orderCancellationModal
+            || event.target.closest('[data-order-cancellation-close], [data-order-cancellation-dismiss]')) {
+            closeOrderCancellationModal();
+            return;
+        }
+
+        if (event.target.closest('[data-order-cancellation-acknowledge]')) {
+            closeOrderCancellationModal();
+            return;
+        }
+
+        if (!event.target.closest('[data-order-cancellation-confirm]')
+            || !orderCancellationForm
+            || orderCancellationInFlight) return;
+
+        const confirmButton = orderCancellationModal.querySelector('[data-order-cancellation-confirm]');
+        const csrfToken = orderCancellationForm.querySelector('input[name="_token"]')?.value;
+        if (!csrfToken) {
+            window.showFlashMessage('Не удалось отправить запрос: отсутствует CSRF-токен.', 'error');
+            return;
+        }
+
+        confirmButton.disabled = true;
+        orderCancellationInFlight = true;
+
+        try {
+            const response = await fetch(orderCancellationForm.action, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                credentials: 'same-origin',
+            });
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                throw new Error('Сервер вернул неожиданный ответ при отправке запроса.');
+            }
+
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.message || 'Не удалось отправить запрос на отмену заказа.');
+            }
+
+            orderCancellationSubmitted = true;
+            orderCancellationConfirmation?.classList.add('hidden');
+            orderCancellationSuccess?.classList.remove('hidden');
+            orderCancellationModal.querySelector('[data-order-cancellation-acknowledge]')?.focus();
+        } catch (error) {
+            window.showFlashMessage(error.message || 'Не удалось отправить запрос на отмену заказа.', 'error');
+        } finally {
+            confirmButton.disabled = false;
+            orderCancellationInFlight = false;
+        }
+    });
+
+    orderCancellationModal?.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeOrderCancellationModal();
+    });
 
 // -------------------------------------------------------------------------
     // ИНИЦИАЛИЗАЦИЯ ВСЕХ SWIPER-СЛАЙДЕРОВ

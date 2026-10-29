@@ -56,7 +56,7 @@
                 <div class="title-desc flex flex-wrap gap-x-[45px] gap-y-1 text-[16px]">
                     <div class="title-desc__date">{{ $order->created_at->format('d.m.Y') }}</div>
                     <div class="title-desc__price">
-                        {{ $whole }}<span class="text-sm">.</span><span class="text-[16px]">{{ $fraction }}</span><i class="nbrb-icon font-bold">BYN</i>
+                        {{ $whole }}<span class="text-sm">.</span><span class="text-[16px]">{{ $fraction }}</span><i class="nbrb-icon">BYN</i>
                     </div>
                 </div>
             </div>
@@ -91,8 +91,8 @@
 
             <div class="order-card__info w-full text-left md:w-[253px]">
                 @if($order->payment_status === \App\Models\Order::PAYMENT_PAID)
-                    <div class="info__title mb-[6px] text-[14px] font-semibold">Оплата</div>
-                    <div class="info__text text-[13px]">Оплачено</div>
+                    <div class="info__title mb-[6px] text-[14px] font-semibold">Оплата онлайн</div>
+                    <div class="info__text text-[13px]">Картой рассрочки или банковской картой на сайте</div>
                 @else
                     <div class="info__title mb-[6px] text-[14px] font-semibold">Оплата при получении:</div>
                     <div class="info__text text-[13px]">Наличными или банковской картой</div>

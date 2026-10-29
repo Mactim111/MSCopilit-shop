@@ -1,212 +1,232 @@
-{{-- структурная верстка страницы просмотра конкретного заказа со статусом Комплектация в профиле юзера --}}
-
-@php
-    $status = $order->profile_status;
-    $statuses = [
-        \App\Models\Order::ORDER_CANCELLATION => [
-            'label' => 'Отправлен на отмену',
-            'classes' => 'bg-[#2c9cdd]',
-        ],
-        \App\Models\Order::ORDER_COMPLETED => [
-            'label' => 'Завершён',
-            'classes' => 'bg-[#8bc34a]',
-        ],
-        \App\Models\Order::ORDER_CREATED => [
-            'label' => 'Создан',
-            'classes' => 'bg-[#2c9cdd]',
-        ],
-        \App\Models\Order::ORDER_PROCESSING => [
-            'label' => 'Комплектация',
-            'classes' => 'bg-[#2c9cdd]',
-        ],
-        \App\Models\Order::ORDER_READY_FOR_PICKUP => [
-            'label' => 'Готов к выдаче',
-            'classes' => 'bg-[#2c9cdd]',
-        ],
-        \App\Models\Order::ORDER_CANCELLED => [
-            'label' => 'Отменён',
-            'classes' => 'bg-[#979797]',
-        ],
-    ];
-    $statusPresentation = $statuses[$status];
-    $canRequestCancellation = ! $order->isFinalized()
-        && $order->cancellation_requested_at === null;
-    $totalFormatted = number_format((float) $order->total, 2, '.', '');
-    [$whole, $fraction] = explode('.', $totalFormatted);
-    $previewItems = $order->items->take(5);
-    $fallbackImage = asset('storage/assets/img/photos_will_appear_soon.jpg');
-@endphp
-
 @extends('layouts.main')
 
-@section('title', 'Мои заказы')
+@section('title', 'Заказ №' . $order->id)
 
 @section('content')
-    <div class="w-full px-8 py-8">
+    @php
+        $profileStatus = $order->profile_status;
+        $statusPresentation = [
+            \App\Models\Order::ORDER_CANCELLATION => [
+                'label' => 'Отправлен на отмену',
+                'classes' => 'bg-[#2c9cdd]',
+            ],
+            \App\Models\Order::ORDER_COMPLETED => [
+                'label' => 'Завершён',
+                'classes' => 'bg-[#8bc34a]',
+            ],
+            \App\Models\Order::ORDER_CREATED => [
+                'label' => 'Создан',
+                'classes' => 'bg-[#2c9cdd]',
+            ],
+            \App\Models\Order::ORDER_PROCESSING => [
+                'label' => 'Комплектация',
+                'classes' => 'bg-[#2c9cdd]',
+            ],
+            \App\Models\Order::ORDER_READY_FOR_PICKUP => [
+                'label' => 'Готов к выдаче',
+                'classes' => 'bg-[#2c9cdd]',
+            ],
+            \App\Models\Order::ORDER_CANCELLED => [
+                'label' => 'Отменён',
+                'classes' => 'bg-[#979797]',
+            ],
+        ][$profileStatus];
+        $totalQuantity = $order->items->sum('quantity');
+        $goodsTotal = $order->items->sum(fn ($item) => (float) $item->subtotal);
+        $canRequestCancellation = ! $order->isFinalized()
+            && $order->cancellation_requested_at === null;
+        $fallbackImage = asset('storage/assets/img/photos_will_appear_soon.jpg');
+    @endphp
 
-        <!-- Заголовок -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Заказ №{{ $order->id }}</h1>
-            <p class="text-gray-600 mt-1">Оформлен: {{ $order->created_at->format('d.m.Y H:i') }}</p>
-        </div>
+{{-- Хлебные крошки --}}
+<div class="max-w-[1500px] py-[24px] mx-auto flex items-center text-[13px] text-[#7b7979]">
+    <x-breadcrumbs :items="[
+        ['title' => 'Главная', 'url' => route('home')],
+        ['title' => 'Личный кабинет', 'url' => route('profile')],
+        ['title' => 'Мои заказы'],
+    ]" />
+</div>
 
-        <!-- Карточка статуса -->
-        <div class="bg-white shadow rounded-xl p-6 mb-8 border border-gray-100">
-            <h2 class="text-xl font-semibold mb-4">Статус заказа</h2>
 
-            <div class="flex items-center gap-3">
-            @php
-                $profileStatus = $order->profile_status;
-                $statusLabels = [
-                    \App\Models\Order::ORDER_CREATED => 'Создан',
-                    \App\Models\Order::ORDER_PROCESSING => 'Комплектация',
-                    \App\Models\Order::ORDER_READY_FOR_PICKUP => 'Готов к выдаче',
-                    \App\Models\Order::ORDER_CANCELLATION => 'Отправлен на отмену',
-                    \App\Models\Order::ORDER_COMPLETED => 'Завершён',
-                    \App\Models\Order::ORDER_CANCELLED => 'Отменён',
-                ];
-                $statusClasses = in_array($profileStatus, [
-                    \App\Models\Order::ORDER_CREATED,
-                    \App\Models\Order::ORDER_PROCESSING,
-                    \App\Models\Order::ORDER_READY_FOR_PICKUP,
-                    \App\Models\Order::ORDER_CANCELLATION,
-                ], true)
-                    ? 'bg-blue-100 text-blue-700'
-                    : ($profileStatus === \App\Models\Order::ORDER_COMPLETED
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-700');
-            @endphp
-            <span class="px-4 py-2 rounded-full text-sm font-medium {{ $statusClasses }}">
-                {{ $statusLabels[$profileStatus] }}
-            </span>
-            </div>
-        </div>
+{{-- Основная двухколоночная часть --}}
+<div class="max-w-[1500px] mx-auto flex flex-col gap-8 mt-6 mb-[70px] md:flex-row">
 
-        <!-- Товары -->
-        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
-            <h2 class="text-xl font-semibold mb-6">Товары в заказе</h2>
+    <x-profile-sidebar active="orders" />
 
-            <div class="space-y-6">
-                @foreach($order->items as $item)
-                    @php
-                        $variant = $item->variant;
-                        $review = $variant
-                            ? $reviewsByVariant->get($variant->id)
-                            : null;
-                        $canReviewOrderItem = $order->status === \App\Models\Order::STATUS_COMPLETED
-                            && $variant !== null;
-                    @endphp
-                    <div class="flex items-center gap-6 pb-6 border-b last:border-b-0">
-
-                        <!-- Фото товара -->
-                        <div class="w-24 h-24 flex-shrink-0">
-                            @if($variant)
-                                <a href="{{ route('catalog.variant', $variant->slug) }}">
-                                    <img src="{{ $variant->mainImage() }}"
-                                        alt="{{ $variant->title }}"
-                                        class="w-full h-full object-cover rounded-lg shadow-sm">
-                                </a>
-                            @endif
-                        </div>
-
-                        <!-- Информация -->
-                        <div class="flex-1">
-                            @if($variant)
-                                <a href="{{ route('catalog.variant', $variant->slug) }}" class="text-lg font-semibold text-gray-900">
-                                    {{ $variant->title }}
-                                </a>
-                            @else
-                                <p class="text-lg font-semibold text-gray-900">{{ $item->title }}</p>
-                            @endif
-
-                            <p class="text-gray-600 mt-1">
-                                Количество: <span class="font-medium">{{ $item->quantity }}</span>
-                            </p>
-
-                            <p class="text-gray-600">
-                                Цена за шт.:
-                                <span class="font-medium text-xl">
-                                    @if($variant)
-                                        {!! $variant->formattedPrice(16, 16) !!}
-                                    @else
-                                        {{ number_format($item->price, 2, '.', ' ') }} BYN
-                                    @endif
-                                </span>
-                            </p>
-
-                            <!-- @if($canReviewOrderItem)
-                                @if($review)
-                                    <div class="mt-1 flex items-center justify-between">
-                                        @if($review->addition === null)
-                                            <a href="{{ route('catalog.variant.reviews', $variant) }}"
-                                               data-review-form="addition"
-                                               data-review-id="{{ $review->id }}"
-                                               data-form-action="{{ route('reviews.addition', $review) }}"
-                                               data-product-title="{{ $variant->title }}"
-                                               data-product-image="{{ $variant->mainImage() }}"
-                                               class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
-                                                Дополнить отзыв
-                                            </a>
-                                        @else
-                                            <span class="text-[13px] text-gray-500">Отзыв дополнен</span>
-                                        @endif
-
-                                        <form action="{{ route('reviews.destroy', $review) }}"
-                                              method="POST"
-                                              data-review-delete-form>
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="cursor-pointer text-[13px] text-[#DC092E] hover:text-[#a80723]">
-                                                Удалить отзыв
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    <a href="{{ route('catalog.variant.reviews', $variant) }}"
-                                       data-review-form="create"
-                                       data-form-action="{{ route('reviews.store', $variant) }}"
-                                       data-product-title="{{ $variant->title }}"
-                                       data-product-image="{{ $variant->mainImage() }}"
-                                       class="text-[13px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
-                                        Добавить отзыв
-                                    </a>
-                                @endif
-                            @endif -->
-                        </div>
-
-                        <!-- Сумма -->
-                        <div class="text-right">
-                            <p class="text-xl font-bold text-gray-900">
-                                {!! $item->formattedSubtotal(16, 16) !!}
-                            </p>
-                        </div>
-
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Итог -->
-        <div class="bg-white shadow rounded-xl p-6 mt-8 border border-gray-100">
-            <h2 class="text-xl font-semibold mb-4">Итог заказа</h2>
-
-            <div class="flex justify-between text-lg font-medium text-gray-900">
-                <span>Сумма заказа:</span>
-                <p class="text-xl font-bold text-gray-900">
-                    {!! $item->formattedSubtotal(16, 16) !!}
-                </p>
-            </div>
-        </div>
-
-        <!-- Кнопка назад -->
-        <div class="mt-8">
+    {{-- Правая колонка: фильтры и список заказов пользователя --}}
+    <main class="w-full max-w-[1152px] flex flex-col">
             <a href="{{ route('profile.orders') }}"
-               class="inline-block px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">
-                ← Вернуться к списку заказов
+                class="mb-1 inline-block text-[15px] text-[#007eff] transition-colors hover:text-[#0064cc]">
+                К списку заказов
             </a>
-        </div>
 
+            <header class="mb-[22px] flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <h1 class="text-left text-[26px] font-semibold leading-tight">
+                        Заказ №{{ $order->id }} от {{ $order->created_at->format('d.m.Y') }}
+                    </h1>
+                    <span class="h-fit whitespace-nowrap rounded-[4px] px-2 py-[3px] text-center text-[12px] font-semibold text-white {{ $statusPresentation['classes'] }}">
+                        {{ $statusPresentation['label'] }}
+                    </span>
+                </div>
+
+                @if($canRequestCancellation)
+                    <form action="{{ route('profile.orders.request-cancellation', $order) }}"
+                            method="POST"
+                            data-order-cancellation-form>
+                        @csrf
+                        <button type="submit"
+                                class="cursor-pointer text-[16px] text-[#dc092e] transition-colors hover:text-[#a80723]">
+                            Отменить
+                        </button>
+                    </form>
+                @endif
+            </header>
+
+            <section class="flex flex-col overflow-hidden rounded-[10px] border border-[#e5e5e5] bg-white lg:flex-row">
+                <div class="min-w-[574px] min-w-0 px-5 py-5 sm:px-[38px] lg:w-[40%] lg:shrink-0">
+                    <div class="w-full flex flex-col gap-4 border-b border-dashed border-[#e5e5e5] py-4">
+                        @foreach($order->items as $item)
+                            @php
+                                $variant = $item->variant;
+                                $review = $variant ? $reviewsByVariant->get($variant->id) : null;
+                                $canReviewItem = $order->status === \App\Models\Order::STATUS_COMPLETED
+                                    && $variant !== null;
+                                $itemPrice = number_format((float) $item->price, 2, '.', '');
+                                [$itemWhole, $itemFraction] = explode('.', $itemPrice);
+                            @endphp
+
+                            <div class="card-section__product flex min-w-0 items-center gap-3">
+                                <div class="h-[60px] w-[60px] shrink-0">
+                                    @if($variant)
+                                        <a href="{{ route('catalog.variant', $variant) }}">
+                                            <img src="{{ $variant->mainImage() }}"
+                                                    alt="{{ $item->title }}"
+                                                    class="h-full w-full object-contain">
+                                        </a>
+                                    @else
+                                        <img src="{{ $fallbackImage }}"
+                                                alt="{{ $item->title }}"
+                                                class="h-full w-full object-contain">
+                                    @endif
+                                </div>
+
+                                <div class="min-w-0 flex-1 text-left">
+                                    @if($variant)
+                                        <a href="{{ route('catalog.variant', $variant) }}"
+                                            class="mb-2 block text-[15px] leading-snug text-[#231f20] hover:text-[#007eff]">
+                                            {{ $item->title }}
+                                        </a>
+                                    @else
+                                        <p class="mb-2 text-[15px] leading-snug">{{ $item->title }}</p>
+                                    @endif
+
+                                    @if($canReviewItem)
+                                        @if($review)
+                                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                @if($review->addition === null)
+                                                    <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                                                        data-review-form="addition"
+                                                        data-review-id="{{ $review->id }}"
+                                                        data-form-action="{{ route('reviews.addition', $review) }}"
+                                                        data-product-title="{{ $variant->title }}"
+                                                        data-product-image="{{ $variant->mainImage() }}"
+                                                        class="text-[13px] text-[#007eff] transition-colors hover:text-[#0064cc]">
+                                                        Дополнить
+                                                    </a>
+                                                @else
+                                                    <span class="text-[13px] text-gray-500">Отзыв дополнен</span>
+                                                @endif
+
+                                                <form action="{{ route('reviews.destroy', $review) }}"
+                                                        method="POST"
+                                                        data-review-delete-form>
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="cursor-pointer text-[13px] text-[#dc092e] hover:text-[#a80723]">
+                                                        Удалить
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @else
+                                            <a href="{{ route('catalog.variant.reviews', $variant) }}"
+                                                data-review-form="create"
+                                                data-form-action="{{ route('reviews.store', $variant) }}"
+                                                data-product-title="{{ $variant->title }}"
+                                                data-product-image="{{ $variant->mainImage() }}"
+                                                class="text-[13px] text-[#007eff] transition-colors hover:text-[#0064cc]">
+                                                Добавить отзыв
+                                            </a>
+                                        @endif
+                                    @endif
+                                </div>
+
+                                <div class="flex flex-col shrink-0 self-start text-right">
+                                    <div class="whitespace-nowrap text-[18px] font-semibold">
+                                        {{ $itemWhole }}<span class="text-[18px]">.{{ $itemFraction }}</span><i class="nbrb-icon">BYN</i>
+                                    </div>
+                                    <div class="text-[12px]">x{{ $item->quantity }} шт.</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="flex flex-col gap-4 border-b border-dashed border-[#e5e5e5] py-4">
+                        <div class="info-row flex items-center justify-between gap-4">
+                            <div class="info-row__title text-[15px]">
+                                Стоимость товаров
+                                <span class="ml-1 text-[12px] text-[#8c8c8c]">{{ $totalQuantity }}</span>
+                            </div>
+                            <div class="whitespace-nowrap text-[18px] font-semibold">
+                                {{ number_format($goodsTotal, 2, '.', '') }}<i class="nbrb-icon">BYN</i>
+                            </div>
+                        </div>
+                        <div class="info-row flex items-center justify-between gap-4">
+                            <div class="text-[15px]">Доставка</div>
+                            <div class="text-[18px] font-semibold">Бесплатно</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-4 py-4 text-[18px] font-semibold">
+                        <div>Итого к оплате</div>
+                        <div class="whitespace-nowrap">
+                            {{ number_format((float) $order->total, 2, '.', '') }}<i class="nbrb-icon">BYN</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hidden w-px self-stretch bg-[#e5e5e5] lg:block"></div>
+                <div class="h-px w-full bg-[#e5e5e5] lg:hidden"></div>
+
+                <div class="flex flex-1 flex-col gap-[19px] px-5 py-6 text-left sm:px-[38px] sm:py-[29px]">
+                    <div class="info-block">
+                        <div class="mb-[6px] text-[16px] font-semibold">Доставка курьером по адресу</div>
+                        <div class="text-[14px]">{{ $order->address ?: 'Адрес доставки не указан' }}</div>
+                    </div>
+
+                    <div class="info-block">
+                        @if($order->payment_status === \App\Models\Order::PAYMENT_PAID)
+                            <div class="mb-[6px] text-[16px] font-semibold">Оплата онлайн:</div>
+                            <div class="text-[14px]">Картой рассрочки или банковской картой на сайте</div>
+                        @else
+                            <div class="mb-[6px] text-[16px] font-semibold">Оплата при получении:</div>
+                            <div class="text-[14px]">Наличными или банковской картой</div>
+                        @endif
+                    </div>
+
+                    <div class="info-block">
+                        <div class="mb-[6px] text-[16px] font-semibold">Получатель:</div>
+                        <div class="text-[14px]">{{ $order->name }} {{ $order->phone }}</div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
+</div>
 
+    @include('variants.partials.review-create-modal')
+    @include('variants.partials.review-addition-modal')
+    @include('variants.partials.review-action-result-modal')
+    @include('profile.partials.order-cancellation-modal')
 @endsection
