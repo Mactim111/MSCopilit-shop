@@ -184,8 +184,6 @@ class ProfileController extends Controller
 
     public function requestOrderCancellation(Request $request, Order $order): JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        $this->authorize('view', $order);
-
         $requested = DB::transaction(function () use ($request, $order): bool {
             $lockedOrder = Order::query()
                 ->whereKey($order->id)

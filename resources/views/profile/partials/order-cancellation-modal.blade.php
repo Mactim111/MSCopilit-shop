@@ -32,7 +32,7 @@
         </div>
 
         <div data-order-cancellation-success class="hidden">
-            <p class="mb-8 text-[20px] font-semibold text-[#231f20]">
+            <p class="mb-8 text-[24x] font-bold text-[#231f20]">
                 Запрос на отмену отправлен. После подтверждения менеджером статус заказа изменится на «Отменён».
             </p>
             <button type="button"
