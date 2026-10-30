@@ -67,8 +67,9 @@
                     </div>
                     <!-- Кнопка привязана к форме через атрибут form="cart-form" -->
                     <button type="submit" form="cart-form" name="action" value="checkout"
-                            class="block w-full text-center bg-red-600 text-white py-4 rounded-lg hover:bg-red-700 transition font-bold cursor-pointer">
-                        Оформить заказ
+                            class="block w-full h-12 text-[20px] text-center bg-[#dc092e] border-[#dc092e] text-white rounded-[10px] hover:bg-[#a80723] 
+                            hover:border-[#a80723] transition font-semibold cursor-pointer">
+                        Заказать
                     </button>
                 </div>
             </aside>
