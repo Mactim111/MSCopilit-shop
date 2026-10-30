@@ -18,12 +18,14 @@
             <div class="flex flex-wrap justify-center gap-3">
                 <button type="button"
                         data-order-cancellation-dismiss
-                        class="min-h-[50px] rounded-[10px] border border-[#dc092e] px-6 text-[15px] text-[#dc092e]">
+                        class="min-h-[50px] rounded-[10px] border border-[#dc092e] px-6 text-[15px] text-[#dc092e] hover:bg-[#a80723] hover:border-[#a80723] 
+                        hover:font-semibold hover:text-white transition-colors duration-200">
                     Нет, спасибо
                 </button>
                 <button type="button"
                         data-order-cancellation-confirm
-                        class="min-h-[50px] rounded-[10px] border border-[#dc092e] px-6 text-[15px] text-[#dc092e]">
+                        class="min-h-[50px] rounded-[10px] border border-[#dc092e] px-6 text-[15px] text-[#dc092e] hover:bg-[#a80723] hover:border-[#a80723]
+                        hover:font-semibold hover:text-white transition-colors duration-200">
                     Да, отправить запрос
                 </button>
             </div>
@@ -35,7 +37,7 @@
             </p>
             <button type="button"
                     data-order-cancellation-acknowledge
-                    class="min-h-[48px] w-full rounded-[10px] bg-[#dc092e] text-[15px] font-semibold text-white">
+                    class="min-h-[48px] w-full rounded-[10px] bg-[#dc092e] hover:bg-[#a80723] text-[15px] font-semibold text-white transition-colors duration-200">
                 OK
             </button>
         </div>
