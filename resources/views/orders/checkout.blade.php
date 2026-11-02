@@ -3,9 +3,12 @@
 @section('title', 'Оформление заказа')
 
 @section('content')
-    <div class="max-w-[1500px] mx-auto px-6 py-6">
+<div class="max-w-[1500px] mx-auto px-6 py-6">
 
-        <h1 class="text-3xl font-bold mb-8">Оформление заказа</h1>
+    {{-- Левая колонка: поля ввода-изменения личных данных, адреса и способа оплаты для пользователя --}}
+    <main class="w-full max-w-[1152px] flex flex-col">
+
+        <h1 class="text-3xl font-bold">Оформление заказа</h1>
 
         <form action="{{ route('orders.store') }}" method="POST" class="space-y-10">
             @csrf
@@ -22,7 +25,7 @@
                     <div>
                         <label class="block font-medium mb-1">Имя</label>
                         <input type="text" name="name" value="{{ old('name', auth()->user()?->name) }}"
-                               class="w-full p-1 border-gray-300 rounded-[6px] border @error('name') border-red-500 @enderror px-3">
+                            class="w-full p-1 border-gray-300 rounded-[6px] border @error('name') border-red-500 @enderror px-3">
                         @error('name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -31,7 +34,7 @@
                     <div>
                         <label class="block font-medium mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}"
-                               class="w-full p-1 border-gray-300 rounded-[6px] border @error('email') border-red-500 @enderror px-3">
+                            class="w-full p-1 border-gray-300 rounded-[6px] border @error('email') border-red-500 @enderror px-3">
                         @error('email')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -40,7 +43,7 @@
                     <div>
                         <label class="block font-medium mb-1">Фамилия</label>
                         <input type="text" name="last_name" value="{{ old('last_name', auth()->user()?->last_name) }}"
-                               class="w-full p-1 border-gray-300 rounded-[6px] border @error('last_name') border-red-500 @enderror px-3">
+                            class="w-full p-1 border-gray-300 rounded-[6px] border @error('last_name') border-red-500 @enderror px-3">
                         @error('last_name')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -49,7 +52,7 @@
                     <div>
                         <label class="block font-medium mb-1">Телефон</label>
                         <input type="text" name="phone" value="{{ old('phone', auth()->user()?->phone) }}"
-                               class="w-full p-1 border-gray-300 rounded-[6px] border @error('phone') border-red-500 @enderror px-3">
+                            class="w-full p-1 border-gray-300 rounded-[6px] border @error('phone') border-red-500 @enderror px-3">
                         @error('phone')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -65,9 +68,9 @@
                 @foreach($addresses as $addr)
                     <label class="flex items-start gap-3 p-3 border border-white hover:border-black focus:border-black rounded-lg cursor-pointer hover:bg-gray-50">
                         <input type="radio"
-                               name="address_id"
-                               value="{{ $addr->id }}"
-                               class="mt-1"
+                            name="address_id"
+                            value="{{ $addr->id }}"
+                            class="mt-1"
                             @checked(old('address_id', $defaultAddressId) == $addr->id)>
                         <div>
                             <div class="text-[15px] font-semibold">Использовать существующий адрес</div>
@@ -79,18 +82,18 @@
                 {{-- Новый адрес --}}
                 <label class="flex items-start gap-3 p-3 border border-white hover:border-black focus:border-black rounded-lg cursor-pointer hover:bg-gray-50 mt-4">
                     <input type="radio"
-                           name="address_id"
-                           value=""
-                           class="mt-1"
+                        name="address_id"
+                        value=""
+                        class="mt-1"
                         @checked(old('address_id') === '' || ($addresses->isEmpty() && old('address_id') === null))>
 
                     <div class="w-full">
                         <div class="text-[15px] font-semibold">Ввести новый адрес</div>
 
                         <textarea name="address"
-                                  placeholder="Введите новый адрес..."
-                                  rows="3"
-                                  class="mt-2 w-full border border-gray-300 rounded-lg p-3 @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
+                                placeholder="Введите новый адрес..."
+                                rows="3"
+                                class="mt-2 w-full border border-gray-300 rounded-lg p-3 @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
 
                         @error('address')
                         <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -102,9 +105,9 @@
                 @foreach($addresses as $addr)
                     <label class="flex items-start gap-3 p-3 border border-white hover:border-black focus:border-black rounded-lg cursor-pointer hover:bg-gray-50 mt-4">
                         <input type="radio"
-                               name="address_id"
-                               value="{{ $addr->id }}"
-                               class="mt-1"
+                            name="address_id"
+                            value="{{ $addr->id }}"
+                            class="mt-1"
                             @checked(old('address_id', $defaultAddressId) == $addr->id)>
                         <div>
                             <div class="text-[15px] font-semibold">Самовывоз из пункта выдачи заказов</div>
@@ -151,5 +154,8 @@
             </button>
 
         </form>
-    </div>
+    </main>
+
+    <div class="flex flex-col"></div>
+</div>
 @endsection

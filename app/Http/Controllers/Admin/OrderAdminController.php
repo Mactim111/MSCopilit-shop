@@ -21,7 +21,7 @@ class OrderAdminController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items.product');
+        $order->load('items.variant');
 
         return view('admin.orders.show', compact('order'));
     }

@@ -1,22 +1,26 @@
-@extends('admin.layout')
+@extends('admin.layouts.admin')
+
+@section('header-title', 'Просмотр заказа')
 
 @section('content')
-    <h1>Заказ №{{ $order->id }}</h1>
-
+<div class="ml-4"><br>
+    <h1 class="text-[18px] font-bold">Заказ №{{ $order->id }}</h1>
+    <br>
     <p><b>Имя:</b> {{ $order->name }}</p>
     <p><b>Фамилия:</b> {{ $order->last_name ?: '—' }}</p>
     <p><b>Email:</b> {{ $order->email }}</p>
     <p><b>Телефон:</b> {{ $order->phone }}</p>
     <p><b>Адрес:</b> {{ $order->address }}</p>
+    <br>
 
-    <h3>Товары</h3>
+    <h3 class="text-[18px] font-bold">Товары</h3>
 
     <table border="1" cellpadding="5">
         <tr>
-            <th>Название</th>
-            <th>Цена</th>
-            <th>Кол-во</th>
-            <th>Сумма</th>
+            <th class="text-[15px] font-bold">Название</th>
+            <th class="text-[15px] font-bold">Цена</th>
+            <th class="text-[15px] font-bold">Кол-во</th>
+            <th class="text-[15px] font-bold">Сумма</th>
         </tr>
 
         @foreach($order->items as $item)
@@ -27,10 +31,10 @@
                 <td>{{ $item->subtotal }}</td>
             </tr>
         @endforeach
-    </table>
+    </table><br>
 
-    <h3>Этап заказа</h3>
-    <p>
+    <h3 class="text-[18px] font-bold">Этап заказа</h3>
+    <p class="text-[15px] font-semibold text-blue-800">
         @switch($order->status)
             @case(\App\Models\Order::STATUS_NEW) Создан @break
             @case(\App\Models\Order::STATUS_PROCESSING) Комплектация @break
@@ -39,14 +43,17 @@
             @case(\App\Models\Order::STATUS_CANCELLED) Отменён @break
         @endswitch
     </p>
+    <br>
 
-    <p>Состояние оплаты: {{ $order->payment_status }}</p>
+    <p class="text-[18px] font-bold">Состояние оплаты: <span class="text-[15px] text-green-800">{{ $order->payment_status }}</span></p>
     @if($order->cancellation_requested_at)
-        <p>Покупатель запросил отмену {{ $order->cancellation_requested_at->format('d.m.Y H:i') }}.</p>
+        <p class="text-[15px] font-semibold text-red-800">Покупатель запросил отмену {{ $order->cancellation_requested_at->format('d.m.Y H:i') }}.</p>
     @endif
+    <br>
 
     @unless($order->isFinalized())
-        <h3>Действия с заказом</h3>
+        <h3 class="text-[18px] font-bold">Действия с заказом</h3>
+        <div class="text-[15px] font-semibold text-red-800">
         @php
             $availableActions = match ($order->status) {
                 \App\Models\Order::STATUS_NEW => [
@@ -75,7 +82,8 @@
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="action" value="{{ $action }}">
-                <button type="submit">{{ $label }}</button>
+                <button type="submit" class="block h-[40px] mt-5 mr-5 rounded-lg border border-red-600 bg-white px-14 py-2 text-[15px] font-semibold text-red-600 
+                    hover:bg-red-600 hover:text-white text-center">{{ $label }}</button>
             </form>
         @endforeach
 
@@ -87,11 +95,17 @@
                 @csrf
                 @method('PATCH')
                 <input type="hidden" name="action" value="reject_cancellation">
-                <button type="submit">Отклонить запрос отмены</button>
+                <button type="submit" class="block h-[40px] mt-5 rounded-lg border border-red-600 bg-white px-14 py-2 text-[15px] font-semibold text-red-600 
+                    hover:bg-red-600 hover:text-white">
+                    Отклонить запрос отмены
+                </button>
             </form>
+        
         @endif
+        </div>
     @else
         <p>Заказ финализирован; изменить его статус через админ-панель нельзя.</p>
     @endunless
 
+</div>
 @endsection

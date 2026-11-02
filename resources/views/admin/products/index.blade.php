@@ -23,27 +23,6 @@
             @endforeach
         </select>
 
-        <!-- Наличие -->
-        <select name="stock" class="border rounded-lg px-4 py-2 w-full">
-            <option value="">Все товары</option>
-            <option value="in" @selected(request('stock')==='in' )>В наличии</option>
-            <option value="out" @selected(request('stock')==='out' )>Нет в наличии</option>
-        </select>
-
-        <!-- Цена -->
-        <div class="flex gap-2">
-            <input type="number" name="price_min" value="{{ request('price_min') }}"
-                placeholder="Цена от" class="border rounded-lg px-4 py-2 w-full">
-            <input type="number" name="price_max" value="{{ request('price_max') }}"
-                placeholder="Цена до" class="border rounded-lg px-4 py-2 w-full">
-        </div>
-
-        <div class="md:col-span-4 flex justify-end">
-            <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                Применить
-            </button>
-        </div>
-
     </form>
 </div>
 
@@ -66,10 +45,6 @@
                     <th class="px-4 py-3"><a href="{{ sort_link('ID','id',$sort,$dir) }}">ID</a></th>
                     <th class="px-4 py-3"><a href="{{ sort_link('Название','title',$sort,$dir) }}">Название</a></th>
                     <th class="px-4 py-3">Категория</th>
-                    <th class="px-4 py-3"><a href="{{ sort_link('Цена','price',$sort,$dir) }}">Цена</a></th>
-                    <th class="px-4 py-3"><a href="{{ sort_link('Остаток','stock',$sort,$dir) }}">Остаток</a></th>
-                    <th class="px-4 py-3">Изображение</th>
-                    <th class="px-4 py-3">Галерея</th>
                     <th class="px-4 py-3 w-32">Действия</th>
                 </tr>
             </thead>
@@ -80,30 +55,6 @@
                     <td class="px-4 py-3">{{ $p->id }}</td>
                     <td class="px-4 py-3">{{ $p->title }}</td>
                     <td class="px-4 py-3">{{ $p->category->title ?? '-' }}</td>
-                    <td class="px-4 py-3">{{ $p->price }} ₽</td>
-                    <td class="px-4 py-3">{{ $p->stock }}</td>
-
-                    <!-- Главное изображение -->
-                    <td class="px-4 py-3">
-                        @if($p->image)
-                        <img src="{{ $p->image_url }}"
-                            class="w-16 h-16 object-cover rounded shadow">
-                        @else
-                        <span class="text-gray-400">—</span>
-                        @endif
-                    </td>
-
-                    <!-- Галерея с превью при наведении -->
-                    <td class="px-4 py-3 relative group">
-                        @if($p->images->count())
-                        <img src="{{ $p->images->first()->url }}"
-                            class="w-16 h-16 object-cover rounded shadow cursor-pointer">
-
-                        
-                        @else
-                        <span class="text-gray-400">—</span>
-                        @endif
-                    </td>
 
                     <!-- Действия -->
                     <td class="px-4 py-3">
