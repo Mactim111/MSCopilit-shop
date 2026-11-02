@@ -54,6 +54,12 @@ class OrderAdminController extends Controller
                 ]);
             }
 
+            if ($action === 'cancel' && $lockedOrder->cancellation_requested_at === null) {
+                throw ValidationException::withMessages([
+                    'status' => 'Нельзя отменить заказ без ожидающего запроса покупателя.',
+                ]);
+            }
+
             $nextStatus = match ($action) {
                 'start_processing' => $this->requireCurrentStatus(
                     $lockedOrder,

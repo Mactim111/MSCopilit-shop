@@ -69,7 +69,10 @@ class DemoOrdersSeeder extends Seeder
                         'email' => $customer->email,
                         'phone' => $customer->phone,
                         'address' => $address?->fullAddress(),
-                        'total' => $variant->price,
+                        'delivery_method' => Order::DELIVERY_COURIER,
+                        'delivery_price' => Order::COURIER_DELIVERY_PRICE,
+                        'payment_method' => Order::PAYMENT_ONLINE_CARD,
+                        'total' => $variant->price + Order::COURIER_DELIVERY_PRICE,
                         'status' => Order::STATUS_COMPLETED,
                         'payment_status' => Order::PAYMENT_PAID,
                     ]);
@@ -92,7 +95,10 @@ class DemoOrdersSeeder extends Seeder
                     'email' => $customer->email,
                     'phone' => $customer->phone,
                     'address' => $address?->fullAddress(),
-                    'total' => $cancelledVariant->price,
+                    'delivery_method' => Order::DELIVERY_COURIER,
+                    'delivery_price' => Order::COURIER_DELIVERY_PRICE,
+                    'payment_method' => Order::PAYMENT_CASH_ON_DELIVERY,
+                    'total' => $cancelledVariant->price + Order::COURIER_DELIVERY_PRICE,
                     'status' => Order::STATUS_CANCELLED,
                     'payment_status' => Order::PAYMENT_UNRECORDED,
                 ]);

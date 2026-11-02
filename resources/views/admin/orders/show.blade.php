@@ -10,7 +10,17 @@
     <p><b>Фамилия:</b> {{ $order->last_name ?: '—' }}</p>
     <p><b>Email:</b> {{ $order->email }}</p>
     <p><b>Телефон:</b> {{ $order->phone }}</p>
-    <p><b>Адрес:</b> {{ $order->address }}</p>
+    <p><b>Способ доставки:</b> {{ $order->delivery_method_label }}</p>
+    <p><b>Адрес / пункт получения:</b> {{ $order->address ?: 'Не указан' }}</p>
+    <p>
+        <b>Стоимость доставки:</b>
+        @if((float) $order->delivery_price === 0.0)
+            Бесплатно
+        @else
+            {{ number_format((float) $order->delivery_price, 2, '.', ' ') }}<i class="nbrb-icon">BYN</i>
+        @endif
+    </p>
+    <p><b>Способ оплаты:</b> {{ $order->payment_method_label }} — {{ $order->payment_method_description }}</p>
     <br>
 
     <h3 class="text-[18px] font-bold">Товары</h3>
@@ -32,16 +42,11 @@
             </tr>
         @endforeach
     </table><br>
+    <p><b>Итого:</b> {{ number_format((float) $order->total, 2, '.', ' ') }} BYN</p>
 
     <h3 class="text-[18px] font-bold">Этап заказа</h3>
     <p class="text-[15px] font-semibold text-blue-800">
-        @switch($order->status)
-            @case(\App\Models\Order::STATUS_NEW) Создан @break
-            @case(\App\Models\Order::STATUS_PROCESSING) Комплектация @break
-            @case(\App\Models\Order::STATUS_READY_FOR_PICKUP) Готов к выдаче @break
-            @case(\App\Models\Order::STATUS_COMPLETED) Завершён @break
-            @case(\App\Models\Order::STATUS_CANCELLED) Отменён @break
-        @endswitch
+        {{ $order->profile_status_label }}
     </p>
     <br>
 
@@ -55,21 +60,20 @@
         <h3 class="text-[18px] font-bold">Действия с заказом</h3>
         <div class="text-[15px] font-semibold text-red-800">
         @php
-            $availableActions = match ($order->status) {
-                \App\Models\Order::STATUS_NEW => [
-                    'start_processing' => 'Начать комплектацию',
-                    'cancel' => 'Подтвердить отмену',
-                ],
-                \App\Models\Order::STATUS_PROCESSING => [
-                    'mark_ready' => 'Отметить «Готов к выдаче»',
-                    'cancel' => 'Подтвердить отмену',
-                ],
-                \App\Models\Order::STATUS_READY_FOR_PICKUP => [
-                    'complete' => 'Подтвердить получение покупателем',
-                    'cancel' => 'Подтвердить отмену',
-                ],
-                default => [],
-            };
+            $availableActions = $order->cancellation_requested_at
+                ? ['cancel' => 'Подтвердить отмену']
+                : match ($order->status) {
+                    \App\Models\Order::STATUS_NEW => [
+                        'start_processing' => 'Начать комплектацию',
+                    ],
+                    \App\Models\Order::STATUS_PROCESSING => [
+                        'mark_ready' => 'Отметить «Готов к выдаче»',
+                    ],
+                    \App\Models\Order::STATUS_READY_FOR_PICKUP => [
+                        'complete' => 'Подтвердить получение покупателем',
+                    ],
+                    default => [],
+                };
         @endphp
 
         @foreach($availableActions as $action => $label)

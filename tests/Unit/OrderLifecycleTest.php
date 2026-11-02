@@ -29,4 +29,12 @@ class OrderLifecycleTest extends TestCase
         $this->assertSame(Order::ORDER_CANCELLATION, $requestedCancellation->profile_status);
         $this->assertSame(Order::ORDER_CANCELLED, $cancelled->profile_status);
     }
+
+    public function test_profile_status_label_shows_pending_cancellation(): void
+    {
+        $order = new Order(['status' => Order::STATUS_PROCESSING]);
+        $order->cancellation_requested_at = now();
+
+        $this->assertSame('Отправлен на отмену', $order->profile_status_label);
+    }
 }

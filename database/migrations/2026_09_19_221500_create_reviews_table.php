@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('comment');
             $table->text('addition')->nullable();
             $table->timestamp('addition_updated_at')->nullable();
+            $table->string('addition_moderation_status', 20)->nullable();
             $table->boolean('addition_is_published')->default(false);
             $table->boolean('is_published')->default(false);
             $table->string('moderation_status', 20)->default('pending');

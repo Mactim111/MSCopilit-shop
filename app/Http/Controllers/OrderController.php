@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -44,6 +45,8 @@ class OrderController extends Controller
             'items'            => $items,
             'selectedIds'      => $selectedIds, // ПЕРЕДАЕМ ID В ШАБЛОН!
             'total'            => $total,
+            'totalQuantity'    => $items->sum('quantity'),
+            'courierDeliveryPrice' => Order::COURIER_DELIVERY_PRICE,
             'addresses'        => Auth::user()?->addresses()->latest()->get() ?? collect(),
             'defaultAddressId' => Auth::user()?->addresses()->latest()->first()?->id,
         ]);
@@ -66,9 +69,39 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста или товары не выбраны!');
         }
 
+        $addressIdRules = [
+            'nullable',
+            Rule::requiredIf(
+                $request->input('delivery_method') === Order::DELIVERY_COURIER
+                && blank($request->input('address'))
+            ),
+        ];
+        if ($request->user()) {
+            $addressIdRules[] = Rule::exists('addresses', 'id')
+                ->where('user_id', $request->user()->id);
+        } else {
+            $addressIdRules[] = Rule::prohibitedIf(true);
+        }
+
         $data = $request->validate([
-            'address_id' => 'nullable|exists:addresses,id',
-            'address'    => 'nullable|required_without:address_id|string|max:500',
+            'delivery_method' => ['required', Rule::in([
+                Order::DELIVERY_PICKUP,
+                Order::DELIVERY_COURIER,
+            ])],
+            'address_id' => $addressIdRules,
+            'address' => [
+                'nullable',
+                Rule::requiredIf(
+                    $request->input('delivery_method') === Order::DELIVERY_COURIER
+                    && blank($request->input('address_id'))
+                ),
+                'string',
+                'max:500',
+            ],
+            'payment_method' => ['required', Rule::in([
+                Order::PAYMENT_CASH_ON_DELIVERY,
+                Order::PAYMENT_ONLINE_CARD,
+            ])],
             'name'       => 'required|string|max:255',
             'last_name'  => 'nullable|string|max:255',
             'email'      => 'required|email',
@@ -93,7 +126,7 @@ class OrderController extends Controller
         $cartForMail = $order->items->map(function($item) {
             return [
                 'title'    => $item->title,
-                'price'    => $item->price,
+                'price'    => number_format((float) $item->price, 2, '.', ' '),
                 'quantity' => $item->quantity,
             ];
         })->toArray();
@@ -102,7 +135,7 @@ class OrderController extends Controller
             // Отправка клиенту
             Mail::to($order->email)->send(new OrderClient(
                 $cartForMail, 
-                $order->total, 
+                number_format((float) $order->total, 2, '.', ' '),
                 $order->id
             ));
 

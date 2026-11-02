@@ -35,22 +35,33 @@ class OrderService
         return DB::transaction(function () use ($cartItems, $data, $idsToDelete) {
             $user = Auth::user();
             $items = $this->reloadItemsInsideTransaction($cartItems, $idsToDelete, $user?->id);
-            $addressText = $data['address'] ?? null;
+            $deliveryMethod = $data['delivery_method'];
+            $addressText = $deliveryMethod === Order::DELIVERY_PICKUP
+                ? Order::PICKUP_ADDRESS
+                : ($data['address'] ?? null);
+            $addressId = null;
 
-            if ($user && !empty($data['address_id'])) {
+            if ($deliveryMethod === Order::DELIVERY_COURIER && $user && !empty($data['address_id'])) {
                 $address = $user->addresses()->findOrFail($data['address_id']);
                 $addressText = $address->fullAddress();
+                $addressId = $address->id;
             }
+
+            $deliveryPrice = Order::deliveryPriceFor($deliveryMethod);
+            $goodsTotal = $items->sum(fn ($item) => $item->variant->price * $item->quantity);
 
             $order = Order::create([
                 'user_id' => $user?->id,
-                'address_id' => $data['address_id'] ?? null,
+                'address_id' => $addressId,
                 'name' => $data['name'],
                 'last_name' => $data['last_name'] ?? null,
                 'email' => $data['email'],
                 'phone' => $data['phone'],
                 'address' => $addressText,
-                'total' => $items->sum(fn ($item) => $item->variant->price * $item->quantity),
+                'delivery_method' => $deliveryMethod,
+                'delivery_price' => $deliveryPrice,
+                'payment_method' => $data['payment_method'],
+                'total' => $goodsTotal + $deliveryPrice,
                 'status' => Order::STATUS_NEW,
             ]);
 

@@ -12,6 +12,65 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const checkoutForm = document.querySelector('[data-checkout-form]');
+    const checkoutSummary = document.querySelector('[data-checkout-summary]');
+
+    if (checkoutForm && checkoutSummary) {
+        const deliveryMethods = [...checkoutForm.querySelectorAll('[data-delivery-method]')];
+        const addressOptions = [...checkoutForm.querySelectorAll('[data-address-option]')];
+        const courierAddresses = checkoutForm.querySelector('[data-courier-addresses]');
+        const newAddress = checkoutForm.querySelector('[data-new-address]');
+        const paymentMethods = [...checkoutForm.querySelectorAll('[data-payment-method]')];
+        const deliveryLabel = checkoutSummary.querySelector('[data-summary-delivery-label]');
+        const deliveryPrice = checkoutSummary.querySelector('[data-summary-delivery-price]');
+        const paymentSummary = checkoutSummary.querySelector('[data-summary-payment]');
+        const total = checkoutSummary.querySelector('[data-summary-total]');
+        const goodsTotalCents = Math.round(Number(checkoutSummary.dataset.goodsTotal) * 100);
+        const courierFeeCents = Math.round(Number(checkoutSummary.dataset.courierFee) * 100);
+        const formatAmount = (cents) => (cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+        const updateCheckoutSummary = () => {
+            const selectedDelivery = deliveryMethods.find((method) => method.checked);
+            const isCourier = selectedDelivery?.value === 'courier';
+            const selectedAddress = checkoutForm.querySelector('input[name="address_id"]:checked');
+            const isNewAddress = selectedAddress?.value === '';
+
+            if (courierAddresses) {
+                courierAddresses.hidden = !isCourier;
+            }
+            addressOptions.forEach((option) => {
+                option.disabled = !isCourier;
+            });
+            if (newAddress) {
+                newAddress.disabled = !isCourier || !isNewAddress;
+                newAddress.required = isCourier && isNewAddress;
+            }
+
+            if (deliveryLabel) {
+                deliveryLabel.textContent = isCourier
+                    ? 'Доставка курьером по адресу'
+                    : 'Самовывоз из пункта выдачи';
+            }
+            if (deliveryPrice) {
+                const feeCents = isCourier ? courierFeeCents : 0;
+                deliveryPrice.innerHTML = feeCents === 0
+                    ? 'Бесплатно'
+                    : `<span class="whitespace-nowrap">${formatAmount(feeCents)}<i class="nbrb-icon">BYN</i></span>`;
+            }
+            if (total) {
+                total.innerHTML = `${formatAmount(goodsTotalCents + (isCourier ? courierFeeCents : 0))}<i class="nbrb-icon">BYN</i>`;
+            }
+
+            const selectedPayment = paymentMethods.find((method) => method.checked);
+            if (selectedPayment && paymentSummary) {
+                paymentSummary.textContent = selectedPayment.dataset.paymentSummary || '';
+            }
+        };
+
+        checkoutForm.addEventListener('change', updateCheckoutSummary);
+        updateCheckoutSummary();
+    }
+
     // Длительность показа flash-сообщения в миллисекундах.
     // Чтобы изменить время, поменяйте значение 4000 (например, 6000 = 6 секунд).
     const flashMessageDuration = 4000;

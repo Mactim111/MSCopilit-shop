@@ -19,15 +19,7 @@
                 <td>{{ $o->name }}</td>
                 <td>{{ $o->email }}</td>
                 <td>{{ $o->total }} ₽</td>
-                <td>
-                    {{ [
-                        \App\Models\Order::STATUS_NEW => 'Создан',
-                        \App\Models\Order::STATUS_PROCESSING => 'Комплектация',
-                        \App\Models\Order::STATUS_READY_FOR_PICKUP => 'Готов к выдаче',
-                        \App\Models\Order::STATUS_COMPLETED => 'Завершён',
-                        \App\Models\Order::STATUS_CANCELLED => 'Отменён',
-                    ][$o->status] ?? $o->status }}
-                </td>
+                <td>{{ $o->profile_status_label }}</td>
                 <td><a href="{{ route('admin.orders.show', $o) }}">Открыть</a></td>
             </tr>
         @endforeach

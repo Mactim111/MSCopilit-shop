@@ -20,7 +20,7 @@ class OrderClient extends Mailable
      */
     public function __construct(
         public array $cart, 
-        public int $total,
+        public string $total,
         public int $order_id,
         public string $note = ''
         )

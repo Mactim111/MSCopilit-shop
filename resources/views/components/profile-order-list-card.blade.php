@@ -83,20 +83,19 @@
     <div class="order-card__row flex flex-col justify-between gap-4 border-t border-dashed border-[#e5e5e5] pt-3 md:flex-row">
         <div class="order-card__column flex flex-col gap-4 text-left sm:flex-row sm:gap-[82px]">
             <div class="order-card__info w-full text-left md:w-[287px]">
-                <div class="info__title mb-[6px] text-[14px] font-semibold">Доставка курьером по адресу</div>
+                <div class="info__title mb-[6px] text-[14px] font-semibold">{{ $order->delivery_method_label }}</div>
                 <div class="info__text w-full text-[13px]">
                     {{ $order->address ?: 'Адрес доставки не указан' }}
+                </div>
+                <div class="mt-1 text-[13px]">
+                    Доставка:
+                    {{ (float) $order->delivery_price === 0.0 ? 'бесплатно' : number_format((float) $order->delivery_price, 2, '.', ' ') . ' BYN' }}
                 </div>
             </div>
 
             <div class="order-card__info w-full text-left md:w-[253px]">
-                @if($order->payment_status === \App\Models\Order::PAYMENT_PAID)
-                    <div class="info__title mb-[6px] text-[14px] font-semibold">Оплата онлайн</div>
-                    <div class="info__text text-[13px]">Картой рассрочки или банковской картой на сайте</div>
-                @else
-                    <div class="info__title mb-[6px] text-[14px] font-semibold">Оплата при получении:</div>
-                    <div class="info__text text-[13px]">Наличными или банковской картой</div>
-                @endif
+                <div class="info__title mb-[6px] text-[14px] font-semibold">{{ $order->payment_method_label }}</div>
+                <div class="info__text text-[13px]">{{ $order->payment_method_description }}</div>
             </div>
         </div>
 

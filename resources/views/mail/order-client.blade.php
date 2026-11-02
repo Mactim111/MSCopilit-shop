@@ -63,13 +63,13 @@
             @foreach($cart as $item)
                 <tr>
                     <td class="strip">{{ $item['title'] }}</td>
-                    <td class="strip">${{ $item['price'] }}</td>
+                    <td class="strip">{{ $item['price'] }} BYN</td>
                     <td class="strip">{{ $item['quantity'] }}</td>
                 </tr>
             @endforeach
             <tr>
                 <td colspan="3" style="text-align: right;">
-                    Total: ${{ $total }}
+                    Итого: {{ $total }} BYN
                 </td>
             </tr>
             @if($note)
@@ -89,4 +89,3 @@
 </div>
 </body>
 </html>
-
