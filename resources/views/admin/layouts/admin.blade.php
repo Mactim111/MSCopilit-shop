@@ -84,6 +84,12 @@
                     <span class="menu-text">Пользователи</span>
                 </a>
 
+                <a href="{{ route('admin.reviews.index') }}"
+                    class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                    @include('components.profile.icons.reviews')
+                    <span class="menu-text">Отзывы</span>
+                </a>
+
             </nav>
 
             <!-- Разделитель -->
