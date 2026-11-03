@@ -86,7 +86,7 @@
 
                 <a href="{{ route('admin.reviews.index') }}"
                     class="menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-                    @include('components.profile.icons.reviews')
+                    @include('admin.svg.reviews')
                     <span class="menu-text">Отзывы</span>
                 </a>
 

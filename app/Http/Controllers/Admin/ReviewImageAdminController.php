@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class ReviewImageAdminController extends Controller
@@ -23,6 +25,7 @@ class ReviewImageAdminController extends Controller
         try {
             DB::transaction(function () use ($review, $data, &$storedPath) {
                 $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
+                abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем добавлять медиафайлы.');
                 $positions = $lockedReview->images()->pluck('position');
                 $position = collect(range(1, 6))
                     ->first(fn (int $candidate) => ! $positions->contains($candidate));
@@ -32,9 +35,13 @@ class ReviewImageAdminController extends Controller
                 }
 
                 $storedPath = $data['photo']->store('reviews', 'public');
+                if (! $storedPath) {
+                    throw new RuntimeException('Не удалось сохранить файл фотографии отзыва.');
+                }
+
                 $lockedReview->images()->create([
                     'path' => $storedPath,
-                    'position' => $position + 1,
+                    'position' => $position,
                 ]);
             });
         } catch (Throwable $exception) {
@@ -50,6 +57,8 @@ class ReviewImageAdminController extends Controller
 
     public function update(Request $request, Review $review, ReviewImage $image): RedirectResponse
     {
+        abort_unless($review->is_published, 422, 'Опубликуйте отзыв, прежде чем изменять его медиафайлы.');
+
         $data = $request->validate([
             'photo' => ['required', 'image', 'max:5120'],
         ]);
@@ -57,21 +66,69 @@ class ReviewImageAdminController extends Controller
         $image = $review->images()->findOrFail($image->id);
         $oldPath = $image->path;
         $newPath = $data['photo']->store('reviews', 'public');
+        if (! $newPath) {
+            throw new RuntimeException('Не удалось сохранить замену фотографии отзыва.');
+        }
 
-        $image->update(['path' => $newPath]);
-        Storage::disk('public')->delete($oldPath);
+        try {
+            if (! $image->update(['path' => $newPath])) {
+                throw new RuntimeException('Не удалось обновить запись фотографии отзыва.');
+            }
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($newPath);
+            throw $exception;
+        }
+
+        if (Str::startsWith($oldPath, 'reviews/')
+            && Storage::disk('public')->exists($oldPath)
+            && ! Storage::disk('public')->delete($oldPath)) {
+            throw new RuntimeException('Фотография заменена, но старый файл не удалось удалить из хранилища.');
+        }
 
         return back()->with('success', 'Фотография отзыва заменена.');
     }
 
     public function destroy(Review $review, ReviewImage $image): RedirectResponse
     {
+        abort_unless($review->is_published, 422, 'Опубликуйте отзыв, прежде чем удалять его медиафайлы.');
+
         $image = $review->images()->findOrFail($image->id);
-        $path = $image->path;
-
         $image->delete();
-        Storage::disk('public')->delete($path);
 
-        return back()->with('success', 'Фотография отзыва удалена.');
+        $mediaLabel = $image->media_type === 'video' ? 'Видео' : 'Фото';
+
+        return back()->with('success', "{$mediaLabel} отзыва перемещено в удалённые.");
+    }
+
+    public function restore(Review $review, int $image): RedirectResponse
+    {
+        $mediaType = DB::transaction(function () use ($review, $image): string {
+            $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
+            abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем восстанавливать его медиафайлы.');
+            $deletedImage = ReviewImage::onlyTrashed()
+                ->where('review_id', $lockedReview->id)
+                ->whereKey($image)
+                ->lockForUpdate()
+                ->firstOrFail();
+            $occupiedPositions = $lockedReview->images()->pluck('position');
+            $position = collect(range(1, 6))
+                ->first(fn (int $candidate) => ! $occupiedPositions->contains($candidate));
+
+            abort_if($position === null, 422, 'Нет свободного места для восстановления медиафайла.');
+            abort_unless(
+                Storage::disk('public')->exists($deletedImage->path),
+                422,
+                'Файл медиафайла отсутствует в хранилище и не может быть восстановлен.'
+            );
+
+            $deletedImage->position = $position;
+            $deletedImage->restore();
+
+            return $deletedImage->media_type;
+        });
+
+        $mediaLabel = $mediaType === 'video' ? 'Видео' : 'Фото';
+
+        return back()->with('success', "{$mediaLabel} отзыва восстановлено.");
     }
 }

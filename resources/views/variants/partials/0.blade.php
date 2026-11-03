@@ -138,7 +138,7 @@
             </div>
         @endif  
 
-        @if($review->addition && $review->addition_is_published)
+        @if($review->addition && $review->addition_is_published && $review->addition_deleted_at === null)
             <div class="w-full flex flex-col items-center border-t border-dashed border-gray-300 mt-4 pl-6 pt-4 text-left">
                 <div class="flex mb-[10px]">
                     <div class="text-[15px] text-[#8c8c8c] mr-[10px]">

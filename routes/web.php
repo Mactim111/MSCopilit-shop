@@ -135,12 +135,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         ->name('reviews.moderation.update');
     Route::patch('/reviews/{review}/addition/moderation', [ReviewModerationAdminController::class, 'updateAddition'])
         ->name('reviews.addition-moderation.update');
+    Route::delete('/reviews/{review}', [ReviewModerationAdminController::class, 'destroy'])
+        ->name('reviews.destroy');
+    Route::patch('/reviews/{review}/restore', [ReviewModerationAdminController::class, 'restore'])
+        ->name('reviews.restore')
+        ->withTrashed();
+    Route::delete('/reviews/{review}/force-delete', [ReviewModerationAdminController::class, 'forceDelete'])
+        ->name('reviews.force-delete')
+        ->withTrashed();
+    Route::delete('/reviews/{review}/addition', [ReviewModerationAdminController::class, 'deleteAddition'])
+        ->name('reviews.addition.destroy');
+    Route::patch('/reviews/{review}/addition/restore', [ReviewModerationAdminController::class, 'restoreAddition'])
+        ->name('reviews.addition.restore');
     Route::post('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'store'])->name('reviews.reply.store');
     Route::put('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'update'])->name('reviews.reply.update');
     Route::delete('/reviews/{review}/reply', [ReviewReplyAdminController::class, 'destroy'])->name('reviews.reply.destroy');
+    Route::patch('/reviews/{review}/reply/restore', [ReviewReplyAdminController::class, 'restore'])
+        ->name('reviews.reply.restore');
     Route::post('/reviews/{review}/images', [ReviewImageAdminController::class, 'store'])->name('reviews.images.store');
     Route::put('/reviews/{review}/images/{image}', [ReviewImageAdminController::class, 'update'])->name('reviews.images.update');
     Route::delete('/reviews/{review}/images/{image}', [ReviewImageAdminController::class, 'destroy'])->name('reviews.images.destroy');
+    Route::patch('/reviews/{review}/images/{image}/restore', [ReviewImageAdminController::class, 'restore'])
+        ->name('reviews.images.restore')
+        ->withTrashed();
 });
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

@@ -71,13 +71,15 @@ class ReviewsSeeder extends Seeder
                     throw new RuntimeException('A demo review refers to a missing customer or variant.');
                 }
 
-                $hasPaidOrder = $author->orders()
+                $completedOrder = $author->orders()
                     ->where('status', Order::STATUS_COMPLETED)
                     ->whereHas('items', fn ($query) => $query
                         ->where('product_variant_id', $variant->id))
-                    ->exists();
+                    ->orderByDesc('created_at')
+                    ->orderByDesc('id')
+                    ->first();
 
-                if (! $hasPaidOrder) {
+                if (! $completedOrder) {
                     throw new RuntimeException(
                         "Customer {$author->email} must have a completed order for variant {$variant->id}."
                     );
@@ -87,6 +89,7 @@ class ReviewsSeeder extends Seeder
                 $review = new Review([
                     'user_id' => $author->id,
                     'product_variant_id' => $variant->id,
+                    'order_id' => $completedOrder->id,
                     'moderation_status' => $data['status'],
                     'rating' => $data['rating'],
                     'advantages' => $data['advantages'],
@@ -110,12 +113,18 @@ class ReviewsSeeder extends Seeder
                     $galleryImages = $variant->images->shuffle()->take($data['photo_count']);
 
                     foreach ($galleryImages as $position => $galleryImage) {
-                        $path = Str::startsWith($galleryImage->path, 'storage/')
+                        $sourcePath = Str::startsWith($galleryImage->path, 'storage/')
                             ? Str::after($galleryImage->path, 'storage/')
                             : $galleryImage->path;
 
-                        if (! Storage::disk('public')->exists($path)) {
-                            throw new RuntimeException("Demo review image does not exist: {$path}");
+                        if (! Storage::disk('public')->exists($sourcePath)) {
+                            throw new RuntimeException("Demo review image does not exist: {$sourcePath}");
+                        }
+
+                        $extension = pathinfo($sourcePath, PATHINFO_EXTENSION) ?: 'jpg';
+                        $path = "reviews/demo/{$review->id}-" . ($position + 1) . ".{$extension}";
+                        if (! Storage::disk('public')->copy($sourcePath, $path)) {
+                            throw new RuntimeException("Could not copy demo review image to: {$path}");
                         }
 
                         ReviewImage::create([

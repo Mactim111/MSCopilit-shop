@@ -14,12 +14,17 @@ return new class extends Migration
             $table->foreignId('product_variant_id')
                 ->constrained('product_variants')
                 ->cascadeOnDelete();
+            $table->foreignId('order_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
             $table->unsignedTinyInteger('rating');
             $table->text('advantages')->nullable();
             $table->text('disadvantages')->nullable();
             $table->text('comment');
             $table->text('addition')->nullable();
             $table->timestamp('addition_updated_at')->nullable();
+            $table->timestamp('addition_deleted_at')->nullable();
             $table->string('addition_moderation_status', 20)->nullable();
             $table->boolean('addition_is_published')->default(false);
             $table->boolean('is_published')->default(false);
@@ -36,6 +41,7 @@ return new class extends Migration
             );
             $table->index(['product_variant_id', 'is_published']);
             $table->index(['user_id', 'moderation_status']);
+            $table->index(['order_id']);
         });
     }
 

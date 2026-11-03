@@ -48,7 +48,7 @@ class ReviewController extends Controller
                 $query->orderByDesc('reviews.rating');
                 break;
             case 'useful':
-                $query->orderByDesc('likes_count')->orderBy('dislikes_count');
+                $query->orderByHelpfulness();
                 break;
             default:
                 $query->orderByDesc('reviews.created_at');
@@ -79,12 +79,14 @@ class ReviewController extends Controller
     {
         $user = $request->user();
 
-        $hasPurchasedVariant = $user->orders()
+        $completedOrder = $user->orders()
             ->where('status', Order::STATUS_COMPLETED)
             ->whereHas('items', fn ($query) => $query->where('product_variant_id', $variant->id))
-            ->exists();
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
 
-        if (! $hasPurchasedVariant) {
+        if (! $completedOrder) {
             return $this->errorResponse(
                 $request,
                 'Оставлять отзывы могут только пользователи, купившие этот товар.',
@@ -108,7 +110,7 @@ class ReviewController extends Controller
         $storedPaths = [];
 
         try {
-            $review = DB::transaction(function () use ($user, $variant, $data, $photos, $video, &$storedPaths) {
+            $review = DB::transaction(function () use ($user, $variant, $completedOrder, $data, $photos, $video, &$storedPaths) {
                 $user->newQuery()
                     ->whereKey($user->id)
                     ->lockForUpdate()
@@ -123,6 +125,7 @@ class ReviewController extends Controller
                 $review = $user->reviews()->create([
                     ...$data,
                     'product_variant_id' => $variant->id,
+                    'order_id' => $completedOrder->id,
                     'is_published' => false,
                     'moderation_status' => Review::MODERATION_PENDING,
                 ]);

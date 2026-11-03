@@ -131,7 +131,7 @@
 
     </div>
 
-    @if($review->addition && $review->addition_is_published)
+    @if($review->addition && $review->addition_is_published && $review->addition_deleted_at === null)
         <div class="w-full items-center border-t border-dashed border-gray-300 pl-6 pt-4 pb-4 text-left">
     
             <div class="mb-[10px] text-[15px] text-[#8c8c8c]">

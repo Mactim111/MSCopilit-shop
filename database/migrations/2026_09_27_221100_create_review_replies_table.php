@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('review_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('body');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

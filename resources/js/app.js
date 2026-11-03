@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const reviewFilterNav = document.querySelector('[data-review-filter-nav]');
         const reviewFilterResults = document.querySelector('[data-review-filter-results]');
+        const reviewSortSelect = document.querySelector('#review-sort');
         let reviewFilterRequest = null;
 
         const loadReviewFilter = async (url, updateHistory = false) => {
@@ -148,6 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 reviewFilterResults.innerHTML = payload.html;
+                if (reviewSortSelect && payload.sort) {
+                    reviewSortSelect.value = payload.sort;
+                }
                 reviewFilterNav.querySelectorAll('[data-review-filter]').forEach(link => {
                     const isActive = link.dataset.reviewFilter === payload.filter;
                     if (isActive) {
@@ -195,6 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
             loadReviewFilter(link.href, true);
         });
 
+        reviewFilterResults?.addEventListener('click', event => {
+            const link = event.target.closest('[data-review-pagination] a');
+            if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+
+            event.preventDefault();
+            loadReviewFilter(link.href, true);
+        });
+
         if (reviewFilterNav) {
             window.addEventListener('popstate', () => {
                 if (window.location.pathname === new URL(reviewFilterNav.querySelector('a').href).pathname) {
@@ -202,6 +214,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        const adminReplyModal = document.querySelector('[data-admin-reply-modal]');
+        const adminReplyForm = adminReplyModal?.querySelector('[data-admin-reply-form]');
+        const adminReplyTitle = adminReplyModal?.querySelector('[data-admin-reply-title]');
+        const adminReplyMethod = adminReplyModal?.querySelector('[data-admin-reply-method]');
+        const adminReplyBody = adminReplyModal?.querySelector('[data-admin-reply-body]');
+        const closeAdminReplyModal = () => {
+            if (!adminReplyModal) return;
+            adminReplyModal.classList.add('hidden');
+            adminReplyModal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        };
+
+        document.addEventListener('click', event => {
+            const trigger = event.target.closest('[data-admin-reply-trigger]');
+            if (trigger && adminReplyModal && adminReplyForm && adminReplyTitle && adminReplyMethod && adminReplyBody) {
+                adminReplyForm.action = trigger.dataset.formAction;
+                adminReplyMethod.value = trigger.dataset.formMethod || 'POST';
+                adminReplyBody.value = trigger.dataset.replyBody || '';
+                adminReplyTitle.textContent = adminReplyMethod.value === 'PUT'
+                    ? 'Редактировать ответ на отзыв'
+                    : 'Ответ на отзыв';
+                adminReplyModal.classList.remove('hidden');
+                adminReplyModal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+                adminReplyBody.focus();
+                return;
+            }
+
+            if (adminReplyModal && (event.target === adminReplyModal
+                || event.target.closest('[data-admin-reply-close]'))) {
+                closeAdminReplyModal();
+            }
+        });
+
+        adminReplyModal?.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeAdminReplyModal();
+        });
 
         const formatPhone = value => {
             let digits = value.replace(/\D/g, '');

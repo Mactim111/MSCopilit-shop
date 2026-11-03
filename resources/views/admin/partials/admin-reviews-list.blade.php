@@ -9,3 +9,9 @@
         </div>
     @endforelse
 </div>
+
+@if($reviews->hasPages())
+    <div class="mt-6" data-review-pagination>
+        {{ $reviews->links() }}
+    </div>
+@endif

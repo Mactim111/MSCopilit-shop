@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,6 +27,7 @@ class Review extends Model
     protected $fillable = [
         'user_id',
         'product_variant_id',
+        'order_id',
         'moderation_status',
         'rating',
         'advantages',
@@ -33,6 +35,7 @@ class Review extends Model
         'comment',
         'addition',
         'addition_updated_at',
+        'addition_deleted_at',
         'addition_moderation_status',
         'addition_is_published',
         'is_published',
@@ -43,6 +46,7 @@ class Review extends Model
         'is_published' => 'boolean',
         'addition_is_published' => 'boolean',
         'addition_updated_at' => 'datetime',
+        'addition_deleted_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -59,6 +63,11 @@ class Review extends Model
         return $this->belongsTo(ProductVariant::class, 'product_variant_id')->withTrashed();
     }
 
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ReviewImage::class)->orderBy('position');
@@ -72,5 +81,13 @@ class Review extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(ReviewVote::class);
+    }
+
+    public function scopeOrderByHelpfulness(Builder $query): Builder
+    {
+        return $query->orderByRaw(
+            '(SELECT COUNT(*) FROM review_votes AS helpful_votes WHERE helpful_votes.review_id = reviews.id AND helpful_votes.type = ?) - (SELECT COUNT(*) FROM review_votes AS unhelpful_votes WHERE unhelpful_votes.review_id = reviews.id AND unhelpful_votes.type = ?) DESC',
+            [ReviewVote::TYPE_LIKE, ReviewVote::TYPE_DISLIKE]
+        );
     }
 }

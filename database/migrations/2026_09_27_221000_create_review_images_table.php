@@ -14,9 +14,10 @@ return new class extends Migration
             $table->string('path');
             $table->string('media_type')->default('image');
             $table->unsignedTinyInteger('position');
+            $table->softDeletes();
             $table->timestamps();
 
-            $table->unique(['review_id', 'position']);
+            $table->index(['review_id', 'position']);
         });
     }
 
