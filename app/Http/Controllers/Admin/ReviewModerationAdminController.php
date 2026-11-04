@@ -243,7 +243,7 @@ class ReviewModerationAdminController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Дополнение к отзыву перемещено в удалённые.');
+        return back()->with('success', 'Дополнение к отзыву удалено.');
     }
 
     public function restoreAddition(Review $review): RedirectResponse

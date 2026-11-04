@@ -75,7 +75,7 @@ class ReviewReplyAdminController extends Controller
             $reply->delete();
         });
 
-        return back()->with('success', 'Ответ на отзыв перемещён в удалённые.');
+        return back()->with('success', 'Ответ на отзыв удалён.');
     }
 
     public function restore(Review $review): RedirectResponse

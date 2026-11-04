@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gray-100">
+<body>
 
 {{-- Единый fixed-контейнер сообщений для административного интерфейса. --}}
 <div id="flash-messages" class="fixed top-[24px] left-1/2 -translate-x-1/2 z-[60]
@@ -117,7 +117,7 @@
         <div class="flex-1 flex flex-col">
 
             <!-- HEADER -->
-            <header class="bg-white shadow px-6 py-4 flex items-center justify-between">
+            <header class="bg-gray-100 shadow px-6 py-4 flex items-center justify-between">
                 <h1 class="text-xl font-semibold text-gray-800">
                     @yield('header-title', 'Раздел')
                 </h1>

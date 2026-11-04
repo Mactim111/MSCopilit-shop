@@ -97,7 +97,7 @@ class ReviewImageAdminController extends Controller
 
         $mediaLabel = $image->media_type === 'video' ? 'Видео' : 'Фото';
 
-        return back()->with('success', "{$mediaLabel} отзыва перемещено в удалённые.");
+        return back()->with('success', "{$mediaLabel} отзыва удалено.");
     }
 
     public function restore(Review $review, int $image): RedirectResponse

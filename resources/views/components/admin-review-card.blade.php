@@ -48,6 +48,17 @@
         </div>
     </header>
 
+    <div class="mb-5 flex flex-wrap items-center gap-2 text-[20px] font-semibold">
+        @if($review->order)
+            <a href="{{ route('admin.orders.show', $review->order) }}"
+               class="text-[#007eff] hover:text-[#0064cc]">
+                Заказ №{{ $review->order->id }} от {{ $review->order->created_at->format('d.m.Y') }}
+            </a>
+        @else
+            <span class="text-gray-500">Заказ не привязан</span>
+        @endif
+    </div>
+
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-left">
         <div class="flex items-center gap-[2px]" aria-label="Оценка автора: {{ $review->rating }} из 5">
             @for($star = 1; $star <= 5; $star++)
@@ -73,7 +84,7 @@
         <p><strong>Комментарий:</strong> {{ $review->comment }}</p>
     </div>
 
-    <div class="mb-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-dashed border-gray-300 pb-4 text-[13px]">
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pb-4 text-[13px]">
         @if($isDeleted)
             <form method="POST" action="{{ route('admin.reviews.restore', $review->id) }}"
                   onsubmit="return confirm('Вернуть отзыв на модерацию?')">
@@ -113,19 +124,8 @@
         @endif
     </div>
 
-    <div class="mb-5 flex flex-wrap items-center gap-2 text-[13px]">
-        @if($review->order)
-            <a href="{{ route('admin.orders.show', $review->order) }}"
-               class="text-[#007eff] hover:text-[#0064cc]">
-                Заказ №{{ $review->order->id }} от {{ $review->order->created_at->format('d.m.Y') }}
-            </a>
-        @else
-            <span class="text-gray-500">Заказ не привязан</span>
-        @endif
-    </div>
-
     @if($review->images->isNotEmpty())
-        <section class="mb-5 border-t border-dashed border-gray-300 pt-4">
+        <section class="mb-5 border-t border-dashed border-[#e5e5e5] pt-4">
             <h3 class="mb-3 text-[14px] font-semibold text-[#231f20]">Фото и видео</h3>
             <div class="flex flex-wrap gap-4">
                 @foreach($review->images as $image)
@@ -157,7 +157,7 @@
                                   onsubmit="return confirm('Удалить {{ $image->media_type === 'video' ? 'видео' : 'фото' }} к отзыву?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="{{ $canManageChildren ? $activeDeleteClass : $disabledActionClass }}" @disabled(! $canManageChildren)>Удалить</button>
+                                <button class="{{ $canManageChildren ? $activeDeleteClass : $disabledActionClass }} text-[13px]" @disabled(! $canManageChildren)>Удалить</button>
                             </form>
                         @endif
                     </div>
@@ -168,9 +168,9 @@
 
     @if($review->addition !== null)
         @php($additionDeleted = $review->addition_deleted_at !== null)
-        <section class="mb-5 border-t border-dashed border-gray-300 pt-4 {{ $additionDeleted || $isDeleted ? 'text-gray-400' : 'text-[#231f20]' }}">
+        <section class="border-t border-dashed border-[#e5e5e5] pl-6 py-4 {{ $additionDeleted || $isDeleted ? 'text-gray-400' : 'text-[#231f20]' }}">
             <div class="mb-2 flex flex-wrap items-center gap-2">
-                <h3 class="text-[14px] font-semibold">Дополнение к отзыву</h3>
+                <h3 class="text-[15px] text-[#8c8c8c]">Дополнен {{ $review->addition_updated_at->format('d.m.Y') }}</h3>
                 <span class="inline-flex min-h-[20px] items-center rounded-[4px] border px-[7px] py-[2px] text-[12px] leading-none text-white {{ $additionDeleted || $isDeleted ? 'border-gray-400 bg-gray-400' : $additionStatus['classes'] }}">
                     {{ $additionDeleted || $isDeleted ? 'Удалено' : $additionStatus['label'] }}
                 </span>
@@ -214,12 +214,12 @@
 
     @if($review->reply)
         @php($replyDeleted = $review->reply->trashed())
-        <section class="mb-5 border-t border-dashed border-gray-300 pt-4 {{ $replyDeleted || $isDeleted ? 'text-gray-400' : 'text-[#231f20]' }}">
-            <div class="mb-[5px] flex h-[38px] items-center pl-1 pt-[7px]" aria-label="Ответ магазина">
+        <section class="mb-5 pt-4 pl-6 border-t border-dashed border-[#e5e5e5] {{ $replyDeleted || $isDeleted ? 'text-gray-400' : 'text-[#231f20]' }}">
+            <div class="mb-[5px] flex h-[38px] items-center pl-1" aria-label="Ответ магазина">
                 <span class="flex items-center {{ $replyDeleted || $isDeleted ? 'opacity-40' : '' }}">
                     @include('products.icons.my-shop')
                 </span>
-                <time class="pt-[7px] text-[15px] {{ $replyDeleted || $isDeleted ? 'text-gray-400' : 'text-[#8c8c8c]' }}"
+                <time class="text-[15px] {{ $replyDeleted || $isDeleted ? 'text-gray-400' : 'text-[#8c8c8c]' }}"
                       datetime="{{ $review->reply->created_at->toIso8601String() }}">
                     {{ $review->reply->created_at->format('d.m.Y') }}
                 </time>
