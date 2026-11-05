@@ -3,12 +3,12 @@
 @section('title', 'Оформление заказа')
 
 @section('content')
-<div class="mx-auto flex max-w-[1500px] flex-col gap-8 px-6 py-6 lg:flex-row lg:items-start">
-
+<h1 class="mx-auto text-3xl font-bold mt-6">Оформление заказа</h1>
+<div class="mx-auto flex max-w-[1500px] flex-col gap-8 py-6 lg:flex-row lg:items-start">
     {{-- Левая колонка: поля ввода-изменения личных данных, адреса и способа оплаты для пользователя --}}
     <main class="min-w-0 w-full flex-1 flex flex-col">
 
-        <h1 class="text-3xl font-bold">Оформление заказа</h1>
+        
 
         <form action="{{ route('orders.store') }}" method="POST" class="space-y-10" data-checkout-form>
             @csrf
@@ -193,7 +193,7 @@
         <section class="rounded-[10px] border border-[#e5e5e5] bg-white p-5">
             <div class="border-b border-[#e5e5e5] py-4">
                 <div class="mb-3 flex items-center justify-between gap-3 text-[15px] font-semibold">
-                    <span>Заказ</span>
+                    <span class="text-[16px] font-semibold">Ваш заказ</span>
                     <span class="text-right text-sm font-normal text-gray-500">{{ $totalQuantity }} шт.</span>
                 </div>
 
