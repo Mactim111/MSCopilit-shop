@@ -41,7 +41,7 @@
                                 @if($isActiveFilter) aria-current="page" @endif
                                 class="inline-flex h-[36px] items-center justify-center border px-[12px] py-[5px] text-center text-[15px] text-[#231f20] transition-all
                                 {{ $isActiveFilter
-                                        ? 'rounded-[4px] border-black bg-white font-semibold'
+                                        ? 'rounded-[4px] border-black bg-white'
                                         : 'rounded-[4px] border-[#f4f4f4] bg-[#f4f4f4] hover:border-gray-50 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]' }}">
                                     {{ $filterLabel }}
                                     <span class="ml-[4px] text-[12px] font-normal text-[#8c8c8c]"

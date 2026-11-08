@@ -1,6 +1,6 @@
 <div id="mega-menu"
-     class="hidden fixed left-0 right-0 z-40 bg-white
-        overflow-y-auto no-scrollbars">
+     class="hidden fixed left-0 right-0 z-40 border-t border-gray-200/70 bg-white
+        shadow-[0_4px_11px_1px_rgba(0,0,0,0.22)] overflow-y-auto no-scrollbars">
 
     <div class="mx-auto max-w-[1500px] flex">
 
@@ -12,7 +12,7 @@
                 
                     <li class="overflow-visible">
                         <a href="#"
-                            class="w-full flex items-center justify-between px-5 py-3 text-[15px] hover:border-gray-200 cursor-pointer
+                            class="w-full flex items-center justify-between pl-[15px] pr-[20px] pt-1.5 pb-1 text-[15px] hover:border-gray-200 cursor-pointer
                                 hover:shadow-[0_4px_10px_-2px_rgba(0,0,0,0.25)] rounded-lg transition-all duration-150 border border-transparent" data-group="actions">
                             <span class="flex items-center gap-3">
                                 <img src="{{ asset('storage/assets/img/actions.png') }}"
@@ -66,7 +66,7 @@
                                 {{-- Заголовок подгруппы (КАТЕГОРИЯ) --}}
                                 {{-- FIX: заменили categories.show на catalog.category --}}
                                 <a href="{{ route('catalog.category', [$group->slug, $category->slug]) }}"
-                                   class="block text-[17px] font-semibold mb-2 hover:text-red-600">
+                                   class="block text-[18px] font-semibold mb-2 hover:text-red-600">
                                     {{ $category->title }}
                                 </a>
 
@@ -83,7 +83,7 @@
                                         <li>
                                             {{-- FIX: заменили categories.show на catalog.subcategory --}}
                                             <a href="{{ route('catalog.subcategory', [$group->slug, $category->slug, $subcategory->slug]) }}"
-                                               class="hover:text-red-600">
+                                               class="hover:text-red-600 text-[15px]">
                                                 {{ $subcategory->title }}
                                             </a>
                                         </li>
@@ -92,7 +92,7 @@
                                     @if($hidden->isNotEmpty())
                                         <li>
                                             <button type="button"
-                                                    class="text-sky-600 hover:underline text-[14px]"
+                                                    class="text-sky-600 hover:underline text-[15px]"
                                                     data-toggle-more="{{ $subcategory->id }}">
                                                 Показать все
                                             </button>

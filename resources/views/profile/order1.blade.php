@@ -23,6 +23,10 @@
             'label' => 'Готов к выдаче',
             'classes' => 'bg-[#2c9cdd]',
         ],
+        \App\Models\Order::ORDER_IN_TRANSIT => [
+            'label' => 'Передан в доставку',
+            'classes' => 'bg-[#2c9cdd]',
+        ],
         \App\Models\Order::ORDER_CANCELLED => [
             'label' => 'Отменён',
             'classes' => 'bg-[#979797]',
@@ -61,6 +65,7 @@
                     \App\Models\Order::ORDER_CREATED => 'Создан',
                     \App\Models\Order::ORDER_PROCESSING => 'Комплектация',
                     \App\Models\Order::ORDER_READY_FOR_PICKUP => 'Готов к выдаче',
+                    \App\Models\Order::ORDER_IN_TRANSIT => 'Передан в доставку',
                     \App\Models\Order::ORDER_CANCELLATION => 'Отправлен на отмену',
                     \App\Models\Order::ORDER_COMPLETED => 'Завершён',
                     \App\Models\Order::ORDER_CANCELLED => 'Отменён',
@@ -69,6 +74,7 @@
                     \App\Models\Order::ORDER_CREATED,
                     \App\Models\Order::ORDER_PROCESSING,
                     \App\Models\Order::ORDER_READY_FOR_PICKUP,
+                    \App\Models\Order::ORDER_IN_TRANSIT,
                     \App\Models\Order::ORDER_CANCELLATION,
                 ], true)
                     ? 'bg-blue-100 text-blue-700'

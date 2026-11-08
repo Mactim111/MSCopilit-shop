@@ -1,4 +1,4 @@
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-[15px]">
     <div class="lg:col-span-4">Скидки и промокоды
         Обновляйте! Отдыхайте!
         Скидки по промокоду ВЕСНА

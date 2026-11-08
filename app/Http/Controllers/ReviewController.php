@@ -226,12 +226,17 @@ class ReviewController extends Controller
 
     public function destroy(Request $request, Review $review): JsonResponse|RedirectResponse
     {
-        $deleted = Review::query()
-            ->whereKey($review->id)
-            ->where('user_id', $request->user()->id)
-            ->delete();
+        DB::transaction(function () use ($request, $review): void {
+            $lockedReview = Review::query()
+                ->whereKey($review->id)
+                ->where('user_id', $request->user()->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        abort_unless($deleted > 0, 404);
+            $lockedReview->deletion_source = Review::DELETION_SOURCE_CUSTOMER;
+            $lockedReview->save();
+            $lockedReview->delete();
+        });
 
         if ($request->expectsJson()) {
             return response()->json([

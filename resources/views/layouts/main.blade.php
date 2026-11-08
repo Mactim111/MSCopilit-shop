@@ -98,22 +98,12 @@
     <x-scroll-top />
 
 <script>
-    // Закрытие dropdown аватара
-    document.addEventListener('click', function(e) {
-        const details = document.querySelector('details');
-        if (!details) return;
-        if (!details.contains(e.target)) {
-            details.removeAttribute('open');
-        }
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
 
         // константа для ИСЧЕЗНОВЕНИЯ CATEGORY-SLIDER
         const sliderWrapper = document.getElementById('category-slider-wrapper');
 
         // Элементы верстки верха страницы
-        const banner = document.getElementById('top-banner');
         const header = document.querySelector('header');
 
         // Кнопка Каталог + Mega Menu
@@ -124,15 +114,13 @@
         const iconOpen = document.getElementById('catalog-icon-open');
         const iconClose = document.getElementById('catalog-icon-close');
         
-        // вычисляем высоту верхнего баннера, и с учетом высоты header, устанавливаем правильное смещение от верха страницы для mega-menu,
-        // ТЕПЕРЬ! открывается строго под! баннером + header
-        const bannerHeight = banner ? banner.offsetHeight : 0;
-        const headerHeight = header.offsetHeight;
-        const offset = bannerHeight + headerHeight;  // = 150
+        const updateMegaMenuPosition = () => {
+            if (!header || !megaMenu) return;
 
-        // Устанавливаем top и height для mega-menu
-        megaMenu.style.top = offset + 'px';
-        megaMenu.style.height = `calc(100vh - ${offset}px)`;
+            const top = Math.max(0, header.getBoundingClientRect().bottom);
+            megaMenu.style.top = `${top}px`;
+            megaMenu.style.height = `${Math.max(0, window.innerHeight - top)}px`;
+        };
 
         const showPanel = (name) => {
             panels.forEach(p => {
@@ -141,6 +129,7 @@
         };
 
         const openMenu = () => {
+            updateMegaMenuPosition();
             megaMenu.classList.remove('hidden');
             iconOpen.classList.add('hidden');
             iconClose.classList.remove('hidden');
@@ -151,6 +140,11 @@
 
             showPanel('actions');
         };
+
+        window.addEventListener('scroll', () => {
+            if (!megaMenu.classList.contains('hidden')) updateMegaMenuPosition();
+        }, { passive: true });
+        window.addEventListener('resize', updateMegaMenuPosition);
 
         const closeMenu = () => {
             megaMenu.classList.add('hidden');

@@ -5,8 +5,8 @@
 @section('content')
 <div class="mx-auto flex w-full max-w-[1300px] flex-col">
 
-    <div class="flex">
-        <h1 class="flex mb-6 mr-5 text-[26px] font-semibold leading-none text-[#231f20] items-end">Отзывы</h1>
+    <div class="flex flex-col items-start">
+        <h1 class="mb-4 text-[26px] font-semibold leading-none text-[#231f20]">Отзывы</h1>
 
         <nav class="mb-4 flex flex-wrap" aria-label="Фильтр отзывов" data-review-filter-nav>
             @foreach([
@@ -17,6 +17,8 @@
                 'with_addition' => 'С дополнением к отзыву',
                 'with_reply' => 'С ответом к отзыву',
                 'deleted' => 'Удалённые',
+                'deleted_by_customer' => 'Удалены автором',
+                'deleted_by_admin' => 'Удалены модератором',
             ] as $filterKey => $filterLabel)
                 @php($isActiveFilter = $filter === $filterKey)
                 <div class="p-1.5 {{ $reviewCounts[$filterKey] === 0 ? 'hidden' : '' }}">
@@ -24,8 +26,8 @@
                     data-review-filter="{{ $filterKey }}"
                     @if($isActiveFilter) aria-current="page" @endif
                     class="inline-flex h-[36px] items-center justify-center border px-[12px] py-[5px] text-center text-[15px] text-[#231f20] transition-all
-                            {{ $isActiveFilter 
-                            ? 'rounded-[4px] border-black bg-white font-semibold text-[#231f20]' 
+                            {{ $isActiveFilter
+                            ? 'rounded-[4px] border-black bg-white text-[#231f20]'
                             : 'rounded-[4px] border-[#f4f4f4] bg-[#f4f4f4] hover:border-gray-50 hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]' }}">
                         {{ $filterLabel }}
                         <span class="ml-1 text-[12px] font-normal text-[#8c8c8c]"
@@ -36,11 +38,12 @@
         </nav>
     </div> 
 
-    <form method="GET" action="{{ route('admin.reviews.index') }}" class="mb-5 flex items-center gap-3 text-[14px]">
-        <input type="hidden" name="filter" value="{{ $filter }}">
+    <form id="review-sort-form" method="GET" action="{{ route('admin.reviews.index') }}"
+          class="mb-5 flex items-center gap-3 text-[14px]">
+        <input type="hidden" name="filter" value="{{ $filter }}" data-review-sort-filter>
         <label for="review-sort" class="font-medium text-[#231f20]">Сортировать:</label>
         <select id="review-sort" name="sort" class="rounded-[6px] border border-gray-300 bg-white px-3 py-2"
-                onchange="this.form.submit()">
+                aria-label="Сортировка отзывов">
             <option value="date" @selected($sort === 'date')>По дате добавления</option>
             <option value="rating" @selected($sort === 'rating')>По рейтингу</option>
             <option value="useful" @selected($sort === 'useful')>По полезности</option>

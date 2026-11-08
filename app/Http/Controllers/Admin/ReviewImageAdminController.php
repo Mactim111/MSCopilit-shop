@@ -25,7 +25,6 @@ class ReviewImageAdminController extends Controller
         try {
             DB::transaction(function () use ($review, $data, &$storedPath) {
                 $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
-                abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем добавлять медиафайлы.');
                 $positions = $lockedReview->images()->pluck('position');
                 $position = collect(range(1, 6))
                     ->first(fn (int $candidate) => ! $positions->contains($candidate));
@@ -57,8 +56,6 @@ class ReviewImageAdminController extends Controller
 
     public function update(Request $request, Review $review, ReviewImage $image): RedirectResponse
     {
-        abort_unless($review->is_published, 422, 'Опубликуйте отзыв, прежде чем изменять его медиафайлы.');
-
         $data = $request->validate([
             'photo' => ['required', 'image', 'max:5120'],
         ]);
@@ -90,8 +87,6 @@ class ReviewImageAdminController extends Controller
 
     public function destroy(Review $review, ReviewImage $image): RedirectResponse
     {
-        abort_unless($review->is_published, 422, 'Опубликуйте отзыв, прежде чем удалять его медиафайлы.');
-
         $image = $review->images()->findOrFail($image->id);
         $image->delete();
 
@@ -104,7 +99,6 @@ class ReviewImageAdminController extends Controller
     {
         $mediaType = DB::transaction(function () use ($review, $image): string {
             $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
-            abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем восстанавливать его медиафайлы.');
             $deletedImage = ReviewImage::onlyTrashed()
                 ->where('review_id', $lockedReview->id)
                 ->whereKey($image)

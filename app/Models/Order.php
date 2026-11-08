@@ -9,6 +9,7 @@ class Order extends Model
     public const STATUS_NEW = 'new';
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_READY_FOR_PICKUP = 'ready_for_pickup';
+    public const STATUS_IN_TRANSIT = 'handed_over_for_delivery';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
@@ -30,6 +31,7 @@ class Order extends Model
     public const ORDER_CREATED = 'created';
     public const ORDER_PROCESSING = 'processing';
     public const ORDER_READY_FOR_PICKUP = 'ready_for_pickup';
+    public const ORDER_IN_TRANSIT = 'in_transit';
     public const ORDER_COMPLETED = 'completed';
     public const ORDER_CANCELLED = 'cancelled';
     public const ORDER_CANCELLATION = 'cancellation';
@@ -42,6 +44,7 @@ class Order extends Model
 
     protected $casts = [
         'cancellation_requested_at' => 'datetime',
+        'completed_at' => 'datetime',
         'delivery_price' => 'decimal:2',
     ];
 
@@ -102,7 +105,10 @@ class Order extends Model
         return match ($this->status) {
             self::STATUS_NEW => self::ORDER_CREATED,
             self::STATUS_PROCESSING => self::ORDER_PROCESSING,
-            self::STATUS_READY_FOR_PICKUP => self::ORDER_READY_FOR_PICKUP,
+            self::STATUS_READY_FOR_PICKUP => $this->delivery_method === self::DELIVERY_COURIER
+                ? self::ORDER_IN_TRANSIT
+                : self::ORDER_READY_FOR_PICKUP,
+            self::STATUS_IN_TRANSIT => self::ORDER_IN_TRANSIT,
             self::STATUS_COMPLETED => self::ORDER_COMPLETED,
             self::STATUS_CANCELLED => self::ORDER_CANCELLED,
         };
@@ -114,6 +120,7 @@ class Order extends Model
             self::ORDER_CREATED => 'Создан',
             self::ORDER_PROCESSING => 'Комплектация',
             self::ORDER_READY_FOR_PICKUP => 'Готов к выдаче',
+            self::ORDER_IN_TRANSIT => 'Передан в доставку',
             self::ORDER_CANCELLATION => 'Отправлен на отмену',
             self::ORDER_COMPLETED => 'Завершён',
             self::ORDER_CANCELLED => 'Отменён',

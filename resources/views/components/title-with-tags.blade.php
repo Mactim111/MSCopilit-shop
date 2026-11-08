@@ -55,7 +55,7 @@
                 
                 <div class="px-[6px] py-[6px] flex-shrink-0 relative" data-favorite-tag="all">
                     <div class="border {{ !$favoritesMode || !$activeTagId ? 'border-black bg-white' : 'border-[#F4F4F4] bg-[#F4F4F4]' }} rounded-[5px] {{ $favoritesMode ? 'px-[7px]' : 'px-[12px]' }} py-[5px]
-                                text-[15px] font-semibold text-[#232F20] cursor-pointer transition-all"
+                                text-[15px] text-[#232F20] cursor-pointer transition-all"
                          data-favorite-category="all">
                         {{ $favoritesMode ? 'Все товары' : 'Все' }}
                         @if($favoritesMode)

@@ -37,4 +37,38 @@ class OrderLifecycleTest extends TestCase
 
         $this->assertSame('Отправлен на отмену', $order->profile_status_label);
     }
+
+    public function test_courier_order_uses_in_transit_status_before_completion(): void
+    {
+        $order = new Order([
+            'status' => Order::STATUS_IN_TRANSIT,
+            'delivery_method' => Order::DELIVERY_COURIER,
+        ]);
+
+        $this->assertSame(Order::ORDER_IN_TRANSIT, $order->profile_status);
+        $this->assertSame('Передан в доставку', $order->profile_status_label);
+        $this->assertFalse($order->isFinalized());
+    }
+
+    public function test_legacy_courier_ready_status_is_presented_as_in_transit(): void
+    {
+        $order = new Order([
+            'status' => Order::STATUS_READY_FOR_PICKUP,
+            'delivery_method' => Order::DELIVERY_COURIER,
+        ]);
+
+        $this->assertSame(Order::ORDER_IN_TRANSIT, $order->profile_status);
+        $this->assertSame('Передан в доставку', $order->profile_status_label);
+    }
+
+    public function test_pickup_ready_status_remains_ready_for_pickup(): void
+    {
+        $order = new Order([
+            'status' => Order::STATUS_READY_FOR_PICKUP,
+            'delivery_method' => Order::DELIVERY_PICKUP,
+        ]);
+
+        $this->assertSame(Order::ORDER_READY_FOR_PICKUP, $order->profile_status);
+        $this->assertSame('Готов к выдаче', $order->profile_status_label);
+    }
 }

@@ -35,11 +35,11 @@
     </div>
 </div>
 
-    <div class="flex min-h-screen">
+    <div class="min-h-screen">
 
         <!-- SIDEBAR -->
         <aside id="sidebar"
-            class="bg-gray-900 text-gray-100 w-64 transition-all duration-300 flex flex-col relative">
+            class="fixed inset-y-0 left-0 z-40 h-screen w-64 overflow-y-auto bg-gray-900 text-gray-100 transition-all duration-300 flex flex-col">
 
             <!-- Логотип -->
             <div class="p-6 text-xl font-bold tracking-wide">
@@ -114,7 +114,7 @@
         </button>
 
         <!-- MAIN CONTENT -->
-        <div class="flex-1 flex flex-col">
+        <div id="admin-main" class="ml-64 flex min-w-0 flex-col transition-[margin] duration-300">
 
             <!-- HEADER -->
             <header class="bg-gray-100 shadow px-6 py-4 flex items-center justify-between">
@@ -197,6 +197,7 @@
         // --- Sidebar toggle logic ---
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleSidebar');
+        const adminMain = document.getElementById('admin-main');
         const logoFull = document.getElementById('logo-full');
         const logoMini = document.getElementById('logo-mini');
 
@@ -204,11 +205,13 @@
             const collapsed = sidebar.classList.toggle('collapsed');
 
             if (collapsed) {
+                adminMain.classList.replace('ml-64', 'ml-20');
                 logoFull.classList.add('hidden');
                 logoMini.classList.remove('hidden');
                 toggleBtn.style.left = 'calc(5rem - 20px)';
                 toggleBtn.innerHTML = `{!! trim(preg_replace('/\s+/', ' ', view('admin.svg.chevron-right')->render())) !!}`;
             } else {
+                adminMain.classList.replace('ml-20', 'ml-64');
                 logoMini.classList.add('hidden');
                 logoFull.classList.remove('hidden');
                 toggleBtn.style.left = 'calc(16rem - 20px)';

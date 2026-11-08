@@ -69,49 +69,61 @@
 
             {{-- Профиль --}}
             @auth
-            <details class="relative">
-                <summary class="list-none cursor-pointer flex flex-col items-center  [&::-webkit-details-marker]:hidden">
+            <details class="relative" data-profile-dropdown>
+                <summary class="list-none cursor-pointer flex flex-col items-center  [&::-webkit-details-marker]:hidden"
+                         aria-haspopup="true" aria-expanded="false">
                     <img src="{{ auth()->user()->avatar_url }}"
                         class="w-6 h-6 rounded-full object-cover border border-gray-300">
                     <span class="text-[12px]">{{ auth()->user()->name }}</span>
                 </summary>
 
-                <div class="absolute right-0 mt-3 w-56 bg-white shadow-lg rounded-lg border border-gray-200 py-2 z-50">
+                <div class="pointer-events-none absolute right-0 top-full z-50 translate-y-[-6px] pt-3 opacity-0 transition-[opacity,transform] duration-200 ease-out"
+                     data-profile-dropdown-panel>
+                    <div class="w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
 
-                    <div class="px-4 py-2 border-b border-gray-200">
-                        <p class="font-semibold">{{ auth()->user()->name }}</p>
-                        <p class="text-sm text-gray-600">{{ auth()->user()->email }}</p>
+                        <div class="border-b border-gray-200 px-4 py-2">
+                            <p class="font-semibold">{{ auth()->user()->name }}</p>
+                            <p class="text-sm text-gray-600">{{ auth()->user()->email }}</p>
+                        </div>
+
+                        <a href="{{ route('profile') }}"
+                           class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
+                            <i data-lucide="settings"></i>
+                            Личные данные
+                        </a>
+
+                        <a href="{{ route('profile.orders') }}"
+                           class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
+                            <i data-lucide="settings"></i>
+                            Мои заказы
+                        </a>
+
+                        <a href="{{ route('profile') }}#addresses"
+                           class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
+                            <i data-lucide="settings"></i>
+                            Адрес доставки
+                        </a>
+
+                        <a href="{{ route('profile.favorites') }}"
+                           class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
+                            <i data-lucide="settings"></i>
+                            Избранное
+                        </a>
+
+                        <a href="{{ route('profile.reviews') }}"
+                           class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
+                            <i data-lucide="settings"></i>
+                            Мои отзывы
+                        </a>
+
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-gray-100">
+                                <i data-lucide="log-out"></i>
+                                Выход
+                            </button>
+                        </form>
                     </div>
-
-                    <a href="{{ route('profile') }}"
-                        class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
-                        <i data-lucide="settings"></i>
-                        Профиль
-                    </a>
-
-                    <a href="{{ route('profile.orders') }}"
-                        class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
-                        <i data-lucide="settings"></i>
-                        Мои заказы
-                    </a>
-
-                    <a href="{{ route('profile.favorites') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
-                        <i data-lucide="settings"></i>
-                        Избранное
-                    </a>
-
-                    <a href="{{ route('profile.reviews') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition">
-                        <i data-lucide="settings"></i>
-                        Мои отзывы
-                    </a>
-
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button class="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition text-left">
-                            <i data-lucide="log-out"></i>
-                            Выход
-                        </button>
-                    </form>
                 </div>
             </details>
             @else

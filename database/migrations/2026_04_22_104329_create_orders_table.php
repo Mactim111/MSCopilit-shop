@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('address_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('status')->default('new');
+            $table->string('status')->default('new'); // new, paid, shipped, cancelled
             $table->timestamp('cancellation_requested_at')->nullable();
+            $table->timestamp('completed_at')->nullable();
             $table->string('payment_status')->default('unrecorded');
             $table->string('name');
             $table->string('last_name')->nullable();

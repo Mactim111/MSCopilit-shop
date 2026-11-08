@@ -18,6 +18,8 @@ class Review extends Model
     public const MODERATION_PENDING = 'pending';
     public const MODERATION_APPROVED = 'approved';
     public const MODERATION_REJECTED = 'rejected';
+    public const DELETION_SOURCE_CUSTOMER = 'customer';
+    public const DELETION_SOURCE_ADMIN = 'admin';
     public const MODERATION_STATUSES = [
         self::MODERATION_PENDING,
         self::MODERATION_APPROVED,
@@ -29,6 +31,7 @@ class Review extends Model
         'product_variant_id',
         'order_id',
         'moderation_status',
+        'deletion_source',
         'rating',
         'advantages',
         'disadvantages',

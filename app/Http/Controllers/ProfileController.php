@@ -107,6 +107,7 @@ class ProfileController extends Controller
                 Order::ORDER_CREATED,
                 Order::ORDER_PROCESSING,
                 Order::ORDER_READY_FOR_PICKUP,
+                Order::ORDER_IN_TRANSIT,
                 Order::ORDER_CANCELLATION,
             ])],
         ]);
@@ -131,6 +132,17 @@ class ProfileController extends Controller
                 ->count(),
             Order::ORDER_READY_FOR_PICKUP => (clone $userOrders)
                 ->where('status', Order::STATUS_READY_FOR_PICKUP)
+                ->where('delivery_method', Order::DELIVERY_PICKUP)
+                ->whereNull('cancellation_requested_at')
+                ->count(),
+            Order::ORDER_IN_TRANSIT => (clone $userOrders)
+                ->where(function ($query): void {
+                    $query->where('status', Order::STATUS_IN_TRANSIT)
+                        ->orWhere(function ($legacyQuery): void {
+                            $legacyQuery->where('status', Order::STATUS_READY_FOR_PICKUP)
+                                ->where('delivery_method', Order::DELIVERY_COURIER);
+                        });
+                })
                 ->whereNull('cancellation_requested_at')
                 ->count(),
             Order::ORDER_CANCELLATION => (clone $userOrders)
@@ -138,6 +150,7 @@ class ProfileController extends Controller
                     Order::STATUS_NEW,
                     Order::STATUS_PROCESSING,
                     Order::STATUS_READY_FOR_PICKUP,
+                    Order::STATUS_IN_TRANSIT,
                 ])
                 ->whereNotNull('cancellation_requested_at')
                 ->count(),
@@ -161,6 +174,17 @@ class ProfileController extends Controller
                 break;
             case Order::ORDER_READY_FOR_PICKUP:
                 $ordersQuery->where('status', Order::STATUS_READY_FOR_PICKUP)
+                    ->where('delivery_method', Order::DELIVERY_PICKUP)
+                    ->whereNull('cancellation_requested_at');
+                break;
+            case Order::ORDER_IN_TRANSIT:
+                $ordersQuery->where(function ($query): void {
+                    $query->where('status', Order::STATUS_IN_TRANSIT)
+                        ->orWhere(function ($legacyQuery): void {
+                            $legacyQuery->where('status', Order::STATUS_READY_FOR_PICKUP)
+                                ->where('delivery_method', Order::DELIVERY_COURIER);
+                        });
+                })
                     ->whereNull('cancellation_requested_at');
                 break;
             case Order::ORDER_CANCELLATION:
@@ -168,6 +192,7 @@ class ProfileController extends Controller
                     Order::STATUS_NEW,
                     Order::STATUS_PROCESSING,
                     Order::STATUS_READY_FOR_PICKUP,
+                    Order::STATUS_IN_TRANSIT,
                 ])
                     ->whereNotNull('cancellation_requested_at');
                 break;
@@ -196,6 +221,7 @@ class ProfileController extends Controller
                     Order::STATUS_NEW,
                     Order::STATUS_PROCESSING,
                     Order::STATUS_READY_FOR_PICKUP,
+                    Order::STATUS_IN_TRANSIT,
                 ], true),
                 422,
                 'Для завершённого или уже отменённого заказа нельзя запросить отмену.'

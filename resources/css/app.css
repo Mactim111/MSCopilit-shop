@@ -157,8 +157,6 @@
     display: flex;
     justify-content: center;
     gap: 6px;
-    /* position: relative; */
-    z-index: 50;
 }
 
 /* Каждая полоска */

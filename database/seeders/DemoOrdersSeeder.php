@@ -76,6 +76,10 @@ class DemoOrdersSeeder extends Seeder
                         'status' => Order::STATUS_COMPLETED,
                         'payment_status' => Order::PAYMENT_PAID,
                     ]);
+                    $completedAt = now()->subDays(random_int(0, 30));
+                    $order->created_at = $completedAt->copy()->subDays(random_int(1, 5));
+                    $order->completed_at = $completedAt;
+                    $order->save();
 
                     $order->items()->create([
                         'product_variant_id' => $variant->id,

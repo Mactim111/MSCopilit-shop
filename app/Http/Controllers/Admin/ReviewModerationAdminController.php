@@ -23,6 +23,8 @@ class ReviewModerationAdminController extends Controller
         'with_addition',
         'with_reply',
         'deleted',
+        'deleted_by_customer',
+        'deleted_by_admin',
     ];
 
     public function index(Request $request)
@@ -54,9 +56,27 @@ class ReviewModerationAdminController extends Controller
                 ->whereHas('reply')
                 ->count(),
             'deleted' => Review::onlyTrashed()->count(),
+            'deleted_by_customer' => Review::onlyTrashed()
+                ->where('deletion_source', Review::DELETION_SOURCE_CUSTOMER)
+                ->count(),
+            'deleted_by_admin' => Review::onlyTrashed()
+                ->where('deletion_source', Review::DELETION_SOURCE_ADMIN)
+                ->count(),
         ];
 
-        $reviewsQuery = $filter === 'deleted'
+        if ($filter !== 'all' && $reviewCounts[$filter] === 0) {
+            if (! $request->expectsJson()) {
+                return redirect()->route('admin.reviews.index', [
+                    'filter' => 'all',
+                    'sort' => $sort,
+                ]);
+            }
+
+            $filter = 'all';
+        }
+
+        $isDeletedFilter = in_array($filter, ['deleted', 'deleted_by_customer', 'deleted_by_admin'], true);
+        $reviewsQuery = $isDeletedFilter
             ? Review::onlyTrashed()
             : Review::query();
         $reviewsQuery->with([
@@ -79,6 +99,8 @@ class ReviewModerationAdminController extends Controller
                 ->whereNotNull('addition')
                 ->whereNull('addition_deleted_at'),
             'with_reply' => $reviewsQuery->whereHas('reply'),
+            'deleted_by_customer' => $reviewsQuery->where('deletion_source', Review::DELETION_SOURCE_CUSTOMER),
+            'deleted_by_admin' => $reviewsQuery->where('deletion_source', Review::DELETION_SOURCE_ADMIN),
             default => null,
         };
 
@@ -144,7 +166,6 @@ class ReviewModerationAdminController extends Controller
                 ->whereKey($review->id)
                 ->lockForUpdate()
                 ->firstOrFail();
-            abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем модерировать дополнение.');
 
             abort_if(
                 $lockedReview->addition === null || $lockedReview->addition_deleted_at !== null,
@@ -175,10 +196,12 @@ class ReviewModerationAdminController extends Controller
                 ->whereKey($review->id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            $lockedReview->deletion_source = Review::DELETION_SOURCE_ADMIN;
+            $lockedReview->save();
             $lockedReview->delete();
         });
 
-        return back()->with('success', 'Отзыв перемещён в удалённые.');
+        return back()->with('success', 'Отзыв удалён модератором.');
     }
 
     public function restore(int $review): RedirectResponse
@@ -232,7 +255,6 @@ class ReviewModerationAdminController extends Controller
     {
         DB::transaction(function () use ($review): void {
             $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
-            abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем управлять дополнением.');
             abort_if(
                 $lockedReview->addition === null || $lockedReview->addition_deleted_at !== null,
                 404
@@ -250,7 +272,6 @@ class ReviewModerationAdminController extends Controller
     {
         DB::transaction(function () use ($review): void {
             $lockedReview = Review::query()->whereKey($review->id)->lockForUpdate()->firstOrFail();
-            abort_unless($lockedReview->is_published, 422, 'Опубликуйте отзыв, прежде чем управлять дополнением.');
             abort_if(
                 $lockedReview->addition === null || $lockedReview->addition_deleted_at === null,
                 404

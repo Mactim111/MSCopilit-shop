@@ -66,12 +66,27 @@
                     \App\Models\Order::STATUS_NEW => [
                         'start_processing' => 'Начать комплектацию',
                     ],
-                    \App\Models\Order::STATUS_PROCESSING => [
-                        'mark_ready' => 'Отметить «Готов к выдаче»',
-                    ],
-                    \App\Models\Order::STATUS_READY_FOR_PICKUP => [
-                        'complete' => 'Подтвердить получение покупателем',
-                    ],
+                    \App\Models\Order::STATUS_PROCESSING => match ($order->delivery_method) {
+                        \App\Models\Order::DELIVERY_PICKUP => [
+                            'mark_ready' => 'Отметить «Готов к выдаче»',
+                        ],
+                        \App\Models\Order::DELIVERY_COURIER => [
+                            'mark_in_transit' => 'Отметить «Передан в доставку»',
+                        ],
+                        default => [],
+                    },
+                    \App\Models\Order::STATUS_READY_FOR_PICKUP => match ($order->delivery_method) {
+                        \App\Models\Order::DELIVERY_PICKUP => [
+                            'complete' => 'Подтвердить получение покупателем',
+                        ],
+                        \App\Models\Order::DELIVERY_COURIER => [
+                            'complete' => 'Подтвердить доставку покупателю',
+                        ],
+                        default => [],
+                    },
+                    \App\Models\Order::STATUS_IN_TRANSIT => $order->delivery_method === \App\Models\Order::DELIVERY_COURIER
+                        ? ['complete' => 'Подтвердить доставку покупателю']
+                        : [],
                     default => [],
                 };
         @endphp
@@ -81,7 +96,11 @@
                   method="POST"
                   class="inline-block"
                   @if(in_array($action, ['complete', 'cancel'], true))
-                      onsubmit="return confirm('{{ $action === 'complete' ? 'Подтвердить фактическую выдачу заказа? Остатки будут списаны.' : 'Подтвердить отмену заказа? Резерв будет освобождён.' }}')"
+                      onsubmit="return confirm('{{ $action === 'complete'
+                          ? ($order->delivery_method === \App\Models\Order::DELIVERY_COURIER
+                              ? 'Подтвердить доставку заказа покупателю? Остатки будут списаны.'
+                              : 'Подтвердить фактическую выдачу заказа? Остатки будут списаны.')
+                          : 'Подтвердить отмену заказа? Резерв будет освобождён.' }}')"
                   @endif>
                 @csrf
                 @method('PATCH')

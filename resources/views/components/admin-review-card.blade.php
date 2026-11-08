@@ -3,7 +3,6 @@
 @php
     $variant = $review->variant;
     $isDeleted = $review->trashed();
-    $canManageChildren = ! $isDeleted && $review->is_published;
     $moderationStatuses = [
         \App\Models\Review::MODERATION_PENDING => ['label' => 'На модерации', 'classes' => 'border-[#2c9cdd] bg-[#2c9cdd]'],
         \App\Models\Review::MODERATION_APPROVED => ['label' => 'Одобрен', 'classes' => 'border-[#8bc34a] bg-[#8bc34a]'],
@@ -12,7 +11,6 @@
     $reviewStatus = $moderationStatuses[$review->moderation_status] ?? $moderationStatuses[\App\Models\Review::MODERATION_PENDING];
     $additionStatus = $moderationStatuses[$review->addition_moderation_status] ?? $moderationStatuses[\App\Models\Review::MODERATION_PENDING];
     $authorName = $review->user?->name ?? 'Покупатель удалён';
-    $disabledActionClass = 'cursor-not-allowed text-gray-400';
     $activeActionClass = 'cursor-pointer text-[#007eff] hover:text-[#0064cc]';
     $activeDeleteClass = 'cursor-pointer text-[#dc092e] hover:text-[#a80723]';
 @endphp
@@ -27,7 +25,15 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="max-w-full truncate text-[15px] font-semibold text-[#231f20]">{{ $authorName }}</span>
                     <span class="inline-flex min-h-[20px] items-center rounded-[4px] border px-[7px] py-[2px] text-[12px] leading-none text-white {{ $isDeleted ? 'border-gray-400 bg-gray-400' : $reviewStatus['classes'] }}">
-                        {{ $isDeleted ? 'Удалён' : $reviewStatus['label'] }}
+                        @if($isDeleted)
+                            {{ match ($review->deletion_source) {
+                                \App\Models\Review::DELETION_SOURCE_CUSTOMER => 'Удалён покупателем',
+                                \App\Models\Review::DELETION_SOURCE_ADMIN => 'Удалён модератором',
+                                default => 'Удалён',
+                            } }}
+                        @else
+                            {{ $reviewStatus['label'] }}
+                        @endif
                     </span>
                 </div>
                 <time class="text-[13px] text-[#8c8c8c]" datetime="{{ $review->created_at->toIso8601String() }}">
@@ -99,28 +105,40 @@
                 <button class="{{ $activeDeleteClass }}">Удалить окончательно</button>
             </form>
         @else
+            @php($nextReviewStatus = $review->moderation_status === \App\Models\Review::MODERATION_PENDING
+                ? \App\Models\Review::MODERATION_APPROVED
+                : \App\Models\Review::MODERATION_PENDING)
             <form method="POST" action="{{ route('admin.reviews.moderation.update', $review) }}">
                 @csrf
                 @method('PATCH')
-                <input type="hidden" name="status" value="{{ $review->is_published ? \App\Models\Review::MODERATION_PENDING : \App\Models\Review::MODERATION_APPROVED }}">
+                <input type="hidden" name="status" value="{{ $nextReviewStatus }}">
                 <button class="{{ $activeActionClass }}">
-                    {{ $review->is_published ? 'На модерацию' : 'Опубликовать' }}
+                    {{ $review->moderation_status === \App\Models\Review::MODERATION_PENDING ? 'Опубликовать' : 'На модерацию' }}
                 </button>
             </form>
+            @if($review->moderation_status === \App\Models\Review::MODERATION_PENDING)
+                <form method="POST" action="{{ route('admin.reviews.moderation.update', $review) }}">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="{{ \App\Models\Review::MODERATION_REJECTED }}">
+                    <button class="{{ $activeDeleteClass }}">Отклонить</button>
+                </form>
+            @endif
             <form method="POST" action="{{ route('admin.reviews.destroy', $review) }}"
                   onsubmit="return confirm('Удалить отзыв вместе с дополнением и ответом магазина?')">
                 @csrf
                 @method('DELETE')
                 <button class="{{ $activeDeleteClass }}">Удалить</button>
             </form>
-            <button type="button" class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}"
+            @if($review->reply === null)
+                <button type="button" class="{{ $activeActionClass }}"
                     data-admin-reply-trigger
-                    data-form-action="{{ route($review->reply && ! $review->reply->trashed() ? 'admin.reviews.reply.update' : 'admin.reviews.reply.store', $review) }}"
-                    data-form-method="{{ $review->reply && ! $review->reply->trashed() ? 'PUT' : 'POST' }}"
-                    data-reply-body="{{ $review->reply && ! $review->reply->trashed() ? $review->reply->body : '' }}"
-                    @disabled(! $canManageChildren)>
-                Ответить на отзыв
-            </button>
+                    data-form-action="{{ route('admin.reviews.reply.store', $review) }}"
+                    data-form-method="POST"
+                    data-reply-body="">
+                    Ответить на отзыв
+                </button>
+            @endif
         @endif
     </div>
 
@@ -148,7 +166,7 @@
                                   onsubmit="return confirm('Восстановить {{ $image->media_type === 'video' ? 'видео' : 'фото' }} к отзыву?')">
                                 @csrf
                                 @method('PATCH')
-                                <button class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}" @disabled(! $canManageChildren)>
+                                <button class="{{ $activeActionClass }}">
                                     Восстановить
                                 </button>
                             </form>
@@ -157,7 +175,7 @@
                                   onsubmit="return confirm('Удалить {{ $image->media_type === 'video' ? 'видео' : 'фото' }} к отзыву?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="{{ $canManageChildren ? $activeDeleteClass : $disabledActionClass }} text-[13px]" @disabled(! $canManageChildren)>Удалить</button>
+                                <button class="{{ $activeDeleteClass }} text-[13px]">Удалить</button>
                             </form>
                         @endif
                     </div>
@@ -183,14 +201,14 @@
                               onsubmit="return confirm('Восстановить дополнение к отзыву?')">
                             @csrf
                             @method('PATCH')
-                            <button class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}" @disabled(! $canManageChildren)>Восстановить</button>
+                            <button class="{{ $activeActionClass }}">Восстановить</button>
                         </form>
                     @else
                         <form method="POST" action="{{ route('admin.reviews.addition-moderation.update', $review) }}">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="status" value="{{ $review->addition_is_published ? \App\Models\Review::MODERATION_PENDING : \App\Models\Review::MODERATION_APPROVED }}">
-                            <button class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}" @disabled(! $canManageChildren)>
+                            <button class="{{ $activeActionClass }}">
                                 {{ $review->addition_is_published ? 'На модерацию' : 'Опубликовать' }}
                             </button>
                         </form>
@@ -198,15 +216,9 @@
                               onsubmit="return confirm('Удалить дополнение к отзыву?')">
                             @csrf
                             @method('DELETE')
-                            <button class="{{ $canManageChildren ? $activeDeleteClass : $disabledActionClass }}" @disabled(! $canManageChildren)>Удалить</button>
+                            <button class="{{ $activeDeleteClass }}">Удалить</button>
                         </form>
                     @endif
-                    <button type="button" class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}"
-                            data-admin-reply-trigger
-                            data-form-action="{{ route($review->reply && ! $review->reply->trashed() ? 'admin.reviews.reply.update' : 'admin.reviews.reply.store', $review) }}"
-                            data-form-method="{{ $review->reply && ! $review->reply->trashed() ? 'PUT' : 'POST' }}"
-                            data-reply-body="{{ $review->reply && ! $review->reply->trashed() ? $review->reply->body : '' }}"
-                            @disabled(! $canManageChildren)>Ответить на отзыв</button>
                 </div>
             @endif
         </section>
@@ -235,20 +247,19 @@
                               onsubmit="return confirm('Восстановить ответ на отзыв?')">
                             @csrf
                             @method('PATCH')
-                            <button class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}" @disabled(! $canManageChildren)>Восстановить</button>
+                            <button class="{{ $activeActionClass }}">Восстановить</button>
                         </form>
                     @else
-                        <button type="button" class="{{ $canManageChildren ? $activeActionClass : $disabledActionClass }}"
+                        <button type="button" class="{{ $activeActionClass }}"
                                 data-admin-reply-trigger
                                 data-form-action="{{ route('admin.reviews.reply.update', $review) }}"
                                 data-form-method="PUT"
-                                data-reply-body="{{ $review->reply->body }}"
-                                @disabled(! $canManageChildren)>Редактировать</button>
+                                data-reply-body="{{ $review->reply->body }}">Редактировать</button>
                         <form method="POST" action="{{ route('admin.reviews.reply.destroy', $review) }}"
                               onsubmit="return confirm('Удалить ответ на отзыв?')">
                             @csrf
                             @method('DELETE')
-                            <button class="{{ $canManageChildren ? $activeDeleteClass : $disabledActionClass }}" @disabled(! $canManageChildren)>Удалить</button>
+                            <button class="{{ $activeDeleteClass }}">Удалить</button>
                         </form>
                     @endif
                 </div>

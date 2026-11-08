@@ -12,6 +12,98 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const profileDropdown = document.querySelector('[data-profile-dropdown]');
+    const profileDropdownTrigger = profileDropdown?.querySelector('summary');
+    const profileDropdownPanel = profileDropdown?.querySelector('[data-profile-dropdown-panel]');
+    let profileDropdownOpenedByHover = false;
+    let profileDropdownPinnedByClick = false;
+    let profileDropdownCloseTimer = null;
+    let profileDropdownOpenFrame = null;
+
+    const showProfileDropdown = () => {
+        if (!profileDropdown || !profileDropdownTrigger || !profileDropdownPanel) return;
+
+        window.clearTimeout(profileDropdownCloseTimer);
+        window.cancelAnimationFrame(profileDropdownOpenFrame);
+        profileDropdownCloseTimer = null;
+        profileDropdown.open = true;
+        profileDropdownTrigger.setAttribute('aria-expanded', 'true');
+
+        if (profileDropdownPanel.classList.contains('opacity-100')) return;
+
+        profileDropdownPanel.classList.remove('pointer-events-none', 'opacity-100', 'translate-y-0');
+        profileDropdownPanel.classList.add('pointer-events-auto', 'opacity-0', 'translate-y-[-6px]');
+        profileDropdownOpenFrame = window.requestAnimationFrame(() => {
+            profileDropdownOpenFrame = window.requestAnimationFrame(() => {
+                profileDropdownPanel.classList.remove('opacity-0', 'translate-y-[-6px]');
+                profileDropdownPanel.classList.add('opacity-100', 'translate-y-0');
+            });
+        });
+    };
+
+    const closeProfileDropdown = () => {
+        if (!profileDropdown || !profileDropdownTrigger || !profileDropdownPanel) return;
+
+        window.cancelAnimationFrame(profileDropdownOpenFrame);
+        profileDropdownOpenedByHover = false;
+        profileDropdownPinnedByClick = false;
+        profileDropdownTrigger.setAttribute('aria-expanded', 'false');
+        profileDropdownPanel.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        profileDropdownPanel.classList.add('opacity-0', 'translate-y-[-6px]', 'pointer-events-none');
+        window.clearTimeout(profileDropdownCloseTimer);
+        profileDropdownCloseTimer = window.setTimeout(() => {
+            profileDropdown.open = false;
+            profileDropdownCloseTimer = null;
+        }, 200);
+    };
+
+    if (profileDropdown && profileDropdownTrigger && profileDropdownPanel) {
+        profileDropdown.addEventListener('pointerenter', event => {
+            if (event.pointerType !== 'mouse' || profileDropdownPinnedByClick) return;
+
+            showProfileDropdown();
+            profileDropdownOpenedByHover = true;
+        });
+
+        profileDropdown.addEventListener('pointerleave', event => {
+            if (event.pointerType !== 'mouse' || !profileDropdownOpenedByHover) return;
+
+            closeProfileDropdown();
+        });
+
+        profileDropdownTrigger.addEventListener('click', event => {
+            event.preventDefault();
+
+            if (profileDropdown.open && profileDropdownOpenedByHover) {
+                profileDropdownOpenedByHover = false;
+                profileDropdownPinnedByClick = true;
+                return;
+            }
+
+            if (profileDropdownPinnedByClick) {
+                closeProfileDropdown();
+                return;
+            }
+
+            showProfileDropdown();
+            profileDropdownOpenedByHover = false;
+            profileDropdownPinnedByClick = true;
+        });
+
+        document.addEventListener('click', event => {
+            if (!profileDropdown.contains(event.target)) {
+                closeProfileDropdown();
+            }
+        });
+
+        profileDropdown.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                closeProfileDropdown();
+                profileDropdownTrigger.focus();
+            }
+        });
+    }
+
     const checkoutForm = document.querySelector('[data-checkout-form]');
     const checkoutSummary = document.querySelector('[data-checkout-summary]');
 
@@ -119,6 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reviewFilterNav = document.querySelector('[data-review-filter-nav]');
         const reviewFilterResults = document.querySelector('[data-review-filter-results]');
         const reviewSortSelect = document.querySelector('#review-sort');
+        const reviewSortForm = document.querySelector('#review-sort-form');
+        const reviewSortFilter = reviewSortForm?.querySelector('[data-review-sort-filter]');
         let reviewFilterRequest = null;
 
         const loadReviewFilter = async (url, updateHistory = false) => {
@@ -152,6 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (reviewSortSelect && payload.sort) {
                     reviewSortSelect.value = payload.sort;
                 }
+                if (reviewSortFilter && payload.filter) {
+                    reviewSortFilter.value = payload.filter;
+                }
                 reviewFilterNav.querySelectorAll('[data-review-filter]').forEach(link => {
                     const isActive = link.dataset.reviewFilter === payload.filter;
                     if (isActive) {
@@ -163,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     link.classList.remove('rounded-[10px]');
                     link.classList.toggle('border-black', isActive);
                     link.classList.toggle('bg-white', isActive);
-                    link.classList.toggle('font-semibold', isActive);
                     link.classList.toggle('border-[#f4f4f4]', !isActive);
                     link.classList.toggle('bg-[#f4f4f4]', !isActive);
                     link.classList.toggle('hover:border-gray-200', !isActive);
@@ -177,8 +273,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
+                const canonicalUrl = new URL(url);
+                const requestedFilter = canonicalUrl.searchParams.get('filter');
+                canonicalUrl.searchParams.set('filter', payload.filter);
+                if (payload.sort) {
+                    canonicalUrl.searchParams.set('sort', payload.sort);
+                }
+                if (requestedFilter !== payload.filter) {
+                    canonicalUrl.searchParams.delete('page');
+                }
+
                 if (updateHistory) {
-                    window.history.pushState({reviewFilter: payload.filter}, '', url);
+                    window.history.pushState({reviewFilter: payload.filter}, '', canonicalUrl);
+                } else if (canonicalUrl.href !== window.location.href) {
+                    window.history.replaceState({reviewFilter: payload.filter}, '', canonicalUrl);
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
@@ -205,6 +313,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             event.preventDefault();
             loadReviewFilter(link.href, true);
+        });
+
+        reviewSortSelect?.addEventListener('change', () => reviewSortForm?.requestSubmit());
+
+        reviewSortForm?.addEventListener('submit', event => {
+            event.preventDefault();
+            if (!reviewSortSelect) return;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', reviewSortSelect.value);
+            if (reviewSortFilter?.value) {
+                url.searchParams.set('filter', reviewSortFilter.value);
+            }
+            url.searchParams.delete('page');
+
+            window.location.assign(url.toString());
         });
 
         if (reviewFilterNav) {
@@ -1723,10 +1847,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelBtn = document.getElementById('banner-cancel');
 
     // Если баннера нет — ничего не делаем
-    if (banner && closeBtn && modal) {
+    if (banner && closeBtn && modal && hideBtn && cancelBtn) {
+        const closeModal = () => modal.classList.add('hidden');
 
         // Открыть модалку
         closeBtn.addEventListener('click', () => {
+            if (!banner.isConnected) return;
+
+            if (!modal.classList.contains('hidden')) {
+                closeModal();
+                return;
+            }
 
             const rect = closeBtn.getBoundingClientRect();
             const modalWidth = 278; // ширина окна
@@ -1742,15 +1873,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Скрыть баннер
         hideBtn.addEventListener('click', () => {
+            closeModal();
             banner.style.transition = 'opacity 0.3s ease';
             banner.style.opacity = '0';
             setTimeout(() => banner.remove(), 300);
-            modal.style.display = 'none';
+            closeBtn.disabled = true;
         });
 
         // Отмена
         cancelBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
+            closeModal();
+        });
+
+        document.addEventListener('click', event => {
+            if (!modal.classList.contains('hidden')
+                && !modal.contains(event.target)
+                && !closeBtn.contains(event.target)) {
+                closeModal();
+            }
         });
     }
 
