@@ -1,6 +1,10 @@
 @props(['active' => 'personal', 'tabMode' => false])
 
 @php
+    $favoriteCount = auth()->check()
+        ? auth()->user()->favorites()->count()
+        : 0;
+
     $items = [
         ['key' => 'personal', 'label' => 'Личные данные', 'href' => route('profile')],
         ['key' => 'bonuses', 'label' => 'Мои бонусы', 'href' => '#bonuses'],
@@ -28,7 +32,14 @@
                        @if($isActive) aria-current="page" @endif
                        class="relative flex min-h-[57px] w-full items-center gap-3 border-b border-dashed border-gray-200 pl-[15px] pr-[10px] py-3 text-left text-[15px] text-[#231f20] transition-colors duration-200 {{ $isActive ? 'bg-[#f4f4f4] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-[#dc092e]' : 'hover:bg-[#f4f4f4]' }}">
                         @include('components.profile.icons.' . $item['key'])
-                        <span>{{ $item['label'] }}</span>
+                       <span class="inline-flex items-start">
+                           {{ $item['label'] }}
+                           @if($item['key'] === 'favorites' && $favoriteCount > 0)
+                               <span class="ml-1 inline-flex h-[16px] min-w-[16px] shrink-0 items-center justify-center rounded-full bg-[#dc092e] px-[3px] py-[2px] text-[10px] font-bold leading-none text-white">
+                                   {{ $favoriteCount > 99 ? '99+' : $favoriteCount }}
+                               </span>
+                           @endif
+                       </span>
                     </a>
                 </li>
             @endforeach

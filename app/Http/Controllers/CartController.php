@@ -15,9 +15,32 @@ class CartController extends Controller
 
     public function index()
     {   
+        $selectedItemIds = old('selected_items', session('selected_cart_items', []));
+        $selectedItemIds = collect(is_array($selectedItemIds) ? $selectedItemIds : [])
+            ->filter(fn ($id) => is_scalar($id) && ctype_digit((string) $id))
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+
+        $items = $this->cart->items();
+        $availableItems = $items->filter(
+            fn ($item) => $item->variant
+                && ($item->variant->stock - $item->variant->reserved) > 0
+        );
+        $selectedItems = $availableItems->whereIn('id', $selectedItemIds);
+        $selectedTotal = $selectedItems->sum(
+            fn ($item) => $item->variant->price * $item->quantity
+        );
+
         return view('cart.index', [
-            'items' => $this->cart->items(),
+            'items' => $items,
             'formattedTotal' => $this->cart->formattedTotal(28, 28),
+            'selectedItemIds' => $selectedItemIds,
+            'selectedItemsCount' => $selectedItems->count(),
+            'selectedTotal' => $selectedTotal,
+            'hasSelectedItems' => $selectedItems->isNotEmpty(),
+            'allAvailableItemsSelected' => $availableItems->isNotEmpty()
+                && $selectedItems->count() === $availableItems->count(),
         ]);
     }
 
@@ -51,6 +74,7 @@ class CartController extends Controller
 
     public function update(Request $request, $id)
     {
+        $selectedItemIds = $this->selectedCartItemIds($request);
         $data = $request->validate(['quantity' => 'required|integer|min:1']);
 
         try {
@@ -60,14 +84,18 @@ class CartController extends Controller
                 return response()->json(['message' => $exception->getMessage()], 422);
             }
 
-            return back()->with('error', $exception->getMessage());
+            return back()
+                ->with('error', $exception->getMessage())
+                ->with('selected_cart_items', $selectedItemIds);
         }
 
         if ($request->expectsJson()) {
             return $this->cartJsonResponse('Количество обновлено');
         }
 
-        return back()->with('success', 'Количество обновлено');
+        return back()
+            ->with('success', 'Количество обновлено')
+            ->with('selected_cart_items', $selectedItemIds);
     }
 
     public function remove($id)
@@ -131,6 +159,16 @@ class CartController extends Controller
             'count' => $this->cart->count(),
             'total' => $this->cart->total(),
         ]);
+    }
+
+    private function selectedCartItemIds(Request $request): array
+    {
+        return collect($request->input('selected_items', []))
+            ->filter(fn ($id) => is_scalar($id) && ctype_digit((string) $id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
     }
 
 }

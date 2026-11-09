@@ -1,13 +1,15 @@
-@props(['item'])
+@props(['item', 'selectedItemIds' => []])
 @php
     $available = $item->variant->stock - $item->variant->reserved;
     $isAvailable = $available > 0;
 @endphp
 
-<div class="flex items-center w-full h-[112px] py-[16px] border-b border-dashed border-gray-200">
+<div class="flex items-center w-full h-[112px] py-[16px] border-b border-dashed border-gray-200" data-cart-item>
     <!-- Чекбокс передает ID выбранного варианта в форму массовых действий. -->
     <div class="w-[30px]">
         <input type="checkbox" name="items[]" value="{{ $item->id }}" form="cart-form"
+               data-item-unit-price="{{ $item->variant->price }}"
+               @checked($isAvailable && in_array((int) $item->id, $selectedItemIds, true))
                {{ !$isAvailable ? 'disabled' : '' }}
                class="js-item-checkbox cursor-pointer {{ !$isAvailable ? 'opacity-30' : '' }}">
     </div>
@@ -40,7 +42,8 @@
     <div class="flex-1">
         {{-- Кнопки меняют значение и отправляют только форму обновления количества. --}}
         <form action="{{ route('cart.update', $item->id) }}" method="POST"
-              class="flex items-center w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg overflow-hidden">
+              class="flex items-center w-[120px] h-[40px] px-[10px] border border-gray-300 rounded-lg overflow-hidden"
+              data-cart-quantity-form>
             @csrf @method('PUT')
             {{-- Не задаём max в HTML: превышение обрабатывается сервером и
                  возвращает сессионное сообщение с доступным остатком. --}}
