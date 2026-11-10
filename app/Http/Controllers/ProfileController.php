@@ -316,14 +316,14 @@ class ProfileController extends Controller
         return view('profile.order', compact('order', 'reviewsByVariant'));
     }
 
-    public function adresses(Address $address)
+    public function addresses()
     {
-        if ($address->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $addresses = Auth::user()
+            ->addresses()
+            ->orderByDesc('is_default')
+            ->latest('id')
+            ->get();
 
-        return view('profile.addresses', [
-            'address' => $address
-        ]);
+        return view('profile.addresses', compact('addresses'));
     }
 }

@@ -6,10 +6,10 @@
             <p class="text-[15px] font-semibold text-black">
                 Добавьте адрес доставки, чтобы не заполнять его каждый раз при оформлении заказа.
             </p>
-            <a href="#"
-                class="mt-4 inline-block text-[15px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200">
-                Добавить адрес
-            </a>
         </div>
     @endforelse
+    <a href="#"
+        class="mt-4 inline-block cursor-pointer text-[15px] text-[#007eff] transition-all duration-200 hover:text-[#0064cc]">
+        Добавить адрес
+    </a>
 </div>

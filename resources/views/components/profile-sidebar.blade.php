@@ -11,7 +11,7 @@
         ['key' => 'orders', 'label' => 'Мои заказы', 'href' => route('profile.orders')],
         ['key' => 'notifications', 'label' => 'Настройки уведомлений', 'href' => '#notifications'],
         ['key' => 'store', 'label' => 'Любимый магазин', 'href' => '#store'],
-        ['key' => 'addresses', 'label' => 'Адрес доставки', 'href' => 'profile.adresses'],
+        ['key' => 'addresses', 'label' => 'Адрес доставки', 'href' => route('profile.addresses')],
         ['key' => 'favorites', 'label' => 'Избранное', 'href' => route('profile.favorites')],
         ['key' => 'reviews', 'label' => 'Мои отзывы', 'href' => route('profile.reviews')],
     ];
@@ -24,7 +24,7 @@
             @foreach($items as $item)
                 @php
                     $isActive = $active === $item['key'];
-                    $isLocalTab = $tabMode && !in_array($item['key'], ['orders', 'favorites', 'reviews'], true);
+                    $isLocalTab = $tabMode && !in_array($item['key'], ['addresses', 'orders', 'favorites', 'reviews'], true);
                 @endphp
                 <li>
                     <a href="{{ $item['href'] }}"

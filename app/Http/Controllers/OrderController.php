@@ -47,8 +47,13 @@ class OrderController extends Controller
             'total'            => $total,
             'totalQuantity'    => $items->sum('quantity'),
             'courierDeliveryPrice' => Order::COURIER_DELIVERY_PRICE,
-            'addresses'        => Auth::user()?->addresses()->latest()->get() ?? collect(),
-            'defaultAddressId' => Auth::user()?->addresses()->latest()->first()?->id,
+            'addresses'        => Auth::user()?->addresses()
+                ->orderByDesc('is_default')
+                ->latest('id')
+                ->get() ?? collect(),
+            'defaultAddressId' => Auth::user()?->addresses()
+                ->where('is_default', true)
+                ->value('id'),
         ]);
     }
 

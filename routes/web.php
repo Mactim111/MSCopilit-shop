@@ -78,8 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/phone', [ProfileController::class, 'updatePhone'])->name('profile.phone.update');
     Route::post('/profile/email', [ProfileController::class, 'updateEmail'])->name('profile.email.update');
 
-    // Добавил СЕГОДНЯ!!! маршрут для просмотра, добавления и изменения юзером СВОИХ Адресов доставки в СВОЕМ ПРОФИЛЕ
-    Route::get('/profile/adresses', [ProfileController::class, 'adresses'])->name('profile.adresses');
+    Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
 
     // Добавил СЕГОДНЯ!!! маршрут для просмотра юзером СВОИХ ОТЗЫВОВ в СВОЕМ ПРОФИЛЕ
     Route::get('/profile/reviews', [ProfileController::class, 'reviews'])->name('profile.reviews');
@@ -110,8 +109,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/profile/address', [AddressController::class, 'store'])->name('profile.address.store');
     Route::delete('/profile/address/{address}', [AddressController::class, 'destroy'])->name('profile.address.delete');
-    Route::get('/profile/address/{address}/edit', [AddressController::class, 'edit'])->name('profile.address.edit');
     Route::put('/profile/address/{address}', [AddressController::class, 'update'])->name('profile.address.update');
+    Route::patch('/profile/address/{address}/default', [AddressController::class, 'setDefault'])->name('profile.address.default');
 
 });
 

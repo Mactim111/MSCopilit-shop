@@ -8,8 +8,15 @@ class Address extends Model
 {
 
     protected $fillable = [
-        'user_id', 'label', 'address_line', 'city', 'state', 'zip', 'country'
+        'user_id', 'label', 'address_line', 'city', 'state', 'zip', 'country', 'is_default',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_default' => 'boolean',
+        ];
+    }
 
     public function user()
     {

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         });
     }

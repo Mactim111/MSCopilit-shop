@@ -133,7 +133,7 @@ class DatabaseSeeder extends Seeder
             ProductVariantPropertyOptionsSeeder::class,
             FrontendImagesSeeder::class,
             PageSectionSeeder::class,
-            AdressSeeder::class,
+            AddressSeeder::class,
             DemoOrdersSeeder::class,
             ReviewsSeeder::class,
         ]);

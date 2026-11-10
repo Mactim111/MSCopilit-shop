@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-class AdressSeeder extends Seeder
+class AddressSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -22,6 +22,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Брест',
                 'state' => 'Brestskaya',
                 'zip' => 224014,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -33,6 +34,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Минск',
                 'state' => 'Minskaya',
                 'zip' => 221028,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -44,6 +46,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Брест',
                 'state' => 'Brestskaya',
                 'zip' => 224028,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -55,6 +58,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Минск',
                 'state' => 'Minskaya',
                 'zip' => 221015,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -66,6 +70,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Витебск',
                 'state' => 'Vitebskaya',
                 'zip' => 226014,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],       
@@ -77,6 +82,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Орша',
                 'state' => 'Vitebskaya',
                 'zip' => 226024,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],  
@@ -88,6 +94,7 @@ class AdressSeeder extends Seeder
                 'city' => 'Гомель',
                 'state' => 'Gomelskaya',
                 'zip' => 224044,
+                'is_default' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],     
