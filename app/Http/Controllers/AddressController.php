@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
 {
+
     public function edit(Address $address)
     {
         if ($address->user_id !== Auth::id()) {

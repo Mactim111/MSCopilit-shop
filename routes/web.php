@@ -78,6 +78,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/phone', [ProfileController::class, 'updatePhone'])->name('profile.phone.update');
     Route::post('/profile/email', [ProfileController::class, 'updateEmail'])->name('profile.email.update');
 
+    // Добавил СЕГОДНЯ!!! маршрут для просмотра, добавления и изменения юзером СВОИХ Адресов доставки в СВОЕМ ПРОФИЛЕ
+    Route::get('/profile/adresses', [ProfileController::class, 'adresses'])->name('profile.adresses');
+
     // Добавил СЕГОДНЯ!!! маршрут для просмотра юзером СВОИХ ОТЗЫВОВ в СВОЕМ ПРОФИЛЕ
     Route::get('/profile/reviews', [ProfileController::class, 'reviews'])->name('profile.reviews');
 

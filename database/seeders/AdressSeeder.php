@@ -13,6 +13,7 @@ class AdressSeeder extends Seeder
     public function run(): void
     {
         DB::table('addresses')->insert([
+            
             [
                 'user_id' => 2,
                 'label' => 'Дом',
@@ -68,6 +69,17 @@ class AdressSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],       
+            [
+                'user_id' => 7,
+                'label' => 'Дом',
+                'address_line' => 'Кобринская, 11, 19',
+                'country' => 'Беларусь', 
+                'city' => 'Брест',
+                'state' => 'Gomelskaya',
+                'zip' => 224046,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],     
         ]);
     }
 }

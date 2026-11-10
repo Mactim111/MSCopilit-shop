@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
 use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Http\JsonResponse;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+
 class ProfileController extends Controller
 {
     public function index()
@@ -312,5 +314,16 @@ class ProfileController extends Controller
             ->keyBy('product_variant_id');
 
         return view('profile.order', compact('order', 'reviewsByVariant'));
+    }
+
+    public function adresses(Address $address)
+    {
+        if ($address->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('profile.addresses', [
+            'address' => $address
+        ]);
     }
 }
