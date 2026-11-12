@@ -41,7 +41,8 @@
                         </div>
                         <button type="submit" name="action" value="delete"
                                 @disabled(!$hasSelectedItems)
-                                class="text-[15px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:text-gray-400">
+                                class="text-[15px] text-[#007eff] hover:text-[#0064cc] transition-all duration-200 disabled:text-gray-400 disabled:cursor-not-allowed 
+                                disabled:hover:text-gray-400 cursor-pointer">
                             Удалить выбранное
                         </button>
                     </div>
@@ -88,7 +89,7 @@
                     <!-- Кнопка привязана к форме через атрибут form="cart-form" -->
                     <button type="submit" form="cart-form" name="action" value="checkout" @disabled(!$hasSelectedItems)
                             class="block w-full h-12 text-[20px] text-center bg-[#dc092e] border-[#dc092e] text-white rounded-[10px] hover:bg-[#a80723] 
-                            hover:border-[#a80723] transition font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#dc092e] disabled:hover:border-[#dc092e]">
+                            hover:border-[#a80723] transition font-semibold cursor-pointer disabled:cursor-not-allowed disabled:bg-[#bdbbbc] disabled:border-[#bdbbbc]">
                         Оформить заказ
                     </button>
                 </div>

@@ -59,7 +59,8 @@ class DemoOrdersSeeder extends Seeder
 
             foreach ($customers as $customer) {
                 foreach ($completedVariants as $variant) {
-                    $address = $customer->addresses->first();
+                    $address = $customer->addresses->firstWhere('is_default', true)
+                        ?? $customer->addresses->first();
 
                     $order = Order::create([
                         'user_id' => $customer->id,
@@ -90,7 +91,8 @@ class DemoOrdersSeeder extends Seeder
                     ]);
                 }
 
-                $address = $customer->addresses->first();
+                $address = $customer->addresses->firstWhere('is_default', true)
+                    ?? $customer->addresses->first();
                 $cancelledOrder = Order::create([
                     'user_id' => $customer->id,
                     'address_id' => $address?->id,

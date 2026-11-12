@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('email');
             $table->string('phone')->nullable();
-            $table->string('address')->nullable();
+            $table->text('address')->nullable();
             $table->string('delivery_method')->default('courier');
             $table->decimal('delivery_price', 10, 2)->default(0);
             $table->string('payment_method')->default('cash_on_delivery');

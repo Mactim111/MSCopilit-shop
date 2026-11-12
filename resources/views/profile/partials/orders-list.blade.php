@@ -2,8 +2,8 @@
     @forelse($orders as $order)
         <x-profile-order-list-card :order="$order" />
     @empty
-        <div class="text-left -mt-4">
-            <p class="text-[15px] font-semibold text-black">
+        <div class="text-left mb-4">
+            <p class="text-[15px] font-semibold text-black -mt-4">
                 У Вас пока нет заказов
             </p>
             <a href="{{ route('catalog.index') }}"

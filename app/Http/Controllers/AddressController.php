@@ -15,11 +15,11 @@ class AddressController extends Controller
     {
         $data = $this->validatedAddress($request);
         $userId = $request->user()->id;
+        $addressLine = $this->formattedAddressLine($data);
 
-        DB::transaction(function () use ($data, $userId): void {
+        DB::transaction(function () use ($data, $userId, $addressLine): void {
             $user = User::query()->lockForUpdate()->findOrFail($userId);
-            $isFirstAddress = !$user->addresses()->exists();
-            $isDefault = $isFirstAddress || (bool) ($data['is_default'] ?? false);
+            $isDefault = (bool) $data['is_default'];
 
             if ($isDefault) {
                 $user->addresses()->update(['is_default' => false]);
@@ -27,6 +27,7 @@ class AddressController extends Controller
 
             $user->addresses()->create([
                 ...$data,
+                'address_line' => $addressLine,
                 'is_default' => $isDefault,
             ]);
         });
@@ -38,13 +39,12 @@ class AddressController extends Controller
     {
         $data = $this->validatedAddress($request);
         $userId = $request->user()->id;
+        $addressLine = $this->formattedAddressLine($data);
 
-        DB::transaction(function () use ($data, $userId, $address): void {
+        DB::transaction(function () use ($data, $userId, $address, $addressLine): void {
             $user = User::query()->lockForUpdate()->findOrFail($userId);
             $address = $user->addresses()->lockForUpdate()->findOrFail($address->id);
-            $isDefault = array_key_exists('is_default', $data)
-                ? (bool) $data['is_default']
-                : $address->is_default;
+            $isDefault = (bool) $data['is_default'];
 
             if ($isDefault) {
                 $user->addresses()
@@ -54,6 +54,7 @@ class AddressController extends Controller
 
             $address->update([
                 ...$data,
+                'address_line' => $addressLine,
                 'is_default' => $isDefault,
             ]);
         });
@@ -63,21 +64,14 @@ class AddressController extends Controller
 
     public function setDefault(Request $request, Address $address): JsonResponse|RedirectResponse
     {
-        $data = $request->validate([
-            'is_default' => ['required', 'boolean'],
-        ]);
         $userId = $request->user()->id;
-        $isDefault = (bool) $data['is_default'];
 
-        DB::transaction(function () use ($userId, $address, $isDefault): void {
+        DB::transaction(function () use ($userId, $address): void {
             $user = User::query()->lockForUpdate()->findOrFail($userId);
             $address = $user->addresses()->lockForUpdate()->findOrFail($address->id);
 
-            if ($isDefault) {
-                $user->addresses()->update(['is_default' => false]);
-            }
-
-            $address->update(['is_default' => $isDefault]);
+            $user->addresses()->update(['is_default' => false]);
+            $address->update(['is_default' => true]);
         });
 
         return $this->respondWithUpdatedAddresses($request, 'Данные успешно обновлены');
@@ -91,28 +85,27 @@ class AddressController extends Controller
             $user = User::query()->lockForUpdate()->findOrFail($userId);
             $address = $user->addresses()->lockForUpdate()->findOrFail($address->id);
             $address->delete();
-
-            $remainingAddresses = $user->addresses()->lockForUpdate()->get();
-
-            if ($remainingAddresses->count() === 1) {
-                $remainingAddresses->first()->update(['is_default' => true]);
-            }
         });
 
-        return $this->respondWithUpdatedAddresses($request, 'Данные успешно изменены');
+        return $this->respondWithUpdatedAddresses($request, 'Данные успешно обновлены');
     }
 
     private function validatedAddress(Request $request): array
     {
         return $request->validate([
-            'label' => ['nullable', 'string', 'max:255'],
-            'address_line' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:255'],
-            'state' => ['nullable', 'string', 'max:255'],
-            'zip' => ['nullable', 'string', 'max:50'],
-            'country' => ['required', 'string', 'max:255'],
-            'is_default' => ['sometimes', 'boolean'],
+            'street' => ['required', 'string', 'max:255'],
+            'house' => ['required', 'string', 'max:255'],
+            'apartment' => ['nullable', 'string', 'max:255'],
+            'entrance' => ['nullable', 'string', 'max:255'],
+            'floor' => ['nullable', 'string', 'max:255'],
+            'is_default' => ['required', 'boolean'],
         ]);
+    }
+
+    private function formattedAddressLine(array $data): string
+    {
+        return (new Address($data))->formattedAddressLine();
     }
 
     private function respondWithUpdatedAddresses(

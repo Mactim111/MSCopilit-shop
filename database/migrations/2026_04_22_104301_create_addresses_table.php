@@ -15,9 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('label')->nullable(); // например: Дом, Работа
-            $table->string('address_line');
-            $table->string('country')->default('USA');
+            $table->text('address_line');
+            $table->string('country')->default('Беларусь');
             $table->string('city');
+            $table->string('street')->nullable();
+            $table->string('house')->nullable();
+            $table->string('apartment')->nullable();
+            $table->string('entrance')->nullable();
+            $table->string('floor')->nullable();
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
             $table->boolean('is_default')->default(false);

@@ -98,7 +98,7 @@
                             Мои заказы
                         </a>
 
-                        <a href="{{ route('profile') }}#addresses"
+                        <a href="{{ route('profile.addresses') }}"
                            class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-100">
                             <i data-lucide="settings"></i>
                             Адрес доставки
