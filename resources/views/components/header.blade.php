@@ -10,7 +10,8 @@
         <div class="flex items-center flex-1 gap-4">
 
             <button id="catalog-toggle"
-                    class="flex items-center gap-2 pl-2.5 pr-5 py-2 bg-red-600 text-white rounded-md w-[120px] h-[42px]">
+                    class="flex items-center gap-2 pl-2.5 pr-5 py-2 bg-red-600 hover:bg-red-700 transition-colors duration-300 cursor-pointer 
+                    text-white rounded-md w-[120px] h-[42px]">
 
                 <div class="relative w-7 h-7 shrink-0">
                     <span id="catalog-icon-open"
@@ -34,7 +35,7 @@
                     placeholder="Поиск товаров..."
                     class="w-full px-4 border-b border-t border-l border-gray-300 rounded-l-lg h-full">
 
-                <button class="px-6 bg-red-600 text-white rounded-r-lg h-full hover:bg-red-700 transition">
+                <button class="px-6 bg-red-600 text-white rounded-r-lg h-full hover:bg-red-700 transition-colors duration-300 cursor-pointer">
                     Найти
                 </button>
             </form>
@@ -77,13 +78,13 @@
                     <span class="text-[12px]">{{ auth()->user()->name }}</span>
                 </summary>
 
-                <div class="pointer-events-none absolute right-0 top-full z-50 translate-y-[-6px] pt-3 opacity-0 transition-[opacity,transform] duration-200 ease-out"
+                <div class="pointer-events-none absolute right-[-10px] top-full z-50 translate-y-[-6px] pt-3 opacity-0 transition-[opacity,transform] duration-200 ease-out"
                      data-profile-dropdown-panel>
-                    <div class="w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
+                    <div class="w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg text-[13px]">
 
                         <div class="border-b border-gray-200 px-4 py-2">
                             <p class="font-semibold">{{ auth()->user()->name }}</p>
-                            <p class="text-sm text-gray-600">{{ auth()->user()->email }}</p>
+                            <p class="text-[13px] text-gray-600">{{ auth()->user()->email }}</p>
                         </div>
 
                         <a href="{{ route('profile') }}"

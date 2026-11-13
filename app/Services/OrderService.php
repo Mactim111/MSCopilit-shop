@@ -38,7 +38,9 @@ class OrderService
             $deliveryMethod = $data['delivery_method'];
             $addressText = $deliveryMethod === Order::DELIVERY_PICKUP
                 ? Order::PICKUP_ADDRESS
-                : ($data['address'] ?? null);
+                : (isset($data['guest_address'])
+                    ? (new Address($data['guest_address']))->fullAddress()
+                    : null);
             $addressId = null;
 
             if ($deliveryMethod === Order::DELIVERY_COURIER && $user && !empty($data['address_id'])) {

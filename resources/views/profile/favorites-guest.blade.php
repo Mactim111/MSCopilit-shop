@@ -9,7 +9,7 @@
             Войдите или создайте личный кабинет, чтобы сохранять товары в избранное.
         </p>
         <a href="{{ route('login') }}"
-           class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition">
+           class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
             Войти
         </a>
     </div>

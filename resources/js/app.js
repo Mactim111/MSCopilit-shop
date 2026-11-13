@@ -109,9 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (checkoutForm && checkoutSummary) {
         const deliveryMethods = [...checkoutForm.querySelectorAll('[data-delivery-method]')];
-        const addressOptions = [...checkoutForm.querySelectorAll('[data-address-option]')];
         const courierAddresses = checkoutForm.querySelector('[data-courier-addresses]');
-        const newAddress = checkoutForm.querySelector('[data-new-address]');
+        const addressSelect = checkoutForm.querySelector('[data-address-select]');
+        const guestAddressFields = [...checkoutForm.querySelectorAll('[data-guest-address-field]')];
+        const guestAddressPrompt = checkoutForm.querySelector('[data-guest-address-prompt]');
+        const guestAddressDisplay = checkoutForm.querySelector('[data-guest-address-display]');
+        const guestAddressText = checkoutForm.querySelector('[data-guest-address-text]');
+        const addressError = checkoutForm.querySelector('[data-checkout-address-error]');
+        const addAddressButton = checkoutForm.querySelector('[data-checkout-add-address]');
         const paymentMethods = [...checkoutForm.querySelectorAll('[data-payment-method]')];
         const deliveryLabel = checkoutSummary.querySelector('[data-summary-delivery-label]');
         const deliveryPrice = checkoutSummary.querySelector('[data-summary-delivery-price]');
@@ -119,28 +124,151 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = checkoutSummary.querySelector('[data-summary-total]');
         const goodsTotalCents = Math.round(Number(checkoutSummary.dataset.goodsTotal) * 100);
         const courierFeeCents = Math.round(Number(checkoutSummary.dataset.courierFee) * 100);
+        const addressModal = document.querySelector('[data-address-create-modal]');
+        const addressModalForm = addressModal?.querySelector('[data-address-form]');
+        const addressModalSave = addressModal?.querySelector('[data-address-save]');
+        const addressModalDefaultValue = addressModal?.querySelector('[data-address-default-value]');
+        const addressModalDefaultCheckbox = addressModal?.querySelector('[data-address-default-checkbox]');
+        const addressModalMethod = addressModal?.querySelector('[data-address-method]');
+        const addressResult = document.querySelector('[data-checkout-address-result]');
+        let isAddressSaving = false;
+        let revealAddressErrors = false;
+
         const formatAmount = (cents) => (cents / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        const formatAddress = (address) => [
+            address.city,
+            address.street ? `ул. ${address.street}` : '',
+            address.house ? `д. ${address.house}` : '',
+            address.apartment ? `кв. ${address.apartment}` : '',
+            address.entrance ? `подъезд ${address.entrance}` : '',
+            address.floor ? `этаж ${address.floor}` : '',
+        ].filter(Boolean).join(', ');
+
+        const getGuestAddress = () => Object.fromEntries(
+            guestAddressFields.map(field => [field.dataset.guestAddressField, field.value.trim()])
+        );
+
+        const updateAddressModalSave = () => {
+            if (!addressModalForm || !addressModalSave) return;
+
+            const requiredFields = [...addressModalForm.querySelectorAll('[data-address-required]')];
+            requiredFields.forEach(field => {
+                const showError = !field.validity.valid
+                    && (revealAddressErrors || field.dataset.addressTouched === 'true');
+                field.closest('[data-address-input-wrap]')?.classList.toggle('is-invalid', showError);
+            });
+
+            addressModalSave.disabled = !addressModalForm.checkValidity() || isAddressSaving;
+            addressModalSave.classList.toggle('cursor-not-allowed', addressModalSave.disabled);
+            addressModalSave.classList.toggle('border-[#bdbbbc]', addressModalSave.disabled);
+            addressModalSave.classList.toggle('bg-[#bdbbbc]', addressModalSave.disabled);
+            addressModalSave.classList.toggle('cursor-pointer', !addressModalSave.disabled);
+            addressModalSave.classList.toggle('border-[#dc092e]', !addressModalSave.disabled);
+            addressModalSave.classList.toggle('bg-[#dc092e]', !addressModalSave.disabled);
+        };
+
+        const openAddressModal = (address = null) => {
+            if (!addressModalForm || !addressModal) return;
+
+            addressModalForm.reset();
+            addressModalForm.action = addressModalForm.dataset.storeUrl;
+            addressModalMethod.value = '';
+            revealAddressErrors = false;
+            addressModalForm.querySelectorAll('[data-address-required], [data-address-optional]').forEach(field => {
+                field.setCustomValidity('');
+                field.removeAttribute('aria-invalid');
+                delete field.dataset.addressTouched;
+                field.closest('[data-address-input-wrap]')?.classList.remove('is-invalid');
+            });
+
+            if (address) {
+                Object.entries(address).forEach(([name, value]) => {
+                    const field = addressModalForm.elements.namedItem(name);
+                    if (field instanceof HTMLInputElement) field.value = value || '';
+                });
+            }
+
+            if (addressModalDefaultCheckbox) addressModalDefaultCheckbox.checked = false;
+            if (addressModalDefaultValue) addressModalDefaultValue.value = '0';
+            updateAddressModalSave();
+            addressModal.classList.remove('hidden');
+            addressModal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            addressModal.querySelector('[name="city"]')?.focus();
+        };
+
+        const closeAddressModal = (force = false) => {
+            if (!addressModal || (isAddressSaving && !force)) return;
+            addressModal.classList.add('hidden');
+            addressModal.classList.remove('flex');
+            document.body.classList.toggle(
+                'overflow-hidden',
+                Boolean(addressResult && !addressResult.classList.contains('hidden'))
+            );
+        };
+
+        const showAddressResult = (message) => {
+            const messageElement = addressResult?.querySelector('[data-checkout-address-result-message]');
+            if (messageElement) messageElement.textContent = message;
+            addressResult?.classList.remove('hidden');
+            addressResult?.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            addressResult?.querySelector('[data-checkout-address-result-close]')?.focus();
+        };
+
+        const closeAddressResult = () => {
+            if (!addressResult) return;
+            addressResult.classList.add('hidden');
+            addressResult.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+            addAddressButton?.focus();
+        };
+
+        const updateAddressSelection = (address) => {
+            if (addressSelect) {
+                const option = new Option(address.full_address, address.id, true, true);
+                addressSelect.add(option);
+                addressSelect.value = String(address.id);
+                const addressSection = addressSelect.closest('[data-saved-address-section]');
+                if (addressSection) addressSection.hidden = false;
+            } else {
+                const guestAddress = {
+                    city: address.city,
+                    street: address.street,
+                    house: address.house,
+                    apartment: address.apartment,
+                    entrance: address.entrance,
+                    floor: address.floor,
+                };
+                guestAddressFields.forEach(field => {
+                    field.value = guestAddress[field.dataset.guestAddressField] || '';
+                });
+                if (guestAddressText) guestAddressText.textContent = formatAddress(guestAddress);
+                if (guestAddressPrompt) guestAddressPrompt.hidden = true;
+                if (guestAddressDisplay) guestAddressDisplay.hidden = false;
+                const label = addAddressButton?.querySelector('[data-add-address-label]');
+                if (label) label.textContent = 'Изменить адрес';
+            }
+
+            if (addressError) addressError.classList.add('hidden');
+            updateCheckoutSummary();
+        };
 
         const updateCheckoutSummary = () => {
             const selectedDelivery = deliveryMethods.find((method) => method.checked);
             const isCourier = selectedDelivery?.value === 'courier';
-            const selectedAddress = checkoutForm.querySelector('input[name="address_id"]:checked');
-            const isNewAddress = selectedAddress?.value === '';
 
             if (courierAddresses) {
                 courierAddresses.hidden = !isCourier;
             }
-            addressOptions.forEach((option) => {
-                option.disabled = !isCourier;
-            });
-            if (newAddress) {
-                newAddress.disabled = !isCourier || !isNewAddress;
-                newAddress.required = isCourier && isNewAddress;
+            if (addressSelect) {
+                const addressSection = addressSelect.closest('[data-saved-address-section]');
+                addressSelect.disabled = !isCourier || Boolean(addressSection?.hidden);
             }
 
             if (deliveryLabel) {
                 deliveryLabel.textContent = isCourier
-                    ? 'Доставка курьером по адресу'
+                    ? 'Доставка курьером по указанному адресу'
                     : 'Самовывоз из пункта выдачи';
             }
             if (deliveryPrice) {
@@ -160,6 +288,160 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         checkoutForm.addEventListener('change', updateCheckoutSummary);
+        checkoutForm.addEventListener('submit', event => {
+            const isCourier = checkoutForm.querySelector('[data-delivery-method]:checked')?.value === 'courier';
+            if (!isCourier) return;
+
+            const hasAddress = addressSelect
+                ? Boolean(addressSelect.value)
+                : guestAddressFields.length > 0
+                    && ['city', 'street', 'house'].every(key => Boolean(getGuestAddress()[key]));
+            if (hasAddress) {
+                if (addressError) addressError.classList.add('hidden');
+                return;
+            }
+
+            event.preventDefault();
+            addressError?.classList.remove('hidden');
+            if (addressSelect && !addressSelect.closest('[data-saved-address-section]')?.hidden) {
+                addressSelect.focus();
+            } else {
+                addAddressButton?.focus();
+            }
+        });
+
+        addressModalForm?.querySelectorAll('[data-address-required], [data-address-optional]').forEach(field => {
+            field.addEventListener('focus', () => {
+                if (field.hasAttribute('data-address-optional')) revealAddressErrors = true;
+                updateAddressModalSave();
+            });
+            field.addEventListener('blur', () => {
+                if (field.hasAttribute('data-address-required')) field.dataset.addressTouched = 'true';
+                updateAddressModalSave();
+            });
+            field.addEventListener('input', () => {
+                field.setCustomValidity('');
+                field.removeAttribute('aria-invalid');
+                updateAddressModalSave();
+            });
+        });
+        addressModalDefaultCheckbox?.addEventListener('change', () => {
+            if (addressModalDefaultValue) addressModalDefaultValue.value = addressModalDefaultCheckbox.checked ? '1' : '0';
+        });
+
+        document.addEventListener('click', event => {
+            if (event.target.closest('[data-checkout-add-address]')) {
+                openAddressModal();
+                return;
+            }
+            if (event.target.closest('[data-guest-address-edit]')) {
+                openAddressModal(getGuestAddress());
+                return;
+            }
+            if (event.target.closest('[data-address-modal-close]') || event.target === addressModal) {
+                closeAddressModal();
+                return;
+            }
+            if (event.target.closest('[data-checkout-address-result-close]') || event.target === addressResult) {
+                closeAddressResult();
+            }
+        });
+
+        addressModalForm?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (isAddressSaving || !addressModalForm.checkValidity()) return;
+
+            const formAddress = Object.fromEntries(
+                [...addressModalForm.querySelectorAll('[data-address-required], [data-address-optional]')]
+                    .map(field => [field.name, field.value.trim()])
+            );
+            isAddressSaving = true;
+            updateAddressModalSave();
+
+            try {
+                if (addressModalForm.dataset.addressCanPersist === 'true') {
+                    addressModalDefaultValue.value = addressModalDefaultCheckbox?.checked ? '1' : '0';
+                    const response = await fetch(addressModalForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                        body: new FormData(addressModalForm),
+                    });
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        throw new Error('Сервер вернул неожиданный ответ. Повторите попытку.');
+                    }
+
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        if (response.status === 422) {
+                            revealAddressErrors = true;
+                            Object.keys(payload.errors || {}).forEach(name => {
+                                const field = addressModalForm.elements.namedItem(name);
+                                if (!(field instanceof HTMLInputElement)) return;
+                                field.setCustomValidity(' ');
+                                field.setAttribute('aria-invalid', 'true');
+                                field.closest('[data-address-input-wrap]')?.classList.add('is-invalid');
+                            });
+                            return;
+                        }
+                        throw new Error(payload.message || 'Не удалось сохранить адрес.');
+                    }
+                    if (!payload.created_address) {
+                        throw new Error('Адрес сохранён, но сервер не вернул данные для выбора.');
+                    }
+
+                    updateAddressSelection(payload.created_address);
+                    closeAddressModal(true);
+                    showAddressResult(payload.message || 'Данные успешно обновлены');
+                } else {
+                    const guestAddress = {
+                        city: formAddress.city,
+                        street: formAddress.street,
+                        house: formAddress.house,
+                        apartment: formAddress.apartment,
+                        entrance: formAddress.entrance,
+                        floor: formAddress.floor,
+                    };
+                    updateAddressSelection({
+                        ...guestAddress,
+                        full_address: formatAddress(guestAddress),
+                    });
+                    closeAddressModal(true);
+                    showAddressResult('Данные успешно обновлены');
+                }
+            } catch (error) {
+                closeAddressModal(true);
+                showAddressResult(error.message || 'Не удалось сохранить адрес.');
+            } finally {
+                isAddressSaving = false;
+                updateAddressModalSave();
+            }
+        });
+
+        addressModal?.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeAddressModal();
+        });
+        addressResult?.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeAddressResult();
+        });
+
+        if (addressModalForm) {
+            addressModalForm.dataset.storeUrl = addressModalForm.action;
+            updateAddressModalSave();
+        }
+        if (guestAddressFields.length > 0) {
+            const existingGuestAddress = getGuestAddress();
+            if (existingGuestAddress.city && existingGuestAddress.street && existingGuestAddress.house) {
+                updateAddressSelection({
+                    ...existingGuestAddress,
+                    full_address: formatAddress(existingGuestAddress),
+                });
+            }
+        }
         updateCheckoutSummary();
     }
 

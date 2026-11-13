@@ -118,14 +118,14 @@ $similarVariants = \App\Models\ProductVariant::limit(10)->get();
 
                             @if($inCart)
                             <a href="{{ route('cart.index') }}"
-                                class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-sm">
+                                class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-sm transition-colors duration-300 cursor-pointer">
                                 В корзине
                             </a>
                             @else
                             <div class="text-right">
                                 <form action="{{ route('cart.add', $variant) }}" method="POST" class="mx-auto">
                                     @csrf
-                                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition">
+                                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded-lg transition-colors duration-300 cursor-pointer">
                                         В корзину
                                     </button>
                                 </form>

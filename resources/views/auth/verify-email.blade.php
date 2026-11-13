@@ -9,7 +9,7 @@
 
     <form method="POST" action="{{ route('verification.send') }}" class="text-center">
         @csrf
-        <button class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+        <button class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
             Отправить повторно
         </button>
     </form>

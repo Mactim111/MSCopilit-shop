@@ -68,13 +68,13 @@
                             @if($p->deleted_at)
                             <button
                                 data-slug="{{ $p->slug }}"
-                                class="restore-btn bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700">
+                                class="restore-btn bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 transition-colors duration-300 cursor-pointer">
                                 Восстановить
                             </button>
                             @else
                             <button
                                 data-slug="{{ $p->slug }}"
-                                class="delete-btn bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700">
+                                class="delete-btn bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition-colors duration-300 cursor-pointer">
                                 Удалить
                             </button>
                             @endif

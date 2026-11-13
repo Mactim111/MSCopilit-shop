@@ -76,7 +76,7 @@
             <input type="file" name="images[]" multiple class="w-full border-gray-300 rounded-lg">
         </div>
 
-        <button class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 mb-3 mt-3" type="submit">Сохранить</button>
+        <button class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer mb-3 mt-3" type="submit">Сохранить</button>
     </form>
 
 @endsection

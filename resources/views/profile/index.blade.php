@@ -245,10 +245,11 @@
             </svg>
         </button>
         <div class="flex w-full flex-col gap-4">
-            <p id="profile-save-success-title" class="mb-4 text-center text-[24px] text-[#231f20] font-bold text-nowrap">Данные успешно обновлены</p>
+            <p id="profile-save-success-title" class="mb-4 text-center text-[24px] text-[#231f20] font-bold text-nowrap">
+                Данные успешно обновлены</p>
             <button type="button" data-profile-success-close
                     class="h-[48px] w-full cursor-pointer rounded-[10px] border border-[#dc092e] bg-[#dc092e] px-[14px] py-3 text-center text-[15px] font-semibold text-white 
-                    transition-colors duration-200 hover:bg-[#a80723] hover:[#a80723] focus:bg-[#a80723] focus:[#dc092e] focus:font-bold">
+                    transition-colors duration-200 hover:bg-[#a80723] hover:border-[#a80723] focus:bg-[#a80723] focus:border-[#dc092e]">
                 OK
             </button>
         </div>

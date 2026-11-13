@@ -11,7 +11,7 @@
             <input type="email" name="email" class="w-full border-gray-300 rounded-lg border px-3" required>
         </div>
 
-        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition">
+        <button class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
             Отправить ссылку
         </button>
 

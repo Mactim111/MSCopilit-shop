@@ -368,7 +368,7 @@
         @if($hasActiveFilters)
             <button id="clear-filters-bottom" type="button"
                     class="w-[316px] h-[40px] border border-[#DC092E]
-                           text-[#DC092E] font-semibold rounded-lg">
+                           text-[#DC092E] font-semibold rounded-lg cursor-pointer">
                 Очистить фильтры
             </button>
         @endif
@@ -378,7 +378,7 @@
             Скрывается сама, если скрытых групп нет (JS-логика ниже).
         --}}
         <button id="btn-all-filters" type="button"
-                class="w-[316px] h-[40px] bg-[#DC092E] hover:bg-red-700
+                class="w-[316px] h-[40px] bg-[#DC092E] hover:bg-red-700 transition-colors duration-300 cursor-pointer
                        text-white font-semibold rounded-lg">
             Все фильтры
         </button>

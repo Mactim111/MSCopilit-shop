@@ -89,7 +89,7 @@
                 </label>
 
                 <button type="submit"
-                        class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">Сохранить
+                        class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">Сохранить
                 </button>
             </form>
         </div>
@@ -116,7 +116,7 @@
                 </label>
 
                 <button type="submit"
-                        class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">Обновить
+                        class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">Обновить
                     пароль
                 </button>
             </form>
@@ -136,13 +136,13 @@
 
                             <div class="flex justify-between">
                                 <a href="{{ route('profile.address.edit', $addr) }}"
-                                   class="mb-2 bg-green-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">Редактировать</a>
+                                   class="mb-2 bg-green-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 cursor-pointer">Редактировать</a>
 
                                 <form action="{{ route('profile.address.delete', $addr) }}" method="POST"
                                       class="space-y-4">
                                     @csrf @method('DELETE')
                                     <button
-                                        class="mb-2 bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                                        class="mb-2 bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
                                         Удалить
                                     </button>
                                 </form>
@@ -187,7 +187,7 @@
                                value="USA" required>
                     </label>
 
-                    <button class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition"
+                    <button class="bg-red-600 mt-3 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer"
                             type="submit">Добавить адрес
                     </button>
                 </form>

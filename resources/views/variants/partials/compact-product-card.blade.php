@@ -48,7 +48,8 @@
 
         @if($inCart)
             <a href="{{ route('cart.index') }}"
-               class="flex h-[50px] w-full items-center justify-center rounded-lg border border-red-600 bg-white text-[20px] font-semibold text-red-600 hover:bg-red-500 hover:text-white">
+               class="flex h-[50px] w-full items-center justify-center text-[20px] rounded-lg border border-red-600 bg-white font-semibold text-red-600 hover:bg-red-600 hover:text-white
+               transition-colors duration-300 cursor-pointer">
                 В корзине
             </a>
         @else
@@ -56,11 +57,11 @@
                 <form action="{{ route('cart.add', $variant) }}"
                     method="POST"
                     data-cart-url="{{ route('cart.index') }}"
-                    data-cart-link-class="flex items-center justify-center w-full h-[50px] bg-white border border-red-600 text-red-600 font-semibold rounded-lg hover:bg-red-500 hover:text-white text-[20px]"
+                    data-cart-link-class="flex items-center justify-center w-full h-[50px] bg-white border border-red-600 text-red-600 font-semibold rounded-lg hover:bg-red-600 hover:text-white text-[20px]"
                     class="w-full js-cart-add-form">
                     @csrf
                     <button type="submit"
-                            class="h-[50px] w-full rounded-lg bg-red-600 text-[20px] font-semibold text-white transition-colors hover:bg-red-700">
+                            class="h-[50px] w-full rounded-lg bg-red-600 text-[20px] font-semibold text-white hover:bg-red-700 transition-colors duration-300 cursor-pointer">
                         В корзину
                     </button>
                 </form>

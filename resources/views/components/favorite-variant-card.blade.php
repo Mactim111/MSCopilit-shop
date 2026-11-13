@@ -118,16 +118,17 @@
                     </button>
                 @elseif($inCart)
                     <a href="{{ route('cart.index') }}"
-                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-500 hover:text-white">
+                       class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-600 hover:text-white
+                       transition-colors duration-300">
                         В корзине
                     </a>
                 @else
                     <form action="{{ route('cart.add', $variant) }}" method="POST"
                           data-cart-url="{{ route('cart.index') }}"
-                          data-cart-link-class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-500 hover:text-white"
+                          data-cart-link-class="block text-center bg-white border border-red-600 text-red-600 font-semibold py-2 rounded-lg text-[15px] cursor-pointer hover:bg-red-600 hover:text-white"
                           class="js-cart-add-form">
                         @csrf
-                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-[15px] cursor-pointer">
+                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-[15px] cursor-pointer transition-colors duration-300">
                             В корзину
                         </button>
                     </form>

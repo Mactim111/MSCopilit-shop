@@ -17,7 +17,7 @@ class AddressController extends Controller
         $userId = $request->user()->id;
         $addressLine = $this->formattedAddressLine($data);
 
-        DB::transaction(function () use ($data, $userId, $addressLine): void {
+        $address = DB::transaction(function () use ($data, $userId, $addressLine): Address {
             $user = User::query()->lockForUpdate()->findOrFail($userId);
             $isDefault = (bool) $data['is_default'];
 
@@ -25,14 +25,14 @@ class AddressController extends Controller
                 $user->addresses()->update(['is_default' => false]);
             }
 
-            $user->addresses()->create([
+            return $user->addresses()->create([
                 ...$data,
                 'address_line' => $addressLine,
                 'is_default' => $isDefault,
             ]);
         });
 
-        return $this->respondWithUpdatedAddresses($request, 'Данные успешно обновлены');
+        return $this->respondWithUpdatedAddresses($request, 'Данные успешно обновлены', $address);
     }
 
     public function update(Request $request, Address $address): JsonResponse|RedirectResponse
@@ -110,7 +110,8 @@ class AddressController extends Controller
 
     private function respondWithUpdatedAddresses(
         Request $request,
-        string $message
+        string $message,
+        ?Address $createdAddress = null
     ): JsonResponse|RedirectResponse {
         if ($request->expectsJson()) {
             $addresses = $request->user()
@@ -122,6 +123,11 @@ class AddressController extends Controller
             return response()->json([
                 'message' => $message,
                 'default_address_id' => $addresses->firstWhere('is_default', true)?->id,
+                'created_address' => $createdAddress ? [
+                    'id' => $createdAddress->id,
+                    'full_address' => $createdAddress->fullAddress(),
+                    'is_default' => $createdAddress->is_default,
+                ] : null,
                 'addresses_html' => view('profile.partials.addresses-list', compact('addresses'))->render(),
             ]);
         }

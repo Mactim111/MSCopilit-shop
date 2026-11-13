@@ -32,18 +32,28 @@
      aria-labelledby="address-delete-title"
      data-address-delete-modal>
     <div class="relative flex min-h-[225px] w-[390px] max-w-full flex-col justify-center rounded-[10px] bg-white py-8 pl-6 pr-6 text-left sm:pl-12.5 sm:pr-10">
+        <button type="button"
+                data-address-delete-close
+                aria-label="Закрыть окно подтверждения удаления"
+                class="absolute right-[10px] top-[10px] flex h-[31px] w-[31px] cursor-pointer items-center justify-center text-[#231f20] hover:text-[#dc092e]">
+            <svg class="h-[26.6px] w-[26.6px]" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M3 3l14 14M17 3L3 17" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+        </button>
         <div class="flex flex-col gap-6">
-            <h2 id="address-delete-title" class="text-[24px] font-bold text-black">Удалить адрес?</h2>
-            <p class="mb-[6px] text-[15px] text-black">Вы действительно хотите удалить этот адрес доставки?</p>
+            <h2 id="address-delete-title" class="text-[24px] font-bold text-black">Подтверждение</h2>
+            <p class="mb-6 text-[15px] text-black text-nowrap">Вы уверены, что хотите удалить этот адрес?</p>
             <div class="flex gap-[10px]">
                 <button type="button"
                         data-address-delete-cancel
-                        class="h-10 w-1/2 cursor-pointer rounded-[8px] border border-[#dc092e] text-center text-[15px] font-semibold text-[#dc092e] transition-colors focus:bg-[#dc092e] focus:text-white">
+                        class="h-10 w-1/2 cursor-pointer rounded-[8px] text-center text-[15px] font-semibold border border-red-600 bg-white font-semibold text-red-600 hover:bg-red-600 hover:text-white
+                        transition-colors duration-300 cursor-pointer">
                     Нет
                 </button>
                 <button type="button"
                         data-address-delete-confirm
-                        class="h-10 w-1/2 cursor-pointer rounded-[8px] border border-[#dc092e] text-center text-[15px] font-semibold text-[#dc092e] transition-colors focus:bg-[#dc092e] focus:text-white">
+                        class="h-10 w-1/2 cursor-pointer rounded-[8px] text-center text-[15px] font-semibold border border-red-600 bg-white font-semibold text-red-600 hover:bg-red-600 hover:text-white
+                        transition-colors duration-300 cursor-pointer">
                     Да
                 </button>
             </div>
@@ -67,12 +77,13 @@
             </svg>
         </button>
         <div class="flex w-full flex-col gap-4">
-            <p id="address-result-message" class="mb-4 text-center text-[24px] font-bold text-[#231f20]">
+            <p id="address-result-message" class="mb-4 text-center text-[24px] font-bold text-[#231f20] text-nowrap">
                 Данные успешно обновлены
             </p>
             <button type="button"
                     data-address-result-close
-                    class="h-[48px] w-full cursor-pointer rounded-[10px] border border-[#dc092e] bg-[#dc092e] px-[14px] py-3 text-center text-[15px] font-semibold text-white transition-colors duration-200 hover:bg-[#a80723]">
+                    class="h-[48px] w-full cursor-pointer rounded-[10px] border border-[#dc092e] bg-[#dc092e] px-[14px] py-3 text-center text-[15px] font-semibold text-white 
+                    transition-colors duration-200 hover:bg-[#a80723] hover:border-[#a80723] focus:bg-[#a80723] focus:border-[#dc092e]">
                 OK
             </button>
         </div>
@@ -305,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (event.target.closest('[data-address-delete-cancel]') || event.target === deleteModal) {
+        if (event.target.closest('[data-address-delete-cancel], [data-address-delete-close]') || event.target === deleteModal) {
             pendingDeleteForm = null;
             hideModal(deleteModal);
             return;

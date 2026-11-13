@@ -64,85 +64,116 @@
                 <h2 class="mb-4 text-xl font-semibold">Выберите способ доставки</h2>
 
                 @php
-                    $deliveryMethod = old('delivery_method', \App\Models\Order::DELIVERY_COURIER);
+                    $deliveryMethod = old('delivery_method', \App\Models\Order::DELIVERY_PICKUP);
                     $selectedAddressId = old('address_id', $defaultAddressId);
                     $selectedPaymentMethod = old('payment_method', \App\Models\Order::PAYMENT_CASH_ON_DELIVERY);
                     $selectedPaymentSummary = $selectedPaymentMethod === \App\Models\Order::PAYMENT_ONLINE_CARD
                         ? 'Онлайн банковской картой Visa, MasterCard, Белкарт и др.'
                         : 'При получении наличными или банковской картой';
+                    $canSaveAddresses = auth()->check() && auth()->user()->hasVerifiedEmail();
                 @endphp
 
                 <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
-                    <input type="radio"
-                           name="delivery_method"
-                           value="{{ \App\Models\Order::DELIVERY_COURIER }}"
-                           data-delivery-method
-                           data-delivery-fee="{{ $courierDeliveryPrice }}"
-                           class="mt-1"
-                           required
-                           @checked($deliveryMethod === \App\Models\Order::DELIVERY_COURIER)>
-                    <span>
-                        <span class="block text-[15px] font-semibold">Доставка курьером по адресу</span>
-                        <span class="text-sm text-gray-600">{{ number_format($courierDeliveryPrice, 2, '.', ' ') }}<i class="nbrb-icon">BYN</i></span>
-                    </span>
-                </label>
-
-                <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
-                    <input type="radio"
+                    <input class="peer sr-only" type="radio"
                            name="delivery_method"
                            value="{{ \App\Models\Order::DELIVERY_PICKUP }}"
                            data-delivery-method
                            data-delivery-fee="0"
-                           class="mt-1"
+                           required
                            @checked($deliveryMethod === \App\Models\Order::DELIVERY_PICKUP)>
+                    <span class="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
                     <span>
                         <span class="block text-[15px] font-semibold">Самовывоз из пункта выдачи</span>
                         <span class="text-sm text-gray-600">{{ \App\Models\Order::PICKUP_ADDRESS }}. Бесплатно</span>
                     </span>
                 </label>
+
+                <div class="rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50"
+                     data-courier-card>
+                    <label class="flex cursor-pointer items-start gap-3">
+                        <input class="peer sr-only" type="radio"
+                               name="delivery_method"
+                               value="{{ \App\Models\Order::DELIVERY_COURIER }}"
+                               data-delivery-method
+                               data-delivery-fee="{{ $courierDeliveryPrice }}"
+                               @checked($deliveryMethod === \App\Models\Order::DELIVERY_COURIER)>
+                        <span class="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
+                        <span class="flex flex-wrap items-baseline gap-x-1 text-[15px] font-semibold">
+                            Доставка курьером по указанному адресу —
+                            <span class="whitespace-nowrap">{{ number_format($courierDeliveryPrice, 2, '.', ' ') }}<i class="nbrb-icon">BYN</i></span>
+                        </span>
+                    </label>
+
+                    <div class="ml-4 mt-4 space-y-4" data-courier-addresses>
+                        @if($canSaveAddresses)
+                            <div @if($addresses->isEmpty()) hidden @endif data-saved-address-section>
+                                <label for="checkout-address-select" class="sr-only">Адрес доставки</label>
+                                <select id="checkout-address-select"
+                                        name="address_id"
+                                        data-address-select
+                                        class="h-[44px] w-full cursor-pointer rounded-[8px] border border-[#d6d6d6] bg-white px-3 text-[15px] text-[#231f20] focus:border-[#231f20] focus:outline-none"
+                                        >
+                                    <option value="" @selected(blank($selectedAddressId))>Выберите адрес доставки</option>
+                                    @foreach($addresses as $addr)
+                                        <option value="{{ $addr->id }}"
+                                                @selected((string) $selectedAddressId === (string) $addr->id)>
+                                            {{ $addr->fullAddress() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @else
+                            <div @if(old('guest_address.city')) hidden @endif data-guest-address-prompt
+                                 class="text-[15px] text-[#231f20]">
+                                Выберите адрес доставки
+                            </div>
+                            <div hidden data-guest-address-display class="text-[15px] text-[#231f20]">
+                                <span data-guest-address-text></span>
+                                <button type="button" data-guest-address-edit
+                                        class="ml-2 cursor-pointer text-[#007eff] hover:text-[#0064cc]">
+                                    Изменить
+                                </button>
+                            </div>
+                            @foreach(['city', 'street', 'house', 'apartment', 'entrance', 'floor'] as $field)
+                                <input type="hidden"
+                                       name="guest_address[{{ $field }}]"
+                                       value="{{ old('guest_address.' . $field) }}"
+                                       data-guest-address-field="{{ $field }}">
+                            @endforeach
+                        @endif
+
+                        <button type="button"
+                                data-checkout-add-address
+                                class="group flex cursor-pointer items-center text-[15px] text-[#007eff] transition-colors hover:text-[#0064cc]">
+                            <span class="mr-2 inline-flex h-4 w-4 shrink-0 items-center justify-center transition-colors group-hover:text-[#0064cc]">
+                                @include('products.plus-circle')
+                            </span>
+                            <span data-add-address-label>Добавить новый адрес</span>
+                        </button>
+                        <p class="hidden text-sm text-red-600" data-checkout-address-error aria-live="polite">
+                            Выберите или добавьте адрес доставки.
+                        </p>
+                    </div>
+                </div>
+
                 @error('delivery_method')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-
-                <div class="mt-4 space-y-3" data-courier-addresses>
-                    @foreach($addresses as $addr)
-                        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
-                            <input type="radio"
-                                   name="address_id"
-                                   value="{{ $addr->id }}"
-                                   data-address-option
-                                   class="mt-1"
-                                   @checked((string) $selectedAddressId === (string) $addr->id)>
-                            <span>
-                                <span class="block text-[15px] font-semibold">Доставить на сохранённый адрес</span>
-                                <span class="text-sm text-gray-600">{{ $addr->fullAddress() }}</span>
-                            </span>
-                        </label>
-                    @endforeach
-
-                    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
-                        <input type="radio"
-                               name="address_id"
-                               value=""
-                               data-address-option
-                               class="mt-1"
-                               @checked((string) $selectedAddressId === '' || ($addresses->isEmpty() && $selectedAddressId === null))>
-                        <span class="w-full">
-                            <span class="block text-[15px] font-semibold">Ввести адрес доставки</span>
-                            <textarea name="address"
-                                      data-new-address
-                                      placeholder="Страна, город, улица, дом, квартира"
-                                      rows="3"
-                                      class="mt-2 w-full rounded-lg border border-gray-300 p-3 @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
-                        </span>
-                    </label>
-                    @error('address')
-                        <p class="text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    @error('address_id')
-                        <p class="text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+                @error('address_id')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('guest_address')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('guest_address.city')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('guest_address.street')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                @error('guest_address.house')
+                    <p class="text-sm text-red-600">{{ $message }}</p>
+                @enderror
             </section>
 
             <section class="rounded-[10px] border border-[#e5e5e5] p-6">
@@ -175,11 +206,43 @@
 
             {{-- Кнопка --}}
             <button type="submit"
-                    class="w-full md:w-auto bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition">
+                    class="w-full md:w-auto bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
                 Подтвердить заказ
             </button>
 
         </form>
+
+        @include('profile.partials.address-create-modal', [
+            'addressCanPersist' => $canSaveAddresses,
+        ])
+
+        <div class="fixed inset-0 z-[1200] hidden items-center justify-center bg-[#231f20bf] px-4 py-4"
+             role="dialog"
+             aria-modal="true"
+             aria-live="polite"
+             aria-labelledby="checkout-address-result-message"
+             data-checkout-address-result>
+            <div class="relative flex min-h-[188px] w-[432px] max-w-full flex-col justify-center rounded-[10px] bg-white py-8 pl-6 pr-6 sm:pl-[50px] sm:pr-10">
+                <button type="button"
+                        data-checkout-address-result-close
+                        aria-label="Закрыть окно"
+                        class="absolute right-[10px] top-[10px] flex h-[31px] w-[31px] cursor-pointer items-center justify-center text-[#231f20] hover:text-[#dc092e]">
+                    <svg class="h-[26.6px] w-[26.6px]" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M3 3l14 14M17 3L3 17" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <div class="flex w-full flex-col gap-4">
+                    <p id="checkout-address-result-message"
+                       class="mb-4 text-center text-[24px] font-bold text-[#231f20]"
+                       data-checkout-address-result-message>Данные успешно обновлены</p>
+                    <button type="button"
+                            data-checkout-address-result-close
+                            class="h-[48px] w-full cursor-pointer rounded-[10px] border border-[#dc092e] bg-[#dc092e] px-[14px] py-3 text-center text-[15px] font-semibold text-white transition-colors hover:bg-[#a80723]">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
     </main>
 
     @php

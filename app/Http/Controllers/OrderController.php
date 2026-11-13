@@ -48,8 +48,7 @@ class OrderController extends Controller
             'totalQuantity'    => $items->sum('quantity'),
             'courierDeliveryPrice' => Order::COURIER_DELIVERY_PRICE,
             'addresses'        => Auth::user()?->addresses()
-                ->orderByDesc('is_default')
-                ->latest('id')
+                ->orderBy('id')
                 ->get() ?? collect(),
             'defaultAddressId' => Auth::user()?->addresses()
                 ->where('is_default', true)
@@ -74,13 +73,14 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста или товары не выбраны!');
         }
 
-        $addressIdRules = [
-            'nullable',
-            Rule::requiredIf(
-                $request->input('delivery_method') === Order::DELIVERY_COURIER
-                && blank($request->input('address'))
-            ),
-        ];
+        $isCourierDelivery = $request->input('delivery_method') === Order::DELIVERY_COURIER;
+        $canUseGuestAddress = !$request->user()?->hasVerifiedEmail();
+        $addressIdRules = ['nullable'];
+
+        if ($request->user() && !$canUseGuestAddress) {
+            $addressIdRules[] = Rule::requiredIf($isCourierDelivery);
+        }
+
         if ($request->user()) {
             $addressIdRules[] = Rule::exists('addresses', 'id')
                 ->where('user_id', $request->user()->id);
@@ -94,15 +94,32 @@ class OrderController extends Controller
                 Order::DELIVERY_COURIER,
             ])],
             'address_id' => $addressIdRules,
-            'address' => [
-                'nullable',
-                Rule::requiredIf(
-                    $request->input('delivery_method') === Order::DELIVERY_COURIER
-                    && blank($request->input('address_id'))
-                ),
-                'string',
-                'max:500',
+            'guest_address' => [
+                Rule::prohibitedIf(!$canUseGuestAddress),
+                Rule::requiredIf($isCourierDelivery && $canUseGuestAddress),
+                'array',
             ],
+            'guest_address.city' => [
+                Rule::requiredIf($isCourierDelivery && $canUseGuestAddress),
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'guest_address.street' => [
+                Rule::requiredIf($isCourierDelivery && $canUseGuestAddress),
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'guest_address.house' => [
+                Rule::requiredIf($isCourierDelivery && $canUseGuestAddress),
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'guest_address.apartment' => ['nullable', 'string', 'max:255'],
+            'guest_address.entrance' => ['nullable', 'string', 'max:255'],
+            'guest_address.floor' => ['nullable', 'string', 'max:255'],
             'payment_method' => ['required', Rule::in([
                 Order::PAYMENT_CASH_ON_DELIVERY,
                 Order::PAYMENT_ONLINE_CARD,
