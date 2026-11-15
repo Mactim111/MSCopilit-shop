@@ -14,7 +14,8 @@ class HomeController extends Controller
         // Поиск по вариантам
         $search = $request->get('search');
 
-        $variantsQuery = ProductVariant::with(['product', 'images'])
+        $variantsQuery = ProductVariant::available()
+            ->with(['product', 'images'])
             ->when($search, function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%");
             })
@@ -66,7 +67,8 @@ class HomeController extends Controller
         //         ];
         //     });
         // }
-        $popular_variants = ProductVariant::with(['product', 'labels'])
+        $popular_variants = ProductVariant::available()
+            ->with(['product', 'labels'])
             ->inRandomOrder()
             ->limit(10)
             ->get();
@@ -105,4 +107,3 @@ class HomeController extends Controller
         ));
     }
 }
-

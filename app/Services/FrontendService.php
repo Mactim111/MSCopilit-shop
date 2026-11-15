@@ -29,7 +29,8 @@ class FrontendService
         
         // Источник: Хиты продаж
         elseif ($section->source_type === 'best_sellers') {
-            $data['items'] = \App\Models\ProductVariant::with(['product', 'labels', 'images'])
+            $data['items'] = \App\Models\ProductVariant::available()
+                ->with(['product', 'labels', 'images'])
                 ->withFavoriteState()
                 ->where('is_active', true)
                 ->inRandomOrder()
@@ -39,7 +40,8 @@ class FrontendService
         
         // Источник: Новинки
         elseif ($section->source_type === 'new_arrivals') {
-            $data['items'] = \App\Models\ProductVariant::with(['product', 'labels', 'images'])
+            $data['items'] = \App\Models\ProductVariant::available()
+                ->with(['product', 'labels', 'images'])
                 ->withFavoriteState()
                 ->where('is_active', true)
                 ->latest()
@@ -49,7 +51,8 @@ class FrontendService
 
         // Источник: Похожие / С этим покупают (только если есть $currentVariant)
         elseif ($section->source_type === 'related' && $currentVariant) {
-            $data['items'] = \App\Models\ProductVariant::where('id', '!=', $currentVariant->id)
+            $data['items'] = \App\Models\ProductVariant::available()
+                ->where('id', '!=', $currentVariant->id)
                 ->whereHas('product', function($q) use ($currentVariant) {
                     // Ищем товары в той же подкатегории
                     $q->where('category_id', $currentVariant->product->category_id);
@@ -64,7 +67,8 @@ class FrontendService
         // Специальный тип: Ранее вы смотрели (логика отображения мелких карточек)
         if ($section->type === 'recently_viewed') {
             // Пока для теста берем рандомные варианты, позже заменим на логику из Cookies/Session
-            $data['items'] = \App\Models\ProductVariant::with(['product', 'images'])
+            $data['items'] = \App\Models\ProductVariant::available()
+                ->with(['product', 'images'])
                 ->withFavoriteState()
                 ->where('is_active', true)
                 ->inRandomOrder()

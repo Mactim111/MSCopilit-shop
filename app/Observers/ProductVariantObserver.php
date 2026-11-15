@@ -10,6 +10,13 @@ class ProductVariantObserver
 {
     public function saved(ProductVariant $variant): void
     {
+        // Индекс не хранит stock и reserved, и это правильно: наличие меняется часто, и его лучше проверять в момент запроса. Но каждое сохранение варианта вызывает полную 
+        //пересборку его строк в индексе, в том числе при каждом изменении reserved в заказе. Это работает, но зря нагружает базу. Безопасная оптимизация в начале saved():
+        $changes = array_keys($variant->getChanges());
+        if ($changes && !array_diff($changes, ['stock', 'reserved', 'updated_at'])) {
+            return; // менялось только наличие — индексу это неважно
+        }
+        // Ранее в методе была только строка ниже
         $this->rebuildIndex($variant);
     }
 

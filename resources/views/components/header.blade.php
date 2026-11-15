@@ -78,7 +78,7 @@
                     <span class="text-[12px]">{{ auth()->user()->name }}</span>
                 </summary>
 
-                <div class="pointer-events-none absolute right-[-10px] top-full z-50 translate-y-[-6px] pt-3 opacity-0 transition-[opacity,transform] duration-200 ease-out"
+                <div class="pointer-events-none absolute right-[-20px] top-full z-50 translate-y-[-6px] pt-3 opacity-0 transition-[opacity,transform] duration-200 ease-out"
                      data-profile-dropdown-panel>
                     <div class="w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg text-[13px]">
 

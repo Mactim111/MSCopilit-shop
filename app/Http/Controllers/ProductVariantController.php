@@ -72,7 +72,8 @@ class ProductVariantController extends Controller
         $category    = $subcategory?->parent;
         $group       = $category?->parent;
 
-        $relatedVariants = ProductVariant::where('id', '!=', $variant->id)
+        $relatedVariants = ProductVariant::available()
+            ->where('id', '!=', $variant->id)
             ->whereHas('product', fn($q) =>
                 $q->where('category_id', $product->category_id)
             )
@@ -81,7 +82,8 @@ class ProductVariantController extends Controller
             ->get();
 
         // Переменные для слайдеров с карточками вариантов товаров типа Хиты продаж
-        $popular_variants = ProductVariant::with(['product', 'labels'])
+        $popular_variants = ProductVariant::available()
+            ->with(['product', 'labels'])
             ->inRandomOrder()
             ->limit(10)
             ->get();
