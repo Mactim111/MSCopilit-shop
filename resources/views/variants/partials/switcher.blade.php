@@ -24,9 +24,24 @@
             * «чужая» опция → серый фон + светло‑серый текст
         — Родные/чужие опции определяются НЕ по всему товару,
           а только среди вариантов, совпадающих по ВСЕМ остальным осям.
+
+        — НОВОЕ: в свитчере участвуют только ДОСТУПНЫЕ варианты (is_active и stock - reserved > 0)
+          плюс текущий. Плитка опции, которой нет ни у одного такого варианта, скрывается.
 --}}
 
 @if(isset($variantMatrix) && $variantMatrix->isNotEmpty())
+
+    @php
+        /**
+         * НОВОЕ: пул вариантов для свитчера.
+         * Доступные для заказа + текущий (чтобы активная плитка и ссылка не ломались,
+         * даже если текущий вариант уже закончился и страницу открыли по прямой ссылке).
+         * Фильтрация идёт в памяти по уже загруженным $product->variants: запросов к БД нет.
+         */
+        $switcherVariants = $product->variants->filter(
+            fn($v) => $v->id === $variant->id || $v->isSellable()
+        );
+    @endphp
 
     <div class="flex flex-col">
 
@@ -53,6 +68,8 @@
                  * Именно по этому контексту 5 Элемент определяет,
                  * какие опции являются "родными", а какие "чужими".
                  */
+
+                // ID опций текущего варианта по ВСЕМ остальным осям — «контекст» варианта.
                 $otherIds = $variant->propertyOptions
                     ->where('property_id', '!=', $property->id)
                     ->pluck('id');
@@ -64,12 +81,27 @@
                  *   — родные опции = те, что встречаются среди этих вариантов
                  *   — чужие опции = те, что встречаются только в других комбинациях
                  */
-                $sameAxisVariants = $product->variants->filter(function ($v) use ($otherIds) {
+
+                // ИЗМЕНЕНО В ЛОГИКЕ, ОПИСАННОЙ ВЫШЕ: варианты, совпадающие по всем остальным осям, ищем в пуле
+                // доступных ($switcherVariants), а не! среди всех! вариантов товара.
+                $sameAxisVariants = $switcherVariants->filter(function ($v) use ($otherIds) {
                     return $otherIds->every(
                         fn($id) => $v->propertyOptions->contains('id', $id)
                     );
                 });
+
+                // НОВОЕ: плитки, которые показываем. Опция выводится, только если она есть
+                // хотя бы у одного варианта из пула. Если доступных вариантов с опцией
+                // «Белый» не осталось, плитки «Белый» не будет ни у каких вариантов.
+                $visibleItems = collect($axis['options'])->filter(
+                    fn($item) => $switcherVariants->contains(
+                        fn($v) => $v->propertyOptions->contains('id', $item['option']->id)
+                    )
+                );
             @endphp
+
+            {{-- НОВОЕ: если у ОСИ не! осталось! ни! одной! ПЛИТКИ, заголовок сназванием СВОЙСТВА тоже не! выводим! --}}
+            @continue($visibleItems->isEmpty())
 
             {{-- Блок свойства --}}
             <div class="w-full mb-[32px]">
@@ -82,14 +114,13 @@
                 {{-- Плитки опций --}}
                 <div class="flex flex-wrap gap-[12px]">
 
-                    @foreach ($axis['options'] as $item)
+                    {{-- ИЗМЕНЕНО: перебираем $visibleItems вместо $axis['options'] --}}
+                    @foreach ($visibleItems as $item)
                         @php
                             /** @var \App\Models\PropertyOption $option */
-                            $option    = $item['option'];
+                            $option = $item['option'];
 
-                            /**
-                             * Опция активного варианта
-                             */
+                            // Опция активного варианта.
                             $isCurrentVariantOption =
                                 $variant->propertyOptions->contains('id', $option->id);
 
@@ -101,9 +132,9 @@
                              *   — Цвет "Зелёный" есть только в вариантах 8/256
                              *   — Значит для варианта 6/128 он "чужой"
                              */
-                            $isOwnOption = $sameAxisVariants->contains(function ($v) use ($option) {
-                                return $v->propertyOptions->contains('id', $option->id);
-                            });
+                            $isOwnOption = $sameAxisVariants->contains(
+                                fn($v) => $v->propertyOptions->contains('id', $option->id)
+                            );
 
                             /**
                              * НЕСТРОГИЙ выбор варианта:
@@ -111,15 +142,16 @@
                              * сортируем по количеству совпадений по другим осям,
                              * чтобы переход был максимально предсказуемым.
                              */
-                            $targetVariant = $product->variants
+
+                            // ИЗМЕНЕНО в логике ВЫШЕ: целевой вариант ищем только! в пуле доступных.
+                            // Сортируем по числу совпадений по остальным осям.
+                            // Ссылка никогда не ведёт на закончившийся вариант
+                            // (кроме текущего, если он сам закончился).
+                            $targetVariant = $switcherVariants
                                 ->filter(fn($v) => $v->propertyOptions->contains('id', $option->id))
-                                ->sortByDesc(function ($v) use ($variant, $property) {
-                                    return $variant->propertyOptions
-                                        ->where('property_id', '!=', $property->id)
-                                        ->pluck('id')
-                                        ->filter(fn($id) => $v->propertyOptions->contains('id', $id))
-                                        ->count();
-                                })
+                                ->sortByDesc(fn($v) => $otherIds
+                                    ->filter(fn($id) => $v->propertyOptions->contains('id', $id))
+                                    ->count())
                                 ->first();
 
                             $url = $targetVariant
@@ -136,7 +168,7 @@
                                 {{ $option->value }}
                             </a>
 
-                        {{-- РОДНАЯ плитка (как у 5 Элемент) --}}
+                        {{-- РОДНАЯ плитка --}}
                         @elseif($isOwnOption)
                             <a href="{{ $url }}"
                                class="h-[34px] flex items-center justify-center
@@ -145,7 +177,7 @@
                                 {{ $option->value }}
                             </a>
 
-                        {{-- ЧУЖАЯ плитка (блеклая, как у 5 Элемент) --}}
+                        {{-- ЧУЖАЯ плитка (блеклая) --}}
                         @else
                             <a href="{{ $url }}"
                                class="h-[34px] flex items-center justify-center

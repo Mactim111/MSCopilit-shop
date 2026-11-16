@@ -307,7 +307,7 @@ class ProfileController extends Controller
             ->filter()
             ->unique();
 
-        $reviewsByVariant = auth()->user()
+        $reviewsByVariant = Auth::user()
             ->reviews()
             ->whereIn('product_variant_id', $variantIds)
             ->get()

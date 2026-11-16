@@ -162,7 +162,11 @@ class Product extends Model
         $availabilityMap = $variants
             ->flatMap(fn ($v) => $v->propertyOptions->map(fn ($opt) => [
                 'option_id' => $opt->id,
-                'available' => $v->stock > 0,
+                // ниже старая версия строки, где не учитывалось количество варианта товара в поле `reserve` — зарезервирован в заказах и его фактическое количество 
+                // на складе может быть меньше, чем в поле `stock`
+                // 'available' => $v->stock > 0,
+                // новая версия строки, где учитывается фактическая доступность варианта товара к продаже через метод модели isSellable()
+                'available' => $v->isSellable(),   
             ]))
             ->groupBy('option_id')
             ->map(fn ($items) => $items->contains('available', true));

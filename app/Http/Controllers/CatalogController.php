@@ -131,7 +131,7 @@ class CatalogController extends Controller
 
         // Отфильтрованные варианты с пагинацией.
         // Главная сущность — ProductVariant (как в твоём исходном коде).
-        $variants = $filterService->getVariants($subcategory, $filters, perPage: 20);
+        $variants = $filterService->getVariants($subcategory, $filters, perPage: 20);   
 
         // Доступные фильтры для сайдбара (свойства с used_for_filters = true,
         // у которых есть опции среди товаров данной подкатегории).

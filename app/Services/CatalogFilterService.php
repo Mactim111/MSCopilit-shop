@@ -427,9 +427,23 @@ class CatalogFilterService
         return $query->pluck('id')->all();
     }
 
+    /**
+    * В коде методов НИЖЕ были применены некоторые Необязательные! улучшения:
+    * array_filter($slugs) без колбэка удаляет все «ложные» значения, в том числе строку "0". Для ваших slug это не проблема, но надёжнее фильтровать только пустые.
+    * Границы range. Колонка в индексе DECIMAL(10,2), значит, значения точнее двух знаков там всё равно не хранятся. Округление параметров до двух знаков делает сравнение 
+    * согласованным со схемой.
+    * Перепутанные границы. Если вручную в URL указать min больше max, выдача окажется пустой. Можно поменять их местами.
+    */
+
+    /**
+     * Фильтр checkbox/radio: вариант проходит, если у него есть ХОТЯ БЫ ОДНО из выбранных
+     * значений данного свойства (ИЛИ внутри свойства; между свойствами работает И).
+     */
     private function applyVariantCheckboxFilter(Builder $query, Category $subcategory, int $propertyId, array $slugs): void
     {
-        $slugs = array_filter($slugs);
+        // ИЗМЕНЕНО: раньше array_filter($slugs) без колбэка выбрасывал и строку "0".
+        // Теперь отбрасываем только null и пустые строки.
+        $slugs = array_values(array_filter($slugs, fn($s) => $s !== null && $s !== ''));
         if (empty($slugs)) return;
 
         $query->whereExists(function ($sub) use ($subcategory, $propertyId, $slugs) {
@@ -442,9 +456,24 @@ class CatalogFilterService
         });
     }
 
+    /**
+     * Фильтр range: у варианта numeric_value этого свойства лежит в [min; max].
+     * Любая из границ может быть null (задана только одна сторона).
+     */
     private function applyVariantRangeFilter(Builder $query, Category $subcategory, int $propertyId, ?float $min, ?float $max): void
     {
         if ($min === null && $max === null) return;
+
+        // ИЗМЕНЕНО: если границы перепутаны (min > max, например из ручного URL),
+        // меняем их местами вместо пустой выдачи.
+        if ($min !== null && $max !== null && $min > $max) {
+            [$min, $max] = [$max, $min];
+        }
+
+        // ИЗМЕНЕНО: numeric_value в индексе имеет тип DECIMAL(10,2),
+        // поэтому сравниваем с границами, округлёнными до 2 знаков.
+        $min = $min !== null ? round($min, 2) : null;
+        $max = $max !== null ? round($max, 2) : null;
 
         $query->whereExists(function ($sub) use ($subcategory, $propertyId, $min, $max) {
             $sub->select(DB::raw(1))
@@ -458,10 +487,14 @@ class CatalogFilterService
         });
     }
 
+    /**
+     * Фильтр toggle: применяется только при значении 'yes' (переключатель включён).
+     * Любое другое значение (например ?f[nfc][]=no) игнорируется.
+     */
     private function applyVariantToggleFilter(Builder $query, Category $subcategory, int $propertyId, mixed $value): void
     {
-        // if (!$value || $value === '0') return;
-        // НИЖЕ еще один вариант УСЛОВИЯ if ВЫШЕ
+        // Строгая проверка: $value приходит массивом, поэтому !$value здесь не срабатывало бы.
+        // (Старые закомментированные варианты условия удалены.)
         if (!in_array('yes', (array) $value, true)) return;
 
         $query->whereExists(function ($sub) use ($subcategory, $propertyId) {
@@ -473,6 +506,56 @@ class CatalogFilterService
                 ->where('pfi.value_slug', 'yes');
         });
     }
+
+    // Старый код методов applyVariantCheckboxFilter, applyVariantRangeFilter, applyVariantToggleFilter закомментирован ниже для справки. Новые версии этих методов вынесены выше 
+    // в коде, с улучшениями.
+    // private function applyVariantCheckboxFilter(Builder $query, Category $subcategory, int $propertyId, array $slugs): void
+    // {
+    //     $slugs = array_filter($slugs);
+    //     if (empty($slugs)) return;
+
+    //     $query->whereExists(function ($sub) use ($subcategory, $propertyId, $slugs) {
+    //         $sub->select(DB::raw(1))
+    //             ->from('product_filter_index as pfi')
+    //             ->whereColumn('pfi.product_variant_id', 'product_variants.id')
+    //             ->where('pfi.category_id', $subcategory->id)
+    //             ->where('pfi.property_id', $propertyId)
+    //             ->whereIn('pfi.value_slug', $slugs);
+    //     });
+    // }
+
+    // private function applyVariantRangeFilter(Builder $query, Category $subcategory, int $propertyId, ?float $min, ?float $max): void
+    // {
+    //     if ($min === null && $max === null) return;
+
+    //     $query->whereExists(function ($sub) use ($subcategory, $propertyId, $min, $max) {
+    //         $sub->select(DB::raw(1))
+    //             ->from('product_filter_index as pfi')
+    //             ->whereColumn('pfi.product_variant_id', 'product_variants.id')
+    //             ->where('pfi.category_id', $subcategory->id)
+    //             ->where('pfi.property_id', $propertyId)
+    //             ->whereNotNull('pfi.numeric_value')
+    //             ->when($min !== null, fn($q) => $q->where('pfi.numeric_value', '>=', $min))
+    //             ->when($max !== null, fn($q) => $q->where('pfi.numeric_value', '<=', $max));
+    //     });
+    // }
+
+    // private function applyVariantToggleFilter(Builder $query, Category $subcategory, int $propertyId, mixed $value): void
+    // {
+    //     // заменили этот вариант условия на код ниже, т.к. текущее !$value || $value === '0' для массива не срабатывает никогда, и ?f[nfc][]=no применит условие yes.
+    //     // if (!$value || $value === '0') return;
+    //     // НИЖЕ еще один вариант УСЛОВИЯ if ВЫШЕ
+    //     if (!in_array('yes', (array) $value, true)) return;
+
+    //     $query->whereExists(function ($sub) use ($subcategory, $propertyId) {
+    //         $sub->select(DB::raw(1))
+    //             ->from('product_filter_index as pfi')
+    //             ->whereColumn('pfi.product_variant_id', 'product_variants.id')
+    //             ->where('pfi.category_id', $subcategory->id)
+    //             ->where('pfi.property_id', $propertyId)
+    //             ->where('pfi.value_slug', 'yes');
+    //     });
+    // }
 
     /**
      * Сортировка вариантов.
