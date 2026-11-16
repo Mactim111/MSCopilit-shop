@@ -225,6 +225,8 @@
                 </div>
             </div>
         </section>
+
+        @include('components.profile-order-comment-card', ['comment' => $order->comment])
     </main>
     
 </div>

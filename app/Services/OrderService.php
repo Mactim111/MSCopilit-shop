@@ -63,6 +63,7 @@ class OrderService
                 'delivery_method' => $deliveryMethod,
                 'delivery_price' => $deliveryPrice,
                 'payment_method' => $data['payment_method'],
+                'comment' => $data['comment'] ?? null,
                 'total' => $goodsTotal + $deliveryPrice,
                 'status' => Order::STATUS_NEW,
             ]);

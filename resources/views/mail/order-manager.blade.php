@@ -57,7 +57,13 @@
         На сайте был сделан новый заказ...
 
     </div>
-    <div>Примечание к заказу: <br>{{ $note }}</div>
+    <div class="content">
+        <p><strong>Адрес доставки / пункт выдачи:</strong><br>{{ $address ?: 'Не указан' }}</p>
+        @if($comment)
+            <p><strong>Комментарий к заказу:</strong></p>
+            <p style="white-space: pre-wrap;">{{ $comment }}</p>
+        @endif
+    </div>
     <div class="footer" style="text-align: center; padding: 10px; font-size: 12px; color: #888;">
         Это письмо создано автоматически. Пожалуйста, не отвечайте на него.
     </div>

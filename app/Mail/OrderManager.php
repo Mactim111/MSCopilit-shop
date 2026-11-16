@@ -17,7 +17,8 @@ class OrderManager extends Mailable
 
     public function __construct(
         public int $order_id,
-        public string $note = '' // Сюда передадим адрес или примечание
+        public ?string $address = null,
+        public ?string $comment = null
     ) {}
 
     public function envelope(): Envelope

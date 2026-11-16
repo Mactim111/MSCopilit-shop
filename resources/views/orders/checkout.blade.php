@@ -73,7 +73,7 @@
                     $canSaveAddresses = auth()->check() && auth()->user()->hasVerifiedEmail();
                 @endphp
 
-                <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
+                <label class="mt-3 flex cursor-pointer items-start gap-3 mb-4">
                     <input class="peer sr-only" type="radio"
                            name="delivery_method"
                            value="{{ \App\Models\Order::DELIVERY_PICKUP }}"
@@ -83,13 +83,12 @@
                            @checked($deliveryMethod === \App\Models\Order::DELIVERY_PICKUP)>
                     <span class="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
                     <span>
-                        <span class="block text-[15px] font-semibold">Самовывоз из пункта выдачи</span>
-                        <span class="text-sm text-gray-600">{{ \App\Models\Order::PICKUP_ADDRESS }}. Бесплатно</span>
+                        <span class="block text-[15px] font-semibold">Самовывоз из пункта выдачи - бесплатно</span>
+                        <span class="text-sm text-gray-600">{{ \App\Models\Order::PICKUP_ADDRESS }}. </span>
                     </span>
                 </label>
 
-                <div class="rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50"
-                     data-courier-card>
+                <div data-courier-card>
                     <label class="flex cursor-pointer items-start gap-3">
                         <input class="peer sr-only" type="radio"
                                name="delivery_method"
@@ -99,7 +98,7 @@
                                @checked($deliveryMethod === \App\Models\Order::DELIVERY_COURIER)>
                         <span class="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
                         <span class="flex flex-wrap items-baseline gap-x-1 text-[15px] font-semibold">
-                            Доставка курьером по указанному адресу —
+                            Доставка курьером по указанному адресу -
                             <span class="whitespace-nowrap">{{ number_format($courierDeliveryPrice, 2, '.', ' ') }}<i class="nbrb-icon">BYN</i></span>
                         </span>
                     </label>
@@ -183,15 +182,15 @@
                     \App\Models\Order::PAYMENT_CASH_ON_DELIVERY => ['При получении', 'Наличными или банковской картой'],
                     \App\Models\Order::PAYMENT_ONLINE_CARD => ['Онлайн', 'Банковской картой Visa, MasterCard, Белкарт и др.'],
                 ] as $method => [$label, $description])
-                    <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[#e5e5e5] p-3 hover:bg-gray-50">
-                        <input type="radio"
+                    <label class="flex cursor-pointer items-start gap-3">
+                        <input class="peer sr-only" type="radio"
                                name="payment_method"
                                value="{{ $method }}"
                                data-payment-method
                                data-payment-summary="{{ $method === \App\Models\Order::PAYMENT_ONLINE_CARD ? 'Онлайн банковской картой Visa, MasterCard, Белкарт и др.' : 'При получении наличными или банковской картой' }}"
-                               class="mt-1"
                                @if($loop->first) required @endif
                                @checked(old('payment_method', \App\Models\Order::PAYMENT_CASH_ON_DELIVERY) === $method)>
+                        <span class="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
                         <span>
                             <span class="block text-[15px] font-semibold">{{ $label }}</span>
                             <span class="text-sm text-gray-600">{{ $description }}</span>
@@ -200,6 +199,21 @@
                 @endforeach
                 @error('payment_method')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </section>
+
+            <section class="rounded-[10px] border border-[#e5e5e5] p-6">
+                <label for="order-comment" class="mb-3 block text-[20px] font-semibold text-black">
+                    Вы можете добавить комментарий к своему заказу:
+                </label>
+                <textarea id="order-comment"
+                          name="comment"
+                          rows="8"
+                          maxlength="5000"
+                          class="block min-h-[122px] max-h-[1226px] w-full resize-y overflow-y-auto rounded-[8px] border border-[#e5e5e5] bg-white px-4 py-3 text-[15px] leading-6 text-black outline-none focus:border-[#231f20bf]"
+                >{{ old('comment') }}</textarea>
+                @error('comment')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </section>
 

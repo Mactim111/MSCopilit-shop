@@ -128,6 +128,7 @@ class OrderController extends Controller
             'last_name'  => 'nullable|string|max:255',
             'email'      => 'required|email',
             'phone'      => 'required|string|max:50',
+            'comment'    => ['nullable', 'string', 'max:5000'],
         ]);
 
         try {
@@ -164,7 +165,8 @@ class OrderController extends Controller
             // Отправка менеджеру (передаем ID заказа и адрес)
             Mail::to(config('mail.from.address'))->send(new OrderManager(
                 $order->id,
-                $order->address
+                $order->address,
+                $order->comment
             ));
         } catch (\Exception $e) {
             // Если почта не ушла, заказ все равно создан, просто логируем ошибку

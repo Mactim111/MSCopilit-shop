@@ -130,5 +130,13 @@
         <p>Заказ финализирован; изменить его статус через админ-панель нельзя.</p>
     @endunless
 
+    @if($order->comment)
+        <hr class="my-8 border-[#e5e5e5]">
+        <section>
+            <h2 class="mb-2 text-[18px] font-bold">Комментарий к заказу</h2>
+            <p class="whitespace-pre-wrap text-[15px]">{{ $order->comment }}</p>
+        </section>
+    @endif
+
 </div>
 @endsection

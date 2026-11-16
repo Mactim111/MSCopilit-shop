@@ -39,7 +39,7 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'address_id', 'name', 'last_name', 'email', 'phone',
         'address', 'delivery_method', 'delivery_price', 'payment_method',
-        'total', 'status', 'payment_status',
+        'comment', 'total', 'status', 'payment_status',
     ];
 
     protected $casts = [

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('delivery_method')->default('courier');
             $table->decimal('delivery_price', 10, 2)->default(0);
             $table->string('payment_method')->default('cash_on_delivery');
+            $table->text('comment')->nullable();
             $table->decimal('total', 10, 2);
             $table->timestamps();
 
