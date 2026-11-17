@@ -203,7 +203,7 @@
             </section>
 
             <section class="rounded-[10px] border border-[#e5e5e5] p-6">
-                <label for="order-comment" class="mb-3 block text-[20px] font-semibold text-black">
+                <label for="order-comment" class="mb-4 block text-[20px] font-semibold text-black">
                     Вы можете добавить комментарий к своему заказу:
                 </label>
                 <textarea id="order-comment"
@@ -220,7 +220,7 @@
 
             {{-- Кнопка --}}
             <button type="submit"
-                    class="w-full md:w-auto bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
+                    class="w-full cursor-pointer rounded-lg bg-red-600 px-8 py-3 text-white transition-colors duration-300 hover:bg-red-700 md:w-auto">
                 Подтвердить заказ
             </button>
 

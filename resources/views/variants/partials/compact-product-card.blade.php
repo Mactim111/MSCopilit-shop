@@ -1,6 +1,9 @@
 @php
     $cartService = app(\App\Services\CartService::class);
     $inCart = $cartService->has($variant->id);
+    $isActiveForSale = $variant->isActiveForSale();
+    $isAvailable = $isActiveForSale && $variant->available_stock > 0;
+    $unavailableLabel = $isActiveForSale ? 'Нет в наличии' : 'Снят с продажи';
 @endphp
 
 <div data-product-card="compact"
@@ -46,7 +49,12 @@
             @endif
         </div>
 
-        @if($inCart)
+        @if(!$isAvailable)
+            <button type="button" disabled
+                    class="flex h-[50px] w-full cursor-not-allowed items-center justify-center rounded-lg bg-gray-200 text-[18px] font-semibold text-gray-500">
+                {{ $unavailableLabel }}
+            </button>
+        @elseif($inCart)
             <a href="{{ route('cart.index') }}"
                class="flex h-[50px] w-full items-center justify-center text-[20px] rounded-lg border border-red-600 bg-white font-semibold text-red-600 hover:bg-red-600 hover:text-white
                transition-colors duration-300 cursor-pointer">

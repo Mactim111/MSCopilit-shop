@@ -346,13 +346,17 @@ class ProductVariant extends Model
         return max(0, (int) $this->stock - (int) $this->reserved);
     }
 
+    public function isActiveForSale(): bool
+    {
+        return (bool) $this->is_active && (bool) $this->product?->is_active;
+    }
+
     /**
-     * Вариант можно заказать: активен и есть свободный остаток - тоже для функционала блока switcher в карточке варианта товара на странице варианта товара.
-     * Те же условия, что в scopeAvailable() + is_active в CatalogFilterService.
+     * Whether this variant can be purchased with its current stock and parent status.
      */
     public function isSellable(): bool
     {
-        return (bool) $this->is_active && $this->available_quantity > 0;
+        return $this->isActiveForSale() && $this->available_quantity > 0;
     }
 
     // НОВЫЕ ВАРИАНТЫ МЕТОДОВ - НА БУДУЩЕЕ, ВОЗМОЖНО ПРИГОДЯТСЯ

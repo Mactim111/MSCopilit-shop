@@ -24,8 +24,7 @@ class CartController extends Controller
 
         $items = $this->cart->items();
         $availableItems = $items->filter(
-            fn ($item) => $item->variant
-                && ($item->variant->stock - $item->variant->reserved) > 0
+            fn ($item) => $item->variant?->isSellable()
         );
         $selectedItems = $availableItems->whereIn('id', $selectedItemIds);
         $selectedTotal = $selectedItems->sum(
@@ -51,7 +50,10 @@ class CartController extends Controller
         $added = $this->cart->add($variant->id);
 
         if (!$added) {
-            $message = 'Товар больше недоступен для заказа';
+            $variant->loadMissing('product');
+            $message = $variant->isActiveForSale()
+                ? 'Товар больше недоступен для заказа.'
+                : "Товар «{$variant->title}» снят с продажи.";
 
             if (request()->expectsJson()) {
                 return response()->json(['message' => $message], 422);
@@ -141,9 +143,7 @@ class CartController extends Controller
             try {
                 $this->cart->assertAvailableForOrder($ids);
             } catch (CartOrderAvailabilityException $exception) {
-                return back()
-                    ->with('error', $exception->getMessage())
-                    ->with('error_link', route('cart.index'));
+                return back()->with('error', $exception->getMessage());
             }
 
             return redirect()->route('orders.checkout', ['items' => $ids]);

@@ -9,8 +9,24 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        $previousUrl = url()->previous();
+        $previousHost = parse_url($previousUrl, PHP_URL_HOST);
+        $previousPath = parse_url($previousUrl, PHP_URL_PATH);
+        $loginPath = parse_url(route('login'), PHP_URL_PATH);
+
+        if (
+            $previousHost !== null
+            && strcasecmp($previousHost, $request->getHost()) === 0
+            && $previousPath !== null
+            && rtrim($previousPath, '/') !== rtrim($loginPath, '/')
+        ) {
+            $query = parse_url($previousUrl, PHP_URL_QUERY);
+            $intendedUrl = $previousPath . ($query ? "?{$query}" : '');
+            $request->session()->put('url.intended', $intendedUrl);
+        }
+
         return view('auth.login');
     }
 

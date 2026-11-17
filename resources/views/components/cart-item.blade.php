@@ -1,7 +1,9 @@
 @props(['item', 'selectedItemIds' => []])
 @php
     $available = $item->variant->stock - $item->variant->reserved;
-    $isAvailable = $available > 0;
+    $isActiveForSale = $item->variant->isActiveForSale();
+    $isAvailable = $isActiveForSale && $available > 0;
+    $unavailableLabel = $isActiveForSale ? 'Закончился' : 'Снят с продажи';
 @endphp
 
 <div class="flex items-center w-full h-[112px] py-[16px] border-b border-dashed border-gray-200" data-cart-item>
@@ -28,7 +30,7 @@
             <a href="{{ route('catalog.variant', $item->variant->slug) }}">{{ $item->variant->title }}</a>
         </span>
         @if(!$isAvailable)
-            <div class="text-[13px] text-red-600 font-semibold mt-1">Закончился</div>
+            <div class="text-[13px] text-red-600 font-semibold mt-1">{{ $unavailableLabel }}</div>
         @endif
         
         {{-- Независимая форма позволяет удалить товар без установки чекбокса. --}}
@@ -55,7 +57,7 @@
                 value="{{ $item->quantity }}"
                 onchange="this.form.requestSubmit()"
                 data-quantity-input
-                class="flex-1 min-w-0 h-full border-0 text-center focus:outline-none focus:ring-0"
+                class="flex-1 min-w-0 h-full border-0 text-center focus:outline-none focus:ring-0 {{ !$isAvailable ? 'text-gray-600 opacity-30' : '' }}"
                 {{ !$isAvailable ? 'disabled' : '' }}>
             <button type="button" aria-label="Увеличить количество"
                 class="w-[18px] h-full shrink-0 flex items-center justify-center text-[18px] text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"

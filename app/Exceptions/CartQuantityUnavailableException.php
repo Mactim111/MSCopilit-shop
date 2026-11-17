@@ -6,10 +6,8 @@ use RuntimeException;
 
 class CartQuantityUnavailableException extends RuntimeException
 {
-    public function __construct(public readonly int $available)
+    public function __construct(public readonly int $available, ?string $message = null)
     {
-        parent::__construct(
-            "Данное количество недоступно к заказу. В наличии имеется {$available} единиц товара."
-        );
+        parent::__construct($message ?? "Данное количество недоступно к заказу. В наличии имеется {$available} единиц товара.");
     }
 }

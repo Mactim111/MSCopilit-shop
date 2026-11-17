@@ -38,6 +38,13 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Корзина пуста или товары не выбраны');
         }
 
+        try {
+            $this->cart->assertAvailableForOrder($selectedIds);
+        } catch (CartOrderAvailabilityException $exception) {
+            return redirect()->route('cart.index')
+                ->with('error', $exception->getMessage());
+        }
+
         // Считаем сумму ТОЛЬКО для выбранных товаров
         $total = $items->sum(fn($i) => $i->variant->price * $i->quantity);
 
@@ -138,10 +145,8 @@ class OrderController extends Controller
                 return response()->json(['message' => $exception->getMessage()], 422);
             }
 
-            return back()
-                ->withInput()
-                ->with('error', $exception->getMessage())
-                ->with('error_link', route('cart.index'));
+            return redirect()->route('cart.index')
+                ->with('error', $exception->getMessage());
         }
 
         // --- ПОДГОТОВКА ДАННЫХ ДЛЯ ПИСЬМА ---

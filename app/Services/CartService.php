@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\CartOrderAvailabilityException;
 use App\Exceptions\CartQuantityUnavailableException;
 use App\Models\CartItem;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -20,7 +21,7 @@ class CartService
     public function items(): Collection
     {
         if (Auth::check()) {
-            return CartItem::where('user_id', Auth::id())->with('variant')->get();
+            return CartItem::where('user_id', Auth::id())->with('variant.product')->get();
         }
 
         // Логика для гостей
@@ -28,7 +29,7 @@ class CartService
         $items = collect();
 
         foreach ($sessionCart as $variantId => $quantity) {
-            $variant = ProductVariant::find($variantId);
+            $variant = ProductVariant::with('product')->find($variantId);
             if ($variant) {
                 // 1. Создаем объект модели
                 $item = new CartItem([
@@ -58,11 +59,12 @@ class CartService
             // Блокируем строку товара для обновления (lockForUpdate)
             // Это предотвратит одновременную покупку одного и того же товара разными юзерами
             $variant = ProductVariant::where('id', $variantId)->lockForUpdate()->firstOrFail();
+            $product = Product::whereKey($variant->product_id)->lockForUpdate()->first();
+            $variant->setRelation('product', $product);
             
             $available = $variant->stock - $variant->reserved;
 
-            // 1. ЖЕСТКАЯ ПРОВЕРКА: Если товара нет — выбрасываем исключение или просто выходим
-            if ($available <= 0) {
+            if (!$variant->isSellable()) {
                 return false;
             }
 
@@ -100,29 +102,43 @@ class CartService
     // сервис бросает исключение, а контроллер выбирает redirect или JSON-ответ.
     public function update($itemId, int $quantity): void
     {
-        // Определяем variant и текущий item
-        if (Auth::check()) {
-            $item = CartItem::where('user_id', Auth::id())->findOrFail($itemId);
-            $variant = $item->variant;
-        } else {
-            $variant = ProductVariant::find($itemId); // Для гостя ID - это variant_id
-        }
+        DB::transaction(function () use ($itemId, $quantity): void {
+            if (Auth::check()) {
+                $item = CartItem::where('user_id', Auth::id())->lockForUpdate()->findOrFail($itemId);
+                $variantId = $item->product_variant_id;
+            } else {
+                $variantId = $itemId;
+                $item = null;
+            }
 
-        $available = $variant->stock - $variant->reserved;
+            $variant = ProductVariant::whereKey($variantId)->lockForUpdate()->first();
+            $product = $variant
+                ? Product::whereKey($variant->product_id)->lockForUpdate()->first()
+                : null;
+            $variant?->setRelation('product', $product);
+            $available = $variant ? max(0, $variant->stock - $variant->reserved) : 0;
 
-        if ($quantity > $available) {
-            throw new CartQuantityUnavailableException(max(0, $available));
-        }
+            if (!$variant || !$variant->isSellable()) {
+                throw new CartQuantityUnavailableException(
+                    0,
+                    $variant && !$variant->isActiveForSale()
+                        ? "Товар «{$variant->title}» снят с продажи."
+                        : 'Товар больше недоступен для заказа.'
+                );
+            }
 
-        // Обычное обновление
-        if (Auth::check()) {
-            $item->update(['quantity' => $quantity]);
-        } else {
-            $cart = session()->get('cart', []);
-            $cart[$variant->id] = $quantity;
-            session()->put('cart', $cart);
-        }
+            if ($quantity > $available) {
+                throw new CartQuantityUnavailableException($available);
+            }
 
+            if (Auth::check()) {
+                $item->update(['quantity' => $quantity]);
+            } else {
+                $cart = session()->get('cart', []);
+                $cart[$variant->id] = $quantity;
+                session()->put('cart', $cart);
+            }
+        });
     }
 
     public function remove($itemId)
@@ -164,12 +180,14 @@ class CartService
             $available = $variant
                 ? max(0, $variant->stock - $variant->reserved)
                 : 0;
+            $activeForSale = $variant?->isActiveForSale() ?? false;
 
-            if (!$variant || $available < $item->quantity) {
+            if (!$variant || !$variant->isSellable() || $available < $item->quantity) {
                 throw new CartOrderAvailabilityException(
                     $variant?->title ?? 'Выбранный товар',
                     $available,
-                    $item->quantity
+                    $item->quantity,
+                    $activeForSale
                 );
             }
         }

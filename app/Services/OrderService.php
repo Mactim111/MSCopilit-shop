@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -103,15 +104,21 @@ class OrderService
             $variant = ProductVariant::whereKey($item->product_variant_id)
                 ->lockForUpdate()
                 ->first();
+            $product = $variant
+                ? Product::whereKey($variant->product_id)->lockForUpdate()->first()
+                : null;
+            $variant?->setRelation('product', $product);
             $available = $variant ? $variant->stock - $variant->reserved : 0;
+            $activeForSale = $variant?->isActiveForSale() ?? false;
 
-            if (!$variant || $available < $item->quantity) {
+            if (!$variant || !$variant->isSellable() || $available < $item->quantity) {
                 $title = $item->variant?->title ?? 'Выбранный товар';
 
                 throw new CartOrderAvailabilityException(
                     $title,
                     max(0, $available),
-                    $item->quantity
+                    $item->quantity,
+                    $activeForSale
                 );
             }
 

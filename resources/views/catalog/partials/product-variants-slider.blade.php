@@ -116,9 +116,16 @@
                                 @php
                                     // Теперь проверка работает универсально для всех (залогиненных и гостей) через сервис корзины
                                     $inCart = $cartService->has($variant->id);
+                                    $isActiveForSale = $variant->isActiveForSale();
+                                    $isAvailable = $isActiveForSale && $variant->available_stock > 0;
                                 @endphp
 
-                                @if($inCart)
+                                @if(!$isAvailable)
+                                <button type="button" disabled
+                                    class="flex h-[40px] w-full cursor-not-allowed items-center justify-center rounded-lg border border-gray-200 bg-gray-200 px-2 text-[13px] font-semibold text-gray-500">
+                                    {{ $isActiveForSale ? 'Нет в наличии' : 'Снят с продажи' }}
+                                </button>
+                                @elseif($inCart)
                                 <a href="{{ route('cart.index') }}"
                                     class="flex items-center justify-center w-full h-[40px] font-semibold rounded-lg border bg-white border-red-600 text-red-600 
                                     hover:bg-red-600 hover:text-white text-[15px] cursor-pointer transition-colors duration-300">

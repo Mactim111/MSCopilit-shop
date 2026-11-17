@@ -7,7 +7,8 @@
     // Внедряем сервис корзины прямо в шаблон
     $cartService = app(App\Services\CartService::class);
     $available = $variant->available_stock;
-    $isAvailable = $variant->is_active && $available > 0;
+    $isActiveForSale = $variant->isActiveForSale();
+    $isAvailable = $isActiveForSale && $available > 0;
 @endphp
 
 <div data-favorite-card
@@ -128,7 +129,7 @@
                 @if(!$isAvailable)
                     <button disabled
                             class="w-full bg-gray-200 text-gray-500 font-semibold py-2 rounded-lg cursor-not-allowed">
-                        {{ $variant->is_active ? 'Нет в наличии' : 'Снят с продажи' }}
+                        {{ $isActiveForSale ? 'Нет в наличии' : 'Снят с продажи' }}
                     </button>
                 @elseif($inCart)
                     <a href="{{ route('cart.index') }}"
@@ -167,7 +168,7 @@
 
         {{-- Наличие --}}
 
-        @if(!$variant->is_active)
+        @if(!$isActiveForSale)
             <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 mb-3 rounded">
                 Снят с продажи
             </div>

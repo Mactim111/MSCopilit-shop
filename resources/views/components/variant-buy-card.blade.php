@@ -3,7 +3,8 @@
 @php
     // Используем наш новый геттер из модели
     $available = $variant->available_stock;
-    $isAvailable = $variant->is_active && $available > 0;
+    $isActiveForSale = $variant->isActiveForSale();
+    $isAvailable = $isActiveForSale && $available > 0;
 @endphp
 
 <div class="rounded-xl p-5 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.1)] bg-white">
@@ -59,7 +60,7 @@
                 $inCart = app(CartService::class)->has($variant->id);
             @endphp
 
-            @if(!$variant->is_active)
+            @if(!$isActiveForSale)
                 <button disabled class="w-full bg-gray-200 text-gray-500 font-semibold py-3 rounded-lg cursor-not-allowed">
                     Снят с продажи
                 </button>
@@ -98,7 +99,7 @@
     </div>
 
     {{-- Статус наличия (обновленная логика) --}}
-    @if(!$variant->is_active)
+    @if(!$isActiveForSale)
         <div class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-2 rounded">Снят с продажи</div>
     @elseif($available > 5)
         <div class="bg-green-100 text-green-700 text-sm font-semibold px-3 py-2 rounded">В наличии</div>
