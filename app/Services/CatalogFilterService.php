@@ -354,8 +354,8 @@ class CatalogFilterService
             ->where('is_active', true)
             ->whereHas('product', function ($q) use ($subcategory, $filters) {
                 $q->where('category_id', $subcategory->id)
-                // products.is_active БОЛЬШЕ НЕ проверяем: активность задаёт сам вариант.
-                // ->where('is_active', true)
+                // при отсутствии поля `is_active` в таблице `products` - если не нужен функционал АКТИВНОСТИ ТОВАРА - строку ниже можно закоммнтить: активность задаёт сам вариант.
+                ->where('products.is_active', true)
                 // Фильтр по бренду теперь внутри того же подзапроса к products,
                 // поэтому отдельный блок "ФИЛЬТР ПО БРЕНДУ" ниже удалён.
                 ->when(!empty($filters['brand']), fn($q) =>

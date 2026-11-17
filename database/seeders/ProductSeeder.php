@@ -9,7 +9,7 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('products')->insert([
+        $products = [
 
             // APPLE
             [
@@ -97,6 +97,15 @@ class ProductSeeder extends Seeder
                 'updated_at' => now(),
             ],
 
-        ]);
+        ];
+
+        // Автоматически добавляем is_active = true ко всем ТОВАРАМ - только для тестирования, 
+        // в реальном проекте это поле должно быть добавлено вручную через админку
+        $products = array_map(function ($product) {
+            $product['is_active'] = true;
+            return $product;
+        }, $products);
+
+        DB::table('products')->insert($products);
     }
 }

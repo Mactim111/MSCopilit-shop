@@ -19,7 +19,7 @@ class Product extends Model
     // protected $dates = ['deleted_at'];
 
     protected $fillable = [
-        'category_id', 'brand_id', 'title', 'slug', 'excerpt', 'description', 'rating', 'reviews_count'
+        'category_id', 'brand_id', 'title', 'slug', 'excerpt', 'description', 'rating', 'reviews_count', 'is_active'
     ];
 
     public function getRouteKeyName()
@@ -30,6 +30,7 @@ class Product extends Model
     protected $casts = [
         'rating'        => 'decimal:1',
         'reviews_count' => 'integer',
+        'is_active'  => 'boolean',
     ];
 
     // ------------------------------------------------------------------
