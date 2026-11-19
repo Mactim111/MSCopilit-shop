@@ -96,6 +96,7 @@
     @include('components.footer')
 
     <x-scroll-top />
+    @include('auth.partials.auth-modals')
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

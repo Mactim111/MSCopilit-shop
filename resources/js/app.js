@@ -12,6 +12,67 @@ Swiper.use([Navigation, Pagination, Autoplay]);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const authModalBackdrop = document.querySelector('[data-auth-modal-backdrop]');
+    const authModalPanels = authModalBackdrop
+        ? [...authModalBackdrop.querySelectorAll('[data-auth-modal-panel]')]
+        : [];
+    let authModalWasScrollLocked = false;
+
+    const closeAuthModal = () => {
+        if (!authModalBackdrop) return;
+
+        authModalBackdrop.classList.add('hidden');
+        authModalBackdrop.classList.remove('flex');
+        authModalPanels.forEach(panel => {
+            panel.classList.add('hidden');
+            panel.setAttribute('aria-hidden', 'true');
+        });
+        if (!authModalWasScrollLocked) document.body.classList.remove('overflow-hidden');
+    };
+
+    const openAuthModal = name => {
+        if (!authModalBackdrop) return;
+
+        const panel = authModalPanels.find(item => item.dataset.authModalPanel === name);
+        if (!panel) return;
+
+        if (authModalBackdrop.classList.contains('hidden')) {
+            authModalWasScrollLocked = document.body.classList.contains('overflow-hidden');
+        }
+        authModalPanels.forEach(item => {
+            const isActive = item === panel;
+            item.classList.toggle('hidden', !isActive);
+            item.setAttribute('aria-hidden', String(!isActive));
+        });
+        authModalBackdrop.classList.remove('hidden');
+        authModalBackdrop.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+        (panel.querySelector('input:not([type="hidden"])') ?? panel).focus();
+    };
+
+    document.addEventListener('click', event => {
+        const trigger = event.target.closest('[data-auth-modal-trigger]');
+        if (trigger) {
+            event.preventDefault();
+            openAuthModal(trigger.dataset.authModalTrigger);
+            return;
+        }
+
+        if (event.target.closest('[data-auth-modal-close]')) {
+            closeAuthModal();
+            return;
+        }
+
+        if (event.target === authModalBackdrop) closeAuthModal();
+    });
+
+    authModalBackdrop?.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeAuthModal();
+    });
+
+    const initialAuthModal = authModalBackdrop?.dataset.authModalOpen;
+    if (initialAuthModal) openAuthModal(initialAuthModal);
+
     const profileDropdown = document.querySelector('[data-profile-dropdown]');
     const profileDropdownTrigger = profileDropdown?.querySelector('summary');
     const profileDropdownPanel = profileDropdown?.querySelector('[data-profile-dropdown-panel]');

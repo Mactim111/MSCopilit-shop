@@ -105,14 +105,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('reviews.addition');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
         ->name('reviews.destroy');
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
     Route::post('/profile/address', [AddressController::class, 'store'])->name('profile.address.store');
     Route::delete('/profile/address/{address}', [AddressController::class, 'destroy'])->name('profile.address.delete');
     Route::put('/profile/address/{address}', [AddressController::class, 'update'])->name('profile.address.update');
     Route::patch('/profile/address/{address}/default', [AddressController::class, 'setDefault'])->name('profile.address.default');
 
 });
+
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 

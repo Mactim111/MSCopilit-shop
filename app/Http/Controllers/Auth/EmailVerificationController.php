@@ -10,18 +10,18 @@ class EmailVerificationController extends Controller
 {
     public function notice()
     {
-        return view('auth.verify-email');
+        return redirect()->route('home')->with('auth_modal', 'verify-email');
     }
 
     public function verify(EmailVerificationRequest $request)
     {
         $request->fulfill();
-        return redirect('/');
+        return redirect()->intended('/');
     }
 
     public function send(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
-        return back()->with('success', 'Письмо отправлено');
+        return back()->with('auth_modal', 'verify-email')->with('success', 'Письмо отправлено');
     }
 }

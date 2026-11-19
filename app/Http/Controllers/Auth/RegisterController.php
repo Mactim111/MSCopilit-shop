@@ -12,7 +12,7 @@ class RegisterController extends Controller
 {
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        return redirect()->route('home')->with('auth_modal', 'register');
     }
 
     public function register(Request $request)
@@ -40,10 +40,23 @@ class RegisterController extends Controller
         $user->sendEmailVerificationNotification();
 
         Auth::login($user);
-//        $user = Auth::user();
-//        $user->sendEmailVerificationNotification();
+        $request->session()->regenerate();
 
-        return view('auth.verify-email');
+        $returnUrl = (string) $request->input('_auth_return_to', route('home'));
+        $parts = parse_url($returnUrl);
+        if (
+            !str_starts_with($returnUrl, '/')
+            || str_starts_with($returnUrl, '//')
+            || str_starts_with($returnUrl, '/\\')
+            || isset($parts['scheme'])
+            || isset($parts['host'])
+        ) {
+            $returnUrl = route('home');
+        }
+
+        $request->session()->put('url.intended', $returnUrl);
+
+        return redirect()->to($returnUrl)->with('auth_modal', 'verify-email');
     }
 
 }

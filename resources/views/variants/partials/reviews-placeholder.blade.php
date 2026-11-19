@@ -202,10 +202,11 @@
                     Данная рубрика доступна только для авторизованных пользователей
                 </p>
 
-                <a href="{{ route('login') }}"
-                   class="mb-6 block w-full rounded-lg border border-[#dc092e] bg-[#dc092e] px-5 py-2 text-center text-[15px] font-bold text-white hover:bg-white hover:text-[#dc092e]">
+                <button type="button"
+                        data-auth-modal-trigger="login"
+                        class="mb-6 block w-full cursor-pointer rounded-lg border border-[#dc092e] bg-[#dc092e] px-5 py-2 text-center text-[15px] font-bold text-white hover:bg-white hover:text-[#dc092e]">
                     Войти
-                </a>
+                </button>
 
                 <p class="mb-[5px] text-[12px] leading-tight text-[#8c8c8c]">
                     Спасибо, что решили поделиться опытом!<br>
@@ -227,6 +228,7 @@
             const panel = modal?.querySelector('[data-review-modal-panel]');
             const openButtons = document.querySelectorAll('[data-review-action]');
             const closeButton = modal?.querySelector('[data-review-modal-close]');
+            const loginButton = modal?.querySelector('[data-auth-modal-trigger="login"]');
 
             if (!modal || openButtons.length === 0) return;
 
@@ -243,6 +245,7 @@
             });
 
             closeButton?.addEventListener('click', closeModal);
+            loginButton?.addEventListener('click', closeModal);
             modal.addEventListener('click', event => {
                 if (event.target === modal && !panel?.contains(event.target)) {
                     closeModal();

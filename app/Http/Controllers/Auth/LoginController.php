@@ -15,19 +15,29 @@ class LoginController extends Controller
         $previousHost = parse_url($previousUrl, PHP_URL_HOST);
         $previousPath = parse_url($previousUrl, PHP_URL_PATH);
         $loginPath = parse_url(route('login'), PHP_URL_PATH);
+        $previousPathNormalized = rtrim((string) $previousPath, '/');
+        $isAuthPage = in_array($previousPathNormalized, [
+            '/login',
+            '/register',
+            '/forgot-password',
+            '/email/verify',
+        ], true) || str_starts_with($previousPathNormalized, '/reset-password/');
 
         if (
             $previousHost !== null
             && strcasecmp($previousHost, $request->getHost()) === 0
             && $previousPath !== null
             && rtrim($previousPath, '/') !== rtrim($loginPath, '/')
+            && !$isAuthPage
         ) {
             $query = parse_url($previousUrl, PHP_URL_QUERY);
             $intendedUrl = $previousPath . ($query ? "?{$query}" : '');
             $request->session()->put('url.intended', $intendedUrl);
         }
 
-        return view('auth.login');
+        return redirect()
+            ->to($intendedUrl ?? route('home'))
+            ->with('auth_modal', 'login');
     }
 
     public function login(Request $request)
@@ -43,12 +53,12 @@ class LoginController extends Controller
 
             // 2. Затем обновляем ID сессии (защита от фиксации сессии)
             $request->session()->regenerate();
-            return redirect()->intended('/');
+            return redirect()->intended($this->localReturnUrl($request));
         }
 
         return back()->withErrors([
             'email' => 'Неверный email или пароль'
-        ]);
+        ])->withInput($request->except('password'))->with('auth_modal', 'login');
     }
 
     public function logout(Request $request)
@@ -67,5 +77,23 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->to($previousUrl);
+    }
+
+    private function localReturnUrl(Request $request): string
+    {
+        $returnUrl = (string) $request->input('_auth_return_to', route('home'));
+        $parts = parse_url($returnUrl);
+
+        if (
+            !str_starts_with($returnUrl, '/')
+            || str_starts_with($returnUrl, '//')
+            || str_starts_with($returnUrl, '/\\')
+            || isset($parts['scheme'])
+            || isset($parts['host'])
+        ) {
+            return route('home');
+        }
+
+        return $returnUrl;
     }
 }

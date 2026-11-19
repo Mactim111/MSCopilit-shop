@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\Hash;
 
 class ResetPasswordController extends Controller
 {
-    public function showResetForm($token)
+    public function showResetForm(Request $request, $token)
     {
-        return view('auth.reset-password', ['token' => $token]);
+        return redirect()->route('home')->with([
+            'auth_modal' => 'reset-password',
+            'auth_modal_token' => $token,
+            'auth_modal_email' => $request->query('email', ''),
+        ]);
     }
 
     public function reset(Request $request)
@@ -28,7 +32,9 @@ class ResetPasswordController extends Controller
         });
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('success', 'Пароль обновлён')
-            : back()->withErrors(['email' => 'Ошибка восстановления']);
+            ? redirect()->route('home')->with('auth_modal', 'login')->with('success', 'Пароль обновлён')
+            : back()->with('auth_modal', 'reset-password')
+                ->withErrors(['email' => 'Ошибка восстановления'])
+                ->withInput($request->except(['password', 'password_confirmation']));
     }
 }

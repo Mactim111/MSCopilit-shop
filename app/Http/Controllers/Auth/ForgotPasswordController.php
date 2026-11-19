@@ -10,7 +10,7 @@ class ForgotPasswordController extends Controller
 {
     public function showLinkRequestForm()
     {
-        return view('auth.forgot-password');
+        return redirect()->route('home')->with('auth_modal', 'forgot-password');
     }
 
     public function sendResetLinkEmail(Request $request)
@@ -20,7 +20,7 @@ class ForgotPasswordController extends Controller
         $status = Password::sendResetLink($request->only('email'));
 
         return $status === Password::RESET_LINK_SENT
-            ? back()->with('success', 'Ссылка отправлена на email')
-            : back()->withErrors(['email' => 'Не удалось отправить ссылку']);
+            ? back()->with('auth_modal', 'forgot-password')->with('success', 'Ссылка отправлена на email')
+            : back()->with('auth_modal', 'forgot-password')->withErrors(['email' => 'Не удалось отправить ссылку']);
     }
 }

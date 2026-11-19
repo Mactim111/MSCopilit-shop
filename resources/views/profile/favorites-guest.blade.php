@@ -8,9 +8,10 @@
         <p class="text-gray-600 mb-8">
             Войдите или создайте личный кабинет, чтобы сохранять товары в избранное.
         </p>
-        <a href="{{ route('login') }}"
-           class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300 cursor-pointer">
+        <button type="button"
+                data-auth-modal-trigger="login"
+                class="inline-block cursor-pointer rounded-lg bg-red-600 px-6 py-3 text-white transition-colors duration-300 hover:bg-red-700">
             Войти
-        </a>
+        </button>
     </div>
 @endsection
