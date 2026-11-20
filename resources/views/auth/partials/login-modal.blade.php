@@ -13,21 +13,24 @@
     </button>
 
     <h2 id="auth-login-title" class="mb-6 text-center text-[24px] font-bold">Вход в аккаунт</h2>
-    <form method="POST" action="{{ route('login') }}" class="space-y-4">
+    <form method="POST" action="{{ route('login') }}" class="space-y-4" novalidate data-auth-validation-form>
         @csrf
         <input type="hidden" name="_auth_modal" value="login">
-        <input type="hidden" name="_auth_return_to" value="{{ request()->getRequestUri() }}">
+        <input type="hidden" name="_auth_return_to" value="{{ session('auth_return_to', request()->getRequestUri()) }}">
 
         <div>
             <label for="auth-login-email" class="mb-1 block text-[15px] font-medium">Email</label>
             <input id="auth-login-email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('email') border-[#dc092e] @enderror">
-            @error('email')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+                   data-auth-field
+                   @if($errors->has('email')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-login-password" class="mb-1 block text-[15px] font-medium">Пароль</label>
             <input id="auth-login-password" type="password" name="password" required autocomplete="current-password"
+                   data-auth-field
+                   @if($errors->has('password')) data-auth-server-invalid @endif
                    class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
@@ -42,7 +45,9 @@
         </div>
 
         <button type="submit"
-                class="h-[48px] w-full cursor-pointer rounded-[10px] bg-[#dc092e] text-[15px] font-semibold text-white transition-colors hover:bg-[#a80723]">
+                disabled
+                data-auth-submit
+                class="h-[48px] w-full cursor-not-allowed rounded-[10px] border border-[#bdbbbc] bg-[#bdbbbc] text-[15px] font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed disabled:border-[#bdbbbc] disabled:bg-[#bdbbbc] disabled:hover:border-[#bdbbbc] disabled:hover:bg-[#bdbbbc] enabled:cursor-pointer enabled:border-[#dc092e] enabled:bg-[#dc092e] enabled:hover:border-[#a80723] enabled:hover:bg-[#a80723]">
             Войти
         </button>
 

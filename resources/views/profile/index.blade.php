@@ -27,6 +27,7 @@
 
             <form action="{{ route('profile.update') }}"
                     method="POST"
+                    novalidate
                     class="text-left"
                     data-profile-personal-form>
                 @csrf
@@ -35,7 +36,7 @@
                         <label for="profile-name" class="mb-2 block text-[13px] text-[#231f20] font-semibold">
                             Имя <span class="text-[#DC092E] font-semibold">*</span>
                         </label>
-                        <input id="profile-name" name="name" required maxlength="255"
+                        <input id="profile-name" name="name" required maxlength="60"
                                 value="{{ old('name', $user->name) }}"
                                 class="h-[47px] w-full rounded-[10px] border border-[#bdbbbc] bg-white px-4 pt-[14px] pb-3 text-left text-[14px] text-[#231f20] outline-none focus:border-black"
                                 data-profile-editable>
@@ -79,7 +80,7 @@
 
                     <div class="max-w-[350px]">
                         <label for="profile-last-name" class="mb-2 block text-[13px] text-[#231f20] font-semibold">Фамилия</label>
-                        <input id="profile-last-name" name="last_name" maxlength="255"
+                        <input id="profile-last-name" name="last_name" maxlength="60"
                                 value="{{ old('last_name', $user->last_name) }}"
                                 class="h-[47px] w-full rounded-[10px] border border-[#bdbbbc] bg-white px-4 pt-[14px] pb-3 text-left text-[14px] text-[#231f20] outline-none focus:border-black"
                                 data-profile-editable>
@@ -194,7 +195,7 @@
         role="dialog" aria-modal="true" aria-labelledby="change-email-title"
         aria-hidden="{{ $errors->has('email') ? 'false' : 'true' }}"
         data-contact-modal="email" data-open-on-load="{{ $errors->has('email') ? 'true' : 'false' }}">
-    <form action="{{ route('profile.email.update') }}" method="POST"
+    <form action="{{ route('profile.email.update') }}" method="POST" novalidate
             class="relative w-full max-w-[512px] rounded-[10px] bg-white px-6 py-8 text-left sm:px-[50px]"
             data-contact-form="email">
         @csrf
@@ -215,16 +216,20 @@
                     Email <span class="font-bold text-[#dc092e]">*</span>
                 </label>
                 <input id="change-email" name="email" type="email" inputmode="email" autocomplete="email"
-                        value="{{ old('email') }}" required
+                        value="{{ old('email', $emailChangeVerification?->email) }}" required maxlength="255"
                         pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-                        class="h-[50px] w-full rounded-[10px] border border-[#bdbbbc] bg-white px-4 text-left text-[14px] text-[#231f20] outline-none transition-colors focus:border-[#231f20]"
-                        data-contact-input="email">
+                        class="h-[50px] w-full rounded-[10px] border {{ $errors->has('email') ? 'border-[#dc092e]' : 'border-[#bdbbbc]' }} bg-white px-4 text-left text-[14px] text-[#231f20] outline-none transition-colors focus:border-[#231f20]"
+                        data-contact-input="email"
+                        data-server-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
+                        aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}">
+                <p class="text-[15px] leading-5 text-[#dc092e] {{ $errors->has('email') ? '' : 'hidden' }}"
+                        role="alert" data-contact-error="email">{{ $errors->first('email') }}</p>
             </div>
             <div class="mt-2">
                 <button type="submit" disabled
                         class="h-[50px] w-full cursor-not-allowed rounded-[10px] border border-[#bdbbbc] bg-[#bdbbbc] text-center text-[15px] font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed enabled:cursor-pointer enabled:hover:bg-[#a80723]"
                         data-contact-submit>
-                    OK
+                    Получить код
                 </button>
                 <p class="mt-6 text-[14px] text-[#231f20]">
                     <span class="font-bold text-[#dc092e]">*</span>
@@ -234,6 +239,9 @@
         </div>
     </form>
 </div>
+
+@include('profile.partials.email-change-code-modal')
+@include('profile.partials.email-change-success-modal')
 
 <div class="fixed inset-0 z-[1200] hidden items-center justify-center bg-[#231f20bf] px-4 py-4"
         role="dialog" aria-modal="true" aria-labelledby="profile-save-success-title" data-profile-success-modal>

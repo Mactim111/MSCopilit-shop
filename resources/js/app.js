@@ -73,6 +73,84 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialAuthModal = authModalBackdrop?.dataset.authModalOpen;
     if (initialAuthModal) openAuthModal(initialAuthModal);
 
+    document.querySelectorAll('[data-auth-validation-form]').forEach(form => {
+        const fields = [...form.querySelectorAll('[data-auth-field]')];
+        const submitButton = form.querySelector('[data-auth-submit]');
+        const passwordField = form.querySelector('[data-auth-password]');
+        const confirmationField = form.querySelector('[data-auth-password-confirmation]');
+
+        const isFieldValid = field => {
+            if (field.hasAttribute('data-auth-server-invalid')) return false;
+
+            if (field.hasAttribute('data-auth-radio-group')) {
+                return Boolean(field.querySelector('input[type="radio"]:checked'));
+            }
+
+            return field.checkValidity();
+        };
+
+        const updateValidity = () => {
+            if (passwordField && confirmationField) {
+                const passwordsMatch = !confirmationField.value
+                    || confirmationField.value === passwordField.value;
+                confirmationField.setCustomValidity(passwordsMatch ? '' : 'Пароли не совпадают');
+            }
+
+            fields.forEach(field => {
+                const isValid = isFieldValid(field);
+                const shouldShowError = field.dataset.authTouched === 'true'
+                    || field.hasAttribute('data-auth-server-invalid');
+                field.classList.toggle('is-invalid', shouldShowError && !isValid);
+                if (!isValid && shouldShowError) field.setAttribute('aria-invalid', 'true');
+                else field.removeAttribute('aria-invalid');
+            });
+
+            if (submitButton) {
+                submitButton.disabled = fields.some(field => !isFieldValid(field));
+            }
+        };
+
+        form.addEventListener('focusout', event => {
+            const field = event.target.closest('[data-auth-field]');
+            if (!field || !form.contains(field)) return;
+
+            field.dataset.authTouched = 'true';
+            updateValidity();
+        });
+
+        const handleFieldChange = event => {
+            const field = event.target.closest('[data-auth-field]');
+            if (!field || !form.contains(field)) return;
+
+            if (field.hasAttribute('data-auth-server-invalid')) {
+                field.removeAttribute('data-auth-server-invalid');
+                field.dataset.authTouched = 'true';
+            }
+            updateValidity();
+        };
+
+        form.addEventListener('input', handleFieldChange);
+        form.addEventListener('change', handleFieldChange);
+        form.addEventListener('submit', event => {
+            updateValidity();
+            if (!submitButton || !submitButton.disabled) return;
+
+            event.preventDefault();
+            const firstInvalidField = fields.find(field => !isFieldValid(field));
+            if (firstInvalidField) {
+                firstInvalidField.dataset.authTouched = 'true';
+                if (firstInvalidField.hasAttribute('data-auth-radio-group')) {
+                    firstInvalidField.querySelector('input[type="radio"]')?.focus();
+                } else {
+                    firstInvalidField.focus();
+                }
+                updateValidity();
+            }
+        });
+
+        updateValidity();
+    });
+
     const profileDropdown = document.querySelector('[data-profile-dropdown]');
     const profileDropdownTrigger = profileDropdown?.querySelector('summary');
     const profileDropdownPanel = profileDropdown?.querySelector('[data-profile-dropdown-panel]');
@@ -525,6 +603,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const profileSuccessModal = document.querySelector('[data-profile-success-modal]');
         const profileCalendar = document.querySelector('[data-birthday-calendar]');
         const contactModals = [...document.querySelectorAll('[data-contact-modal]')];
+        const emailChangeCodeModal = document.querySelector('[data-email-change-code-modal]');
+        const emailChangeSuccessModal = document.querySelector('[data-email-change-success-modal]');
         const birthdayInput = profileForm?.querySelector('[data-birthday-input]');
         const birthdayClearButton = profileForm?.querySelector('[data-birthday-clear]');
         const tabLinks = [...document.querySelectorAll('[data-profile-tab]')];
@@ -737,11 +817,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const phonePattern = /^\+375 \(\d{2}\) \d{3}-\d{2}-\d{2}$/;
         const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
+        const updateProfileModalScrollLock = () => {
+            const modals = [
+                ...contactModals,
+                emailChangeCodeModal,
+                emailChangeSuccessModal,
+                profileSuccessModal,
+            ];
+            document.body.classList.toggle(
+                'overflow-hidden',
+                modals.some(modal => modal && !modal.classList.contains('hidden')),
+            );
+        };
+
+        const setModalVisibility = (modal, isVisible) => {
+            if (!modal) return;
+            modal.classList.toggle('hidden', !isVisible);
+            modal.classList.toggle('flex', isVisible);
+            modal.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+            updateProfileModalScrollLock();
+        };
+
         contactModals.forEach(modal => {
             const type = modal.dataset.contactModal;
             const form = modal.querySelector(`[data-contact-form="${type}"]`);
             const input = form?.querySelector(`[data-contact-input="${type}"]`);
             if (!form || !input) return;
+            const errorMessage = form.querySelector(`[data-contact-error="${type}"]`);
+            let serverInvalid = input.dataset.serverInvalid === 'true';
+            let touched = serverInvalid;
 
             const updateContactInputState = () => {
                 if (type === 'phone') {
@@ -753,9 +857,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const isValid = input.validity.valid && emailPattern.test(input.value);
-                input.classList.toggle('bg-[#e8f0fe]', isValid);
-                input.classList.toggle('bg-white', !isValid);
-                setContactSubmitState(form, isValid);
+                const isInvalid = serverInvalid || (touched && !isValid);
+                input.classList.toggle('bg-[#e8f0fe]', isValid && !serverInvalid);
+                input.classList.toggle('bg-white', !isValid || serverInvalid);
+                input.classList.toggle('border-[#dc092e]', isInvalid && !input.matches(':focus'));
+                input.setAttribute('aria-invalid', isInvalid ? 'true' : 'false');
+                setContactSubmitState(form, isValid && !serverInvalid);
             };
 
             if (type === 'phone') {
@@ -765,18 +872,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.setSelectionRange(input.value.length, input.value.length);
                     updateContactInputState();
                 });
+            } else {
+                input.addEventListener('focus', () => {
+                    touched = true;
+                    input.classList.remove('border-[#dc092e]');
+                });
+                input.addEventListener('blur', () => {
+                    touched = true;
+                    updateContactInputState();
+                });
+                input.addEventListener('input', () => {
+                    if (serverInvalid) {
+                        serverInvalid = false;
+                        input.dataset.serverInvalid = 'false';
+                        if (errorMessage) {
+                            errorMessage.textContent = '';
+                            errorMessage.classList.add('hidden');
+                        }
+                    }
+                    touched = true;
+                    updateContactInputState();
+                });
             }
-            input.addEventListener('input', updateContactInputState);
+            if (type === 'phone') input.addEventListener('input', updateContactInputState);
             input.addEventListener('change', updateContactInputState);
             updateContactInputState();
 
             const closeContactModal = () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                modal.setAttribute('aria-hidden', 'true');
-                if (!contactModals.some(other => other !== modal && !other.classList.contains('hidden'))) {
-                    document.body.classList.remove('overflow-hidden');
-                }
+                setModalVisibility(modal, false);
             };
 
             modal.querySelector('[data-contact-modal-close]')?.addEventListener('click', closeContactModal);
@@ -788,31 +911,161 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (modal.dataset.openOnLoad === 'true') {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                modal.setAttribute('aria-hidden', 'false');
-                document.body.classList.add('overflow-hidden');
+                setModalVisibility(modal, true);
                 input.focus();
             }
         });
 
+        const openContactModal = (type, value) => {
+            const modal = contactModals.find(item => item.dataset.contactModal === type);
+            if (!modal) return;
+
+            if (type === 'email' && typeof value === 'string') {
+                const input = modal.querySelector('[data-contact-input="email"]');
+                if (input) {
+                    input.value = value;
+                    input.dispatchEvent(new Event('input', {bubbles: true}));
+                }
+            }
+
+            setModalVisibility(emailChangeCodeModal, false);
+            setModalVisibility(modal, true);
+            modal.querySelector('input')?.focus();
+        };
+
         document.querySelectorAll('[data-open-contact-modal]').forEach(button => {
             button.addEventListener('click', () => {
-                const modal = contactModals.find(item => item.dataset.contactModal === button.dataset.openContactModal);
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                modal.setAttribute('aria-hidden', 'false');
-                document.body.classList.add('overflow-hidden');
-                modal.querySelector('input')?.focus();
+                openContactModal(button.dataset.openContactModal);
             });
         });
 
         document.addEventListener('keydown', event => {
             if (event.key !== 'Escape') return;
+            if (emailChangeSuccessModal && !emailChangeSuccessModal.classList.contains('hidden')) {
+                emailChangeSuccessModal.querySelector('[data-email-change-success-close]')?.click();
+                return;
+            }
+            if (emailChangeCodeModal && !emailChangeCodeModal.classList.contains('hidden')) {
+                emailChangeCodeModal.querySelector('[data-email-change-code-close]')?.click();
+                return;
+            }
             const activeModal = contactModals.find(modal => !modal.classList.contains('hidden'));
             activeModal?.querySelector('[data-contact-modal-close]')?.click();
         });
+
+        if (emailChangeCodeModal) {
+            const codeForm = emailChangeCodeModal.querySelector('form');
+            const codeInput = emailChangeCodeModal.querySelector('[data-email-change-code]');
+            const codeSubmit = emailChangeCodeModal.querySelector('[data-email-code-submit]');
+            const codeError = emailChangeCodeModal.querySelector('[data-email-code-error]');
+            const codeWrap = emailChangeCodeModal.querySelector('[data-email-code-wrap]');
+            const countdown = emailChangeCodeModal.querySelector('[data-email-code-countdown]');
+            const countdownValue = emailChangeCodeModal.querySelector('[data-email-code-countdown-value]');
+            const resendLink = emailChangeCodeModal.querySelector('[data-email-code-resend]');
+            let hasCodeError = Boolean(codeError?.textContent.trim());
+
+            const updateCodeVisualState = () => {
+                if (!codeInput || !codeWrap) return;
+
+                const isFocused = document.activeElement === codeInput;
+                codeWrap.classList.remove(
+                    'border-b',
+                    'border-[#bdbcbd]',
+                    'border-b-[#dc092e]',
+                    'border-[#dc092e]',
+                    'border-[#231f20]',
+                    'rounded-[10px]',
+                );
+
+                if (hasCodeError && isFocused) {
+                    codeWrap.classList.add('border', 'border-[#231f20]', 'rounded-[10px]');
+                } else if (hasCodeError) {
+                    codeWrap.classList.add('border-b', 'border-b-[#dc092e]');
+                } else {
+                    codeWrap.classList.add('border-b', 'border-[#bdbcbd]');
+                }
+
+                codeInput.classList.toggle('text-[#dc092e]', hasCodeError);
+                codeInput.setAttribute('aria-invalid', hasCodeError ? 'true' : 'false');
+                if (codeError) codeError.classList.toggle('hidden', !hasCodeError);
+            };
+
+            const updateCodeSubmitState = () => {
+                if (!codeInput || !codeSubmit) return;
+                setContactSubmitState(codeForm, /^\d{4}$/.test(codeInput.value));
+            };
+
+            if (codeInput) {
+                codeInput.addEventListener('input', () => {
+                    if (hasCodeError) {
+                        hasCodeError = false;
+                        if (codeError) codeError.textContent = '';
+                    }
+                    updateCodeVisualState();
+                    updateCodeSubmitState();
+                });
+                codeInput.addEventListener('focus', updateCodeVisualState);
+                codeInput.addEventListener('blur', updateCodeVisualState);
+            }
+
+            codeForm?.addEventListener('submit', event => {
+                if (/^\d{4}$/.test(codeInput?.value || '')) return;
+                event.preventDefault();
+                hasCodeError = true;
+                if (codeError) codeError.textContent = 'Код должен состоять из 4 цифр.';
+                updateCodeVisualState();
+            });
+
+            const updateResendCountdown = () => {
+                const resendAt = Number(emailChangeCodeModal.dataset.resendAt || 0);
+                const secondsLeft = Math.max(0, Math.ceil(resendAt - Date.now() / 1000));
+                const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+                const seconds = String(secondsLeft % 60).padStart(2, '0');
+                const mustClearCode = emailChangeCodeModal.dataset.attemptsExhausted === 'true';
+                const canRequestNewCode = secondsLeft === 0 && (!mustClearCode || !codeInput?.value);
+
+                if (countdownValue) countdownValue.textContent = `${minutes}:${seconds}`;
+                countdown?.classList.toggle('hidden', secondsLeft === 0 || canRequestNewCode);
+                resendLink?.classList.toggle('hidden', !canRequestNewCode);
+            };
+
+            resendLink?.addEventListener('click', () => {
+                openContactModal('email', emailChangeCodeModal.dataset.resendEmail || '');
+            });
+            emailChangeCodeModal.querySelector('[data-email-change-edit]')?.addEventListener('click', () => {
+                openContactModal('email', emailChangeCodeModal.dataset.resendEmail || '');
+            });
+
+            const closeCodeModal = () => setModalVisibility(emailChangeCodeModal, false);
+            emailChangeCodeModal.querySelector('[data-email-change-code-close]')?.addEventListener('click', closeCodeModal);
+            emailChangeCodeModal.addEventListener('click', event => {
+                if (event.target === emailChangeCodeModal) closeCodeModal();
+            });
+
+            updateCodeVisualState();
+            updateCodeSubmitState();
+            updateResendCountdown();
+            window.setInterval(updateResendCountdown, 1000);
+
+            if (emailChangeCodeModal.dataset.openOnLoad === 'true') {
+                setModalVisibility(emailChangeCodeModal, true);
+                if (!hasCodeError) codeInput?.focus();
+                updateCodeVisualState();
+            }
+        }
+
+        if (emailChangeSuccessModal) {
+            const closeSuccessModal = () => setModalVisibility(emailChangeSuccessModal, false);
+            emailChangeSuccessModal.querySelectorAll('[data-email-change-success-close]')
+                .forEach(button => button.addEventListener('click', closeSuccessModal));
+            emailChangeSuccessModal.addEventListener('click', event => {
+                if (event.target === emailChangeSuccessModal) closeSuccessModal();
+            });
+
+            if (!emailChangeSuccessModal.classList.contains('hidden')) {
+                updateProfileModalScrollLock();
+            }
+        }
 
         const getProfileState = () => {
             if (!profileForm) return {};
@@ -830,13 +1083,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!profileForm || !profileSaveButton) return;
 
             const isDirty = JSON.stringify(getProfileState()) !== JSON.stringify(initialProfileState);
-            profileSaveButton.disabled = !isDirty;
-            profileSaveButton.classList.toggle('cursor-not-allowed', !isDirty);
-            profileSaveButton.classList.toggle('border-[#bdbbbc]', !isDirty);
-            profileSaveButton.classList.toggle('bg-[#bdbbbc]', !isDirty);
-            profileSaveButton.classList.toggle('cursor-pointer', isDirty);
-            profileSaveButton.classList.toggle('border-[#DC092E]', isDirty);
-            profileSaveButton.classList.toggle('bg-[#DC092E]', isDirty);
+            const name = profileForm.querySelector('[name="name"]');
+            const lastName = profileForm.querySelector('[name="last_name"]');
+            const isValid = Boolean(name?.value.trim())
+                && (name?.value.length || 0) <= 60
+                && (lastName?.value.length || 0) <= 60;
+            const isEnabled = isDirty && isValid;
+
+            profileSaveButton.disabled = !isEnabled;
+            profileSaveButton.classList.toggle('cursor-not-allowed', !isEnabled);
+            profileSaveButton.classList.toggle('border-[#bdbbbc]', !isEnabled);
+            profileSaveButton.classList.toggle('bg-[#bdbbbc]', !isEnabled);
+            profileSaveButton.classList.toggle('cursor-pointer', isEnabled);
+            profileSaveButton.classList.toggle('border-[#DC092E]', isEnabled);
+            profileSaveButton.classList.toggle('bg-[#DC092E]', isEnabled);
         };
 
         const showProfileError = message => {
@@ -893,6 +1153,18 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProfileSaveState();
 
             profileForm.querySelectorAll('[data-profile-editable]').forEach(field => {
+                const isProfileTextField = ['name', 'last_name'].includes(field.name);
+                const isFieldValid = () => field.name === 'name'
+                    ? Boolean(field.value.trim()) && field.value.length <= 60
+                    : field.value.length <= 60;
+                const updateFieldBorder = () => {
+                    if (!isProfileTextField) return;
+                    const isInvalid = field.dataset.profileServerInvalid === 'true'
+                        || (field.dataset.profileTouched === 'true' && !isFieldValid());
+                    field.classList.toggle('border-[#dc092e]', isInvalid && !field.matches(':focus'));
+                    field.setAttribute('aria-invalid', isInvalid ? 'true' : 'false');
+                };
+
                 const onFieldChange = () => {
                     showProfileError('');
                     const fieldError = profileForm.querySelector(`[data-profile-field-error="${field.name}"]`);
@@ -900,8 +1172,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         fieldError.textContent = '';
                         fieldError.classList.add('hidden');
                     }
+                    field.dataset.profileServerInvalid = 'false';
+                    field.dataset.profileTouched = 'true';
+                    updateFieldBorder();
                     updateProfileSaveState();
                 };
+
+                if (isProfileTextField) {
+                    field.addEventListener('focus', () => {
+                        field.dataset.profileTouched = 'true';
+                        field.classList.remove('border-[#dc092e]');
+                    });
+                    field.addEventListener('blur', () => {
+                        field.dataset.profileTouched = 'true';
+                        updateFieldBorder();
+                    });
+                    updateFieldBorder();
+                }
                 field.addEventListener('input', onFieldChange);
                 field.addEventListener('change', onFieldChange);
             });
@@ -950,6 +1237,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (fieldError) {
                                 fieldError.textContent = messages[0];
                                 fieldError.classList.remove('hidden');
+                            }
+                            const invalidField = profileForm.querySelector(`[data-profile-editable][name="${field}"]`);
+                            if (invalidField) {
+                                invalidField.dataset.profileServerInvalid = 'true';
+                                invalidField.dataset.profileTouched = 'true';
+                                invalidField.classList.add('border-[#dc092e]');
+                                invalidField.setAttribute('aria-invalid', 'true');
                             }
                         });
                         throw new Error(Object.values(payload.errors || {}).flat()[0] || payload.message || 'Не удалось сохранить данные.');

@@ -76,7 +76,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/phone', [ProfileController::class, 'updatePhone'])->name('profile.phone.update');
-    Route::post('/profile/email', [ProfileController::class, 'updateEmail'])->name('profile.email.update');
+    Route::post('/profile/email', [ProfileController::class, 'updateEmail'])
+        ->name('profile.email.update')
+        ->middleware('throttle:5,1');
+    Route::post('/profile/email/verify', [ProfileController::class, 'verifyEmailChange'])
+        ->name('profile.email.verify')
+        ->middleware('throttle:10,1');
 
     Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
 

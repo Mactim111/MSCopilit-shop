@@ -2,23 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailChangeCode;
 use App\Models\Address;
+use App\Models\EmailChangeVerification;
 use App\Models\Order;
 use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
         return view('profile.index', [
-            'user' => Auth::user()
+            'user' => $user,
+            'emailChangeVerification' => EmailChangeVerification::query()
+                ->where('user_id', $user->id)
+                ->first(),
         ]);
     }
 
@@ -26,8 +36,8 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
         $data = $request->validate([
-            'name'  => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
+            'name'  => 'required|string|max:60',
+            'last_name' => 'nullable|string|max:60',
             'gender' => 'required|in:male,female',
             'birth_date' => 'nullable|date|before_or_equal:today',
             'avatar' => 'nullable|image|max:2048',
@@ -65,19 +75,169 @@ class ProfileController extends Controller
     public function updateEmail(Request $request)
     {
         $user = Auth::user();
-        $data = $request->validate([
+        $request->merge([
+            'email' => mb_strtolower(trim((string) $request->input('email'))),
+        ]);
+        $validator = Validator::make($request->all(), [
             'email' => [
                 'required',
                 'string',
                 'email',
                 'regex:/^[^@\s]+@[^@\s]+\.[^@\s]+$/u',
+                'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
+        ], [
+            'email.required' => 'Введите новый email.',
+            'email.email' => 'Введите корректный email.',
+            'email.regex' => 'Введите корректный email.',
+            'email.max' => 'Email не должен превышать 255 символов.',
+            'email.unique' => 'Email уже занят',
         ]);
 
-        $user->update(['email' => $data['email']]);
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('email_change_step', 'email');
+        }
 
-        return back()->with('success', 'Email успешно обновлён.');
+        $email = trim($validator->validated()['email']);
+        $emailIsAlreadyUsed = User::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->where('id', '!=', $user->id)
+            ->exists();
+        if ($emailIsAlreadyUsed) {
+            return back()
+                ->withErrors(['email' => 'Email уже занят'])
+                ->withInput()
+                ->with('email_change_step', 'email');
+        }
+
+        if (strcasecmp($email, $user->email) === 0) {
+            return back()
+                ->withErrors(['email' => 'Этот email уже привязан к аккаунту.'])
+                ->withInput()
+                ->with('email_change_step', 'email');
+        }
+
+        $code = '';
+        $verification = DB::transaction(function () use ($user, $email, &$code): EmailChangeVerification|false {
+            $existing = EmailChangeVerification::query()
+                ->where('user_id', $user->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing && $existing->resend_available_at->isFuture()) {
+                return false;
+            }
+
+            $code = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+            $verification = EmailChangeVerification::query()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'email' => $email,
+                    'code_hash' => Hash::make($code),
+                    'expires_at' => now()->addMinutes(10),
+                    'resend_available_at' => now()->addSeconds(60),
+                    'attempts' => 0,
+                ]
+            );
+
+            return $verification;
+        });
+
+        if ($verification === false) {
+            return back()
+                ->withErrors(['email' => 'Новый код можно запросить не чаще одного раза в 60 секунд.'])
+                ->withInput()
+                ->with('email_change_step', 'email');
+        }
+
+        Mail::to($email)->send(new EmailChangeCode($code));
+
+        return back()->with('email_change_step', 'code');
+    }
+
+    public function verifyEmailChange(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required', 'regex:/^\d{4}$/'],
+        ], [
+            'code.required' => 'Введите код из письма.',
+            'code.regex' => 'Код должен состоять из 4 цифр.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('email_change_step', 'code');
+        }
+
+        $userId = Auth::id();
+        $code = $validator->validated()['code'];
+        $result = DB::transaction(function () use ($userId, $code): array {
+            $verification = EmailChangeVerification::query()
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$verification || $verification->expires_at->isPast()) {
+                return ['error' => 'Срок действия кода истёк. Запросите новый код.'];
+            }
+
+            if ($verification->attempts >= 5) {
+                return ['error' => 'Вы исчерпали лимит попыток верификации.'];
+            }
+
+            if (!Hash::check($code, $verification->code_hash)) {
+                $verification->increment('attempts');
+                $remainingAttempts = 5 - $verification->attempts;
+
+                return [
+                    'error' => $remainingAttempts > 0
+                        ? "Код не совпал. Осталось попыток: {$remainingAttempts}"
+                        : 'Вы исчерпали лимит попыток верификации.',
+                ];
+            }
+
+            $user = User::query()->whereKey($userId)->lockForUpdate()->firstOrFail();
+            $emailIsTaken = User::query()
+                ->whereRaw('LOWER(email) = ?', [mb_strtolower($verification->email)])
+                ->where('id', '!=', $userId)
+                ->exists();
+
+            if ($emailIsTaken) {
+                $verification->delete();
+
+                return ['email_error' => 'Email уже занят', 'email' => $verification->email];
+            }
+
+            $user->forceFill([
+                'email' => $verification->email,
+                'email_verified_at' => now(),
+            ])->save();
+            $verification->delete();
+
+            return ['success' => true];
+        });
+
+        if (isset($result['email_error'])) {
+            return back()
+                ->withErrors(['email' => $result['email_error']])
+                ->withInput(['email' => $result['email']])
+                ->with('email_change_step', 'email');
+        }
+
+        if (isset($result['error'])) {
+            return back()
+                ->withErrors(['code' => $result['error']])
+                ->withInput(['code' => $code])
+                ->with('email_change_step', 'code');
+        }
+
+        return back()->with('email_change_success', true);
     }
 
     public function updatePassword(Request $request)

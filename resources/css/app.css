@@ -43,6 +43,24 @@
     border-color: #dc092e;
 }
 
+[data-auth-field].is-invalid:not(:focus) {
+    border-color: #dc092e;
+}
+
+[data-auth-radio-group].is-invalid:not(:focus-within) [data-auth-radio-indicator] {
+    border-color: #dc092e;
+}
+
+[data-auth-modal-backdrop] input:-webkit-autofill,
+[data-address-create-modal] input:-webkit-autofill,
+[data-auth-modal-backdrop] input:autofill,
+[data-address-create-modal] input:autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: #231f20;
+    caret-color: #231f20;
+    transition: background-color 9999s ease-out 0s;
+}
+
 select[data-address-select] option:checked {
     background-color: #5897fb;
     color: #fff;

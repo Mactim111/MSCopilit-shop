@@ -13,78 +13,83 @@
     </button>
 
     <h2 id="auth-register-title" class="mb-5 text-center text-[24px] font-bold">Регистрация</h2>
-    <form method="POST" action="{{ route('register') }}" class="space-y-3">
+    <form method="POST" action="{{ route('register') }}" class="space-y-3" novalidate data-auth-validation-form>
         @csrf
         <input type="hidden" name="_auth_modal" value="register">
-        <input type="hidden" name="_auth_return_to" value="{{ request()->getRequestUri() }}">
+        <input type="hidden" name="_auth_return_to" value="{{ session('auth_return_to', request()->getRequestUri()) }}">
 
         <div>
             <label for="auth-register-name" class="mb-1 block text-[15px] font-medium">Имя <span class="text-[#dc092e]">*</span></label>
-            <input id="auth-register-name" type="text" name="name" value="{{ old('name') }}" required autocomplete="given-name"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('name') border-[#dc092e] @enderror">
-            @error('name')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+            <input id="auth-register-name" type="text" name="name" value="{{ old('name') }}" maxlength="255" required autocomplete="given-name"
+                   data-auth-field @if($errors->has('name')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-register-last-name" class="mb-1 block text-[15px] font-medium">Фамилия</label>
-            <input id="auth-register-last-name" type="text" name="last_name" value="{{ old('last_name') }}" autocomplete="family-name"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('last_name') border-[#dc092e] @enderror">
-            @error('last_name')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+            <input id="auth-register-last-name" type="text" name="last_name" value="{{ old('last_name') }}" maxlength="255" autocomplete="family-name"
+                   data-auth-field @if($errors->has('last_name')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <fieldset>
             <legend class="mb-1 text-[15px] font-medium">Пол <span class="text-[#dc092e]">*</span></legend>
-            <div class="flex h-[47px] items-center gap-4" role="radiogroup" aria-label="Пол">
+            <div class="flex h-[47px] items-center gap-4" role="radiogroup" aria-label="Пол"
+                 data-auth-field data-auth-radio-group @if($errors->has('gender')) data-auth-server-invalid @endif>
                 <label class="flex h-full cursor-pointer items-center gap-2 text-[15px] text-[#231f20]">
                     <input class="peer sr-only" type="radio" name="gender" value="male" @checked(old('gender', 'male') === 'male') required>
-                    <span class="relative flex h-5 w-5 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
+                    <span data-auth-radio-indicator class="relative flex h-5 w-5 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block peer-focus-visible:border-[#231f20]"></span>
                     Мужской
                 </label>
                 <label class="flex h-full cursor-pointer items-center gap-2 text-[15px] text-[#231f20]">
                     <input class="peer sr-only" type="radio" name="gender" value="female" @checked(old('gender') === 'female') required>
-                    <span class="relative flex h-5 w-5 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block"></span>
+                    <span data-auth-radio-indicator class="relative flex h-5 w-5 items-center justify-center rounded-full border border-[#e5e5e5] bg-white after:hidden after:h-[6px] after:w-[6px] after:rounded-full after:bg-white peer-checked:border-[#dc092e] peer-checked:bg-[#dc092e] peer-checked:after:block peer-focus-visible:border-[#231f20]"></span>
                     Женский
                 </label>
             </div>
-            @error('gender')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
         </fieldset>
 
         <div>
             <label for="auth-register-birth-date" class="mb-1 block text-[15px] font-medium">Дата рождения</label>
-            <input id="auth-register-birth-date" type="date" name="birth_date" value="{{ old('birth_date') }}"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('birth_date') border-[#dc092e] @enderror">
-            @error('birth_date')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+            <input id="auth-register-birth-date" type="date" name="birth_date" value="{{ old('birth_date') }}" max="{{ now()->toDateString() }}"
+                   data-auth-field @if($errors->has('birth_date')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-register-phone" class="mb-1 block text-[15px] font-medium">Телефон <span class="text-[#dc092e]">*</span></label>
-            <input id="auth-register-phone" type="tel" name="phone" value="{{ old('phone') }}" required autocomplete="tel" placeholder="+375..."
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('phone') border-[#dc092e] @enderror">
-            @error('phone')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+            <input id="auth-register-phone" type="tel" name="phone" value="{{ old('phone') }}" maxlength="50" required autocomplete="tel" placeholder="+375..."
+                   data-auth-field @if($errors->has('phone')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-register-email" class="mb-1 block text-[15px] font-medium">Email <span class="text-[#dc092e]">*</span></label>
             <input id="auth-register-email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('email') border-[#dc092e] @enderror">
-            @error('email')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+                   data-auth-field @if($errors->has('email')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-register-password" class="mb-1 block text-[15px] font-medium">Пароль <span class="text-[#dc092e]">*</span></label>
-            <input id="auth-register-password" type="password" name="password" required autocomplete="new-password"
-                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20] @error('password') border-[#dc092e] @enderror">
-            @error('password')<p class="mt-1 text-[13px] text-[#dc092e]">{{ $message }}</p>@enderror
+            <input id="auth-register-password" type="password" name="password" required minlength="8" autocomplete="new-password"
+                   data-auth-field data-auth-password
+                   @if($errors->has('password')) data-auth-server-invalid @endif
+                   class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <div>
             <label for="auth-register-password-confirmation" class="mb-1 block text-[15px] font-medium">Повторите пароль <span class="text-[#dc092e]">*</span></label>
             <input id="auth-register-password-confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
+                   data-auth-field data-auth-password-confirmation
+                   @if($errors->has('password')) data-auth-server-invalid @endif
                    class="h-[42px] w-full rounded-[10px] border border-[#bdbcbd] px-3 text-[15px] outline-none focus:border-[#231f20]">
         </div>
 
         <button type="submit"
-                class="h-[48px] w-full cursor-pointer rounded-[10px] bg-[#dc092e] text-[15px] font-semibold text-white transition-colors hover:bg-[#a80723]">
+                disabled
+                data-auth-submit
+                class="h-[48px] w-full cursor-not-allowed rounded-[10px] border border-[#bdbbbc] bg-[#bdbbbc] text-[15px] font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed disabled:border-[#bdbbbc] disabled:bg-[#bdbbbc] disabled:hover:border-[#bdbbbc] disabled:hover:bg-[#bdbbbc] enabled:cursor-pointer enabled:border-[#dc092e] enabled:bg-[#dc092e] enabled:hover:border-[#a80723] enabled:hover:bg-[#a80723]">
             Создать аккаунт
         </button>
 

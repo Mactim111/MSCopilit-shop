@@ -14,7 +14,6 @@ class LoginController extends Controller
         $previousUrl = url()->previous();
         $previousHost = parse_url($previousUrl, PHP_URL_HOST);
         $previousPath = parse_url($previousUrl, PHP_URL_PATH);
-        $loginPath = parse_url(route('login'), PHP_URL_PATH);
         $previousPathNormalized = rtrim((string) $previousPath, '/');
         $isAuthPage = in_array($previousPathNormalized, [
             '/login',
@@ -22,22 +21,47 @@ class LoginController extends Controller
             '/forgot-password',
             '/email/verify',
         ], true) || str_starts_with($previousPathNormalized, '/reset-password/');
+        $modalReturnUrl = null;
 
         if (
             $previousHost !== null
             && strcasecmp($previousHost, $request->getHost()) === 0
             && $previousPath !== null
-            && rtrim($previousPath, '/') !== rtrim($loginPath, '/')
             && !$isAuthPage
         ) {
             $query = parse_url($previousUrl, PHP_URL_QUERY);
-            $intendedUrl = $previousPath . ($query ? "?{$query}" : '');
-            $request->session()->put('url.intended', $intendedUrl);
+            $modalReturnUrl = $previousPath . ($query ? "?{$query}" : '');
+            $request->session()->put('url.intended', $modalReturnUrl);
+        } else {
+            $intendedUrl = $request->session()->get('url.intended');
+            $intendedParts = is_string($intendedUrl) ? parse_url($intendedUrl) : false;
+            $intendedHost = is_array($intendedParts) ? ($intendedParts['host'] ?? null) : null;
+            $intendedPath = is_array($intendedParts) ? ($intendedParts['path'] ?? null) : null;
+
+            if (
+                $intendedPath !== null
+                && str_starts_with($intendedPath, '/')
+                && !str_starts_with($intendedPath, '//')
+                && ($intendedHost === null || strcasecmp($intendedHost, $request->getHost()) === 0)
+                && $this->isProtectedAreaPath($intendedPath)
+            ) {
+                $modalReturnUrl = $intendedPath;
+                if (!empty($intendedParts['query'])) {
+                    $modalReturnUrl .= '?' . $intendedParts['query'];
+                }
+            }
         }
 
-        return redirect()
-            ->to($intendedUrl ?? route('home'))
-            ->with('auth_modal', 'login');
+        $modalReturnUrl ??= route('home');
+
+        if ($this->isProtectedAreaPath((string) parse_url($modalReturnUrl, PHP_URL_PATH))) {
+            return redirect()->route('home')->with([
+                'auth_modal' => 'login',
+                'auth_return_to' => $modalReturnUrl,
+            ]);
+        }
+
+        return redirect()->to($modalReturnUrl)->with('auth_modal', 'login');
     }
 
     public function login(Request $request)
@@ -53,7 +77,15 @@ class LoginController extends Controller
 
             // 2. Затем обновляем ID сессии (защита от фиксации сессии)
             $request->session()->regenerate();
-            return redirect()->intended($this->localReturnUrl($request));
+            $returnUrl = $this->localReturnUrl($request);
+
+            if ($request->has('_auth_return_to')) {
+                $request->session()->forget('url.intended');
+
+                return redirect()->to($returnUrl);
+            }
+
+            return redirect()->intended($returnUrl);
         }
 
         return back()->withErrors([
@@ -64,11 +96,24 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $previousUrl = url()->previous();
-        $previousHost = parse_url($previousUrl, PHP_URL_HOST);
-        $currentHost = $request->getHost();
+        $previousParts = parse_url($previousUrl);
+        $previousHost = $previousParts['host'] ?? null;
+        $previousPath = $previousParts['path'] ?? null;
+        $isProtectedArea = $this->isProtectedAreaPath($previousPath);
 
-        if ($previousHost !== null && strcasecmp($previousHost, $currentHost) !== 0) {
-            $previousUrl = url('/');
+        if (
+            ($previousHost !== null && strcasecmp($previousHost, $request->getHost()) !== 0)
+            || $previousPath === null
+            || !str_starts_with($previousPath, '/')
+            || str_starts_with($previousPath, '//')
+            || $isProtectedArea
+        ) {
+            $previousUrl = route('home');
+        } else {
+            $previousUrl = $previousPath;
+            if (!empty($previousParts['query'])) {
+                $previousUrl .= '?' . $previousParts['query'];
+            }
         }
 
         Auth::logout();
@@ -95,5 +140,14 @@ class LoginController extends Controller
         }
 
         return $returnUrl;
+    }
+
+    private function isProtectedAreaPath(?string $path): bool
+    {
+        return in_array($path, ['/profile', '/admin'], true)
+            || ($path !== null && (
+                str_starts_with($path, '/profile/')
+                || str_starts_with($path, '/admin/')
+            ));
     }
 }
